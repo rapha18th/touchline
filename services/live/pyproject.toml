@@ -1,0 +1,28 @@
+[project]
+name = "touchline-live"
+version = "0.1.0"
+description = "Live state, cue feed, match MCP server and the verified agent crew"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.0",
+    "agent-framework==1.20.0",
+    "mcp>=1.30,<2",
+    "azure-identity>=1.26",
+    "pydantic>=2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["touchline_live", "touchline_live.crew"]
+
+[tool.setuptools.package-data]
+touchline_live = ["pass_difficulty.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

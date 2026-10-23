@@ -588,6 +588,8 @@ class Match:
              "zone": P.zone(*a_tf), "end_zone": P.zone(*target)}
         if set_piece:
             q["set_piece"] = set_piece
+        tgt_abs = self.tf(team, target)
+        q["target_x"], q["target_y"] = round(float(tgt_abs[0]), 2), round(float(tgt_abs[1]), 2)
         v_ground = min(11.0 + 0.45 * L, 27.0)
         speed = (L / o["secs"]) if lofted else v_ground
         q["ball_speed_kmh"] = round(speed * 3.6, 1)
@@ -655,7 +657,9 @@ class Match:
             outcome, then, who = "complete", "header", da[0]
         else:
             outcome, then, who = "incomplete", "clear", dd[0]
-        ev = self.emit("pass", slot, outcome=outcome, start=start, end=end_abs, q={**q, "recipient": self.pid(who)},
+        ev = self.emit("pass", slot, outcome=outcome, start=start, end=end_abs,
+                       q={**q, "recipient": self.pid(da[0]), "won_by": self.pid(who),
+                          "target_x": round(float(end_abs[0]), 2), "target_y": round(float(end_abs[1]), 2)},
                        truth={"p_success": round(p_att, 4)}, t_end=self.clock() + secs)
         self.launch("cross", start, [*end_abs, 1.8], secs, 4.0 + 0.1 * L, 1.0,
                     {"then": then, "who": who, "team": team, "ev": ev["id"], "chaser": who, "meet": end_abs})

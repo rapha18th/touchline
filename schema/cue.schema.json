@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://touchline.dev/schema/cue/1",
+  "title": "Touchline cue",
+  "description": "One timed, machine-readable instruction for a graphics renderer or a viewer app. A renderer shows the cue at match_s for ttl_s seconds, filtered by audience. Every claim a cue makes cites the event ids it rests on; verified says the Verifier checked them.",
+  "type": "object",
+  "required": ["schema", "id", "match_id", "kind", "match_s", "frame", "priority", "ttl_s", "audience", "payload", "sources", "verified"],
+  "properties": {
+    "schema": {"const": "touchline.cue/1"},
+    "id": {"type": "string"},
+    "match_id": {"type": "string"},
+    "kind": {
+      "type": "string",
+      "enum": ["scorebug", "stat", "player_tag", "pass_card", "shot_card", "insight", "line", "momentum", "milestone", "replay", "recap"],
+      "description": "scorebug: score and clock. stat: one team or match number. player_tag: name tag with speed or distance. pass_card / shot_card: metrics of one action. insight: why a moment matters. line: a commentary line. momentum: control vs chaos and pressure state. milestone: a player or team landmark. replay: a replay request. recap: half-time or full-time story."
+    },
+    "period": {"type": "integer", "enum": [1, 2]},
+    "match_s": {"type": "number", "description": "match clock in seconds; period 2 starts at 2700"},
+    "frame": {"type": "integer", "description": "global 25 Hz tracking frame the cue is anchored to"},
+    "priority": {"type": "integer", "minimum": 0, "maximum": 3, "description": "3 interrupts, 0 fills"},
+    "ttl_s": {"type": "number", "minimum": 0},
+    "audience": {
+      "type": "object",
+      "properties": {
+        "personas": {"type": "array", "items": {"enum": ["all", "analyst", "casual", "studio"]}},
+        "team": {"type": ["string", "null"]},
+        "player": {"type": ["string", "null"]},
+        "metric": {"type": ["string", "null"]}
+      }
+    },
+    "lang": {"type": "string", "default": "en"},
+    "anchor": {
+      "type": ["object", "null"],
+      "description": "where on the pitch the graphic attaches, metres",
+      "properties": {"x": {"type": "number"}, "y": {"type": "number"}, "player": {"type": ["string", "null"]}}
+    },
+    "payload": {"type": "object"},
+    "sources": {"type": "array", "items": {"type": "integer"}},
+    "verified": {"type": "boolean"},
+    "author": {"type": "string", "description": "the service or agent that wrote the cue"}
+  }
+}
