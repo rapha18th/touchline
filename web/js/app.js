@@ -113,7 +113,7 @@ function physical(pid, ms) {
     const t = f < M.nFrames[0] ? f / hz : HALF + (f - M.nFrames[0]) / hz;
     const s = slotOf(pid, t);
     if (s === null) { focusCache.last = null; continue; }
-    const x = M.frames[f * 48 + s * 2] / 100, y = M.frames[f * 48 + s * 2 + 1] / 100;
+    const x = M.frames[f * 48 + s * 2] / M.scale, y = M.frames[f * 48 + s * 2 + 1] / M.scale;
     if (focusCache.last && focusCache.last.s === s && f !== M.nFrames[0]) {
       const d = Math.hypot(x - focusCache.last.x, y - focusCache.last.y);
       if (d < 1.2) { focusCache.dist += d; focusCache.speed = d * hz * 3.6; focusCache.top = Math.max(focusCache.top, Math.min(focusCache.speed, 37)); }

@@ -35,7 +35,8 @@ ROOT = Path(__file__).resolve().parents[3]
 DATA = Path(os.environ.get("TOUCHLINE_DATA", ROOT / "data" / "matches"))
 BROADCASTS = Path(os.environ.get("TOUCHLINE_BROADCASTS", ROOT / "broadcasts"))
 WEB = Path(os.environ.get("TOUCHLINE_WEB", ROOT / "web"))
-STEP = 2                                    # 25 Hz -> 12.5 Hz for the browser
+STEP = 4                                    # 25 Hz -> 6.25 Hz for the browser, which interpolates
+UNIT = 10                                   # decimetres: small integers compress well
 CREW = os.environ.get("TOUCHLINE_CREW", "1") == "1"
 
 app = FastAPI(title="Touchline")
@@ -83,7 +84,7 @@ def matches():
 def meta(mid: str):
     m = match(mid)
     md = dict(m.meta)
-    md["stream"] = {"hz": FPS / STEP, "step": STEP, "frames": [int(np.ceil(n / STEP)) for n in m.period_frames]}
+    md["stream"] = {"hz": FPS / STEP, "step": STEP, "scale": UNIT, "frames": [int(np.ceil(n / STEP)) for n in m.period_frames]}
     return md
 
 
@@ -96,7 +97,7 @@ def tracking(mid: str):
         for n in m.period_frames:
             parts.append(m.frames[start:start + n:STEP])
             start += n
-        arr = np.round(np.concatenate(parts) * 100).astype("<i2")
+        arr = np.round(np.concatenate(parts) * UNIT).astype("<i2")
         _cache[key] = arr.tobytes()
     return Response(_cache[key], media_type="application/octet-stream",
                     headers={"Cache-Control": "public, max-age=86400"})
@@ -178,15 +179,19 @@ class Channel:
                             await build(record, self.push).run(job)
                         except Exception as exc:
                             await self.send_all({"type": "crew_error", "kind": job.kind, "error": f"{type(exc).__name__}"})
-            # Fast-forward silently to the start point, then play live.
+            # Catch the state up to the start point at full speed, then play live from there.
+            for it in feed.items(m, track_every=25, end_s=self.start_s):
+                if it.kind == "event":
+                    st.apply(it.payload)
+                else:
+                    st.track(it.frame, it.payload, it.period, it.t)
+            await asyncio.sleep(0)
             last_clock = 0.0
-            async for it in feed.stream(m, speed=self.speed, track_every=5):
+            async for it in feed.stream(m, speed=self.speed, track_every=5, start_s=self.start_s):
                 if it.kind == "event":
                     cues, moments = st.apply(it.payload)
                 else:
                     cues, moments = st.track(it.frame, it.payload, it.period, it.t), []
-                if it.match_s < self.start_s:
-                    continue
                 for c in cues:
                     self.push(c)
                 if CREW:

@@ -4,6 +4,7 @@
 #
 #   bash infra/deploy.sh            # uses the defaults below
 set -euo pipefail
+export MSYS_NO_PATHCONV=1   # Git Bash would rewrite /subscriptions/... scopes into file paths
 
 RG=${RG:-rg-touchline}
 LOC=${LOC:-swedencentral}
@@ -14,7 +15,15 @@ AI=${AI:-touchline-ai-rm}
 TAG=${TAG:-$(git rev-parse --short HEAD)}
 
 az acr show -n "$ACR" -g "$RG" >/dev/null 2>&1 || az acr create -n "$ACR" -g "$RG" -l "$LOC" --sku Basic --output none
-az acr build -r "$ACR" -t "touchline:$TAG" . --output none
+export PYTHONIOENCODING=utf-8
+if [ -z "${SKIP_BUILD:-}" ]; then
+  # Queue the build without streaming its log (the Windows console cannot print every glyph pip
+  # emits), then wait for it.
+  RUN=$(az acr build -r "$ACR" -t "touchline:$TAG" . --no-wait --query runId -o tsv)
+  echo "acr build run $RUN"
+  until s=$(az acr task show-run -r "$ACR" --run-id "$RUN" --query status -o tsv) && [[ "$s" =~ ^(Succeeded|Failed|Canceled|Error|Timeout)$ ]]; do sleep 15; done
+  echo "build $s"; [ "$s" = Succeeded ] || exit 1
+fi
 IMAGE="$ACR.azurecr.io/touchline:$TAG"
 
 az containerapp env show -n "$ENV_NAME" -g "$RG" >/dev/null 2>&1 || \
@@ -28,8 +37,8 @@ fi
 PRINCIPAL=$(az containerapp show -n "$APP" -g "$RG" --query identity.principalId -o tsv)
 ACR_ID=$(az acr show -n "$ACR" -g "$RG" --query id -o tsv)
 AI_ID=$(az cognitiveservices account show -n "$AI" -g "$RG" --query id -o tsv)
-az role assignment create --assignee-object-id "$PRINCIPAL" --assignee-principal-type ServicePrincipal --role AcrPull --scope "$ACR_ID" --output none 2>/dev/null || true
-az role assignment create --assignee-object-id "$PRINCIPAL" --assignee-principal-type ServicePrincipal --role "Cognitive Services OpenAI User" --scope "$AI_ID" --output none 2>/dev/null || true
+az role assignment create --assignee-object-id "$PRINCIPAL" --assignee-principal-type ServicePrincipal --role AcrPull --scope "$ACR_ID" --output none
+az role assignment create --assignee-object-id "$PRINCIPAL" --assignee-principal-type ServicePrincipal --role "Cognitive Services OpenAI User" --scope "$AI_ID" --output none
 az containerapp registry set -n "$APP" -g "$RG" --server "$ACR.azurecr.io" --identity system --output none
 az containerapp update -n "$APP" -g "$RG" --image "$IMAGE" \
   --set-env-vars TOUCHLINE_AI_ENDPOINT="https://$AI.openai.azure.com/" TOUCHLINE_CREW=1 --output none

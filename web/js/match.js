@@ -20,8 +20,9 @@ export class Match {
   constructor(meta, events, frames) {
     this.meta = meta;
     this.events = events;
-    this.frames = frames;                         // (F, 24, 2) int16 cm, 12.5 Hz
+    this.frames = frames;                         // (F, 24, 2) int16 in 1/scale metres
     this.hz = meta.stream.hz;
+    this.scale = meta.stream.scale || 100;
     this.nFrames = meta.stream.frames;            // per period, at 12.5 Hz
     this.len = meta.periods.map((p) => p.length_s);
     this.players = {};
@@ -61,7 +62,7 @@ export class Match {
     const total = this.nFrames[0] + this.nFrames[1];
     const i0 = Math.min(Math.floor(f), total - 1), i1 = Math.min(i0 + 1, total - 1), a = f - i0;
     const stride = 48, b0 = i0 * stride, b1 = i1 * stride, fr = this.frames;
-    for (let k = 0; k < 48; k++) out[k] = (fr[b0 + k] * (1 - a) + fr[b1 + k] * a) / 100;
+    for (let k = 0; k < 48; k++) out[k] = (fr[b0 + k] * (1 - a) + fr[b1 + k] * a) / this.scale;
     return out;
   }
 

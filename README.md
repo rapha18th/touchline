@@ -17,7 +17,9 @@ Built for Inside the Game, the Microsoft and Premier League developer hackathon.
 | Pass difficulty from tracking alone | 0.95 correlation with the engine's truth on held-out matches |
 | Match MCP server | working |
 | Agent crew on Microsoft Agent Framework, with the Verifier | working |
-| Pitch view, broadcast overlay, personas | next |
+| Fan app: 3D pitch, personas, player focus, one metric, three languages | working |
+| Broadcast overlay page for a browser source | working |
+| Azure Container Apps with a managed identity | deploying |
 | Auto-eventing from rendered video | planned |
 
 ## How a moment becomes a line
@@ -49,6 +51,24 @@ On a goal, a verified caption airs at once from the record; the crew's lines fol
 
 The state service replays a full match in about 5 seconds, under 0.4 ms per item at the 99th percentile.
 A full match sends 22 moments through the crew with 114 MCP calls. The Verifier runs in about 20 ms.
+
+## One match, a broadcast for every fan
+
+The fan app plays a match on a floodlit 3D pitch and builds the graphics from the cue stream.
+
+- **Watch as** an analyst (tactical camera, xG, pass cards that say why a pass was hard, the control index, pressing), a casual fan (broadcast camera, plain words, the name of whoever has the ball), or the studio (clean captions).
+- **Your club** narrows the player list and tints the story.
+- **Follow a player**: the camera rides with them, a ring marks them, and a live line builds from the event log and the tracking: passes and accuracy, shots and xG, distance and top speed.
+- **One number all match**: an xG race, the difficulty of the hardest completed passes, or your player's speed.
+- **Language**: English, Spanish and isiZulu, translated by the crew with every number carried intact.
+- **Recorded or live**: recorded broadcasts replay every cue a live crew run put on air, at the latency it measured; Go live starts a fresh run on the server with the crew working as the match plays.
+
+`/overlay?match=TL-000007&persona=studio&preview=0` serves the same graphics on a transparent page for a vision mixer or a browser source.
+
+```bash
+.venv/Scripts/python -m uvicorn touchline_live.server:app --app-dir services/live --port 8080
+bash infra/deploy.sh        # Azure Container Apps, image built in ACR, keyless Foundry access
+```
 
 ## Pass difficulty
 
