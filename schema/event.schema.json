@@ -1,0 +1,240 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://touchline.dev/schema/event/1",
+  "title": "Touchline match event",
+  "description": "One on-ball or match-state event from the synthetic match engine. Coordinates are metres on a 105 x 68 pitch; the home side attacks +x in period 1. The truth block holds the engine's own probabilities and is for evaluation only: live services must ignore it.",
+  "type": "object",
+  "required": [
+    "match_id",
+    "id",
+    "period",
+    "t",
+    "frame",
+    "type",
+    "possession",
+    "score",
+    "q"
+  ],
+  "properties": {
+    "match_id": {
+      "type": "string",
+      "pattern": "^TL-[0-9]{6}$"
+    },
+    "id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "period": {
+      "type": "integer",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "t": {
+      "type": "number",
+      "minimum": 0,
+      "description": "seconds since the period started"
+    },
+    "t_end": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "when the action resolves; a live feed releases the event at this time"
+    },
+    "frame": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "global tracking frame at 25 Hz"
+    },
+    "team": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "home",
+        "away",
+        null
+      ]
+    },
+    "player": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "period_start",
+        "period_end",
+        "kickoff",
+        "pass",
+        "carry",
+        "dribble",
+        "pressure",
+        "tackle",
+        "interception",
+        "ball_recovery",
+        "clearance",
+        "claim",
+        "shot",
+        "save",
+        "block",
+        "goal",
+        "foul",
+        "card",
+        "offside",
+        "out",
+        "throw_in",
+        "goal_kick",
+        "corner",
+        "free_kick",
+        "penalty",
+        "substitution",
+        "var_check",
+        "treatment"
+      ]
+    },
+    "outcome": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "x": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "y": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "end_x": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "end_y": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "possession": {
+      "type": "integer",
+      "description": "possession chain counter"
+    },
+    "score": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "q": {
+      "type": "object",
+      "description": "qualifiers",
+      "properties": {
+        "length_m": {
+          "type": "number"
+        },
+        "height": {
+          "enum": [
+            "ground",
+            "high"
+          ]
+        },
+        "ball_speed_kmh": {
+          "type": "number"
+        },
+        "shot_speed_kmh": {
+          "type": "number"
+        },
+        "under_pressure": {
+          "type": "boolean"
+        },
+        "recipient": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "xg": {
+          "type": "number"
+        },
+        "distance_m": {
+          "type": "number"
+        },
+        "angle_deg": {
+          "type": "number"
+        },
+        "body_part": {
+          "enum": [
+            "foot",
+            "head"
+          ]
+        },
+        "set_piece": {
+          "type": "string"
+        },
+        "zone": {
+          "type": "string"
+        },
+        "end_zone": {
+          "type": "string"
+        },
+        "restart": {
+          "type": "string"
+        },
+        "on": {
+          "type": "string"
+        },
+        "off": {
+          "type": "string"
+        },
+        "slot": {
+          "type": "integer"
+        }
+      }
+    },
+    "truth": {
+      "type": "object",
+      "properties": {
+        "p_success": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "p_keep": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "p_win": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "xg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "pressure": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    }
+  }
+}

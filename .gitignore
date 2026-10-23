@@ -1,0 +1,11 @@
+.notes/
+.env
+.env.*
+.azure/
+node_modules/
+.venv/
+__pycache__/
+dist/
+data/
+*.mp4
+*.wav
