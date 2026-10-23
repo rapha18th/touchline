@@ -9,3 +9,4 @@ dist/
 data/
 *.mp4
 *.wav
+*.egg-info/
