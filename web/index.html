@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Touchline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/web/css/touchline.css">
+<link rel="stylesheet" href="/web/css/app.css">
+<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js"}}</script>
+</head>
+<body>
+<main id="stage">
+  <canvas id="pitch"></canvas>
+  <div id="tags" class="gfx"></div>
+  <div id="gfx" class="gfx"></div>
+  <div id="interval" hidden><span>Half time</span></div>
+</main>
+
+<aside id="rail" aria-label="Your broadcast">
+  <header><span class="brand">Touchline</span><span class="synthetic">synthetic match</span></header>
+  <section>
+    <h2>Watch as</h2>
+    <div class="seg" id="persona" role="group">
+      <button data-v="analyst">Analyst</button><button data-v="casual">Casual fan</button><button data-v="studio">Studio</button>
+    </div>
+    <p class="hint" id="persona-hint"></p>
+  </section>
+  <section>
+    <h2>Your club</h2>
+    <div class="seg" id="club" role="group"></div>
+  </section>
+  <section>
+    <h2>Follow a player</h2>
+    <select id="player"><option value="">Nobody in particular</option></select>
+    <div id="focus" class="focus" hidden></div>
+  </section>
+  <section>
+    <h2>One number all match</h2>
+    <select id="metric">
+      <option value="">None</option>
+      <option value="xg">Expected goals race</option>
+      <option value="pass_difficulty">Pass difficulty</option>
+      <option value="speed">Speed of your player</option>
+    </select>
+    <canvas id="spark" width="560" height="140" hidden></canvas>
+  </section>
+  <section>
+    <h2>Language</h2>
+    <div class="seg" id="lang" role="group">
+      <button data-v="en">English</button><button data-v="es">Español</button><button data-v="zu">isiZulu</button>
+    </div>
+  </section>
+  <section>
+    <h2>Camera</h2>
+    <div class="seg" id="camera" role="group">
+      <button data-v="broadcast">Broadcast</button><button data-v="tactical">Tactical</button><button data-v="player">Player</button>
+    </div>
+  </section>
+  <footer id="about"></footer>
+</aside>
+
+<nav id="transport">
+  <button id="play" aria-label="Play">▶</button>
+  <span id="time" class="num">0:00</span>
+  <div id="scrub"><div id="marks"></div><input id="seek" type="range" min="0" max="5700" step="1" value="0" aria-label="Match time"></div>
+  <div class="seg small" id="speed" role="group"><button data-v="1">1×</button><button data-v="2">2×</button><button data-v="4">4×</button><button data-v="8">8×</button></div>
+  <div class="seg small" id="source" role="group"><button data-v="recorded">Recorded</button><button data-v="live">Go live</button></div>
+  <button id="toggle-rail" aria-label="Your view">Your view</button>
+</nav>
+
+<div id="picker" hidden>
+  <div class="sheet">
+    <h1>Touchline</h1>
+    <p class="lede">A studio crew of AI agents explains every moment of a synthetic match, proves each line against the event log, and builds a different broadcast for every fan.</p>
+    <div id="list"></div>
+  </div>
+</div>
+<div id="loading">Loading the match</div>
+<script type="module" src="/web/js/app.js"></script>
+</body>
+</html>

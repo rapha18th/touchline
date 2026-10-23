@@ -1,0 +1,70 @@
+/* Fan app chrome: stage, rail and transport. */
+#stage { position: fixed; inset: 0; right: var(--rail, 340px); bottom: 64px; transition: right .25s ease; }
+body.rail-closed { --rail: 0px; }
+#pitch { width: 100%; height: 100%; display: block; }
+#tags { overflow: hidden; }
+#interval { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(7, 11, 9, .55); }
+#interval span { font: 700 44px/1 var(--display); letter-spacing: .08em; text-transform: uppercase; }
+
+#rail {
+  position: fixed; top: 0; right: 0; bottom: 64px; width: 340px; overflow-y: auto; background: var(--plate-solid);
+  border-left: 1px solid var(--line); padding: 18px max(16px, env(safe-area-inset-right, 0px)) 24px 18px; display: grid; gap: 18px; align-content: start;
+  transition: transform .25s ease;
+}
+body.rail-closed #rail { transform: translateX(100%); }
+#rail header { display: flex; align-items: baseline; justify-content: space-between; }
+.brand { font: 700 28px/1 var(--display); letter-spacing: .06em; text-transform: uppercase; }
+.synthetic { font: 500 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--amber); }
+#rail h2 { font: 600 11.5px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin: 0 0 8px; }
+#rail section { display: grid; }
+.hint { margin: 8px 0 0; font-size: 12.5px; color: var(--chalk-dim); }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; background: rgba(241, 240, 232, .05); border-radius: 6px; padding: 3px; }
+.seg button { flex: 1; border: 0; background: transparent; padding: 8px 6px; border-radius: 4px; cursor: pointer; font-size: 13.5px; color: var(--chalk-dim); }
+.seg button[aria-pressed="true"] { background: var(--chalk); color: #0b120e; font-weight: 600; }
+.seg button:focus-visible, select:focus-visible, #transport button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.seg.small button { padding: 6px 8px; font-size: 12.5px; }
+select { background: rgba(241, 240, 232, .06); border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px; }
+select option { background: #0b120e; }
+.focus { margin-top: 10px; border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; display: grid; gap: 2px; }
+.focus .who { font: 700 22px/1.1 var(--display); letter-spacing: .03em; text-transform: uppercase; }
+.focus .role { font: 500 11.5px/1 var(--mono); color: var(--dim); letter-spacing: .08em; margin-bottom: 6px; }
+.focus .row { display: flex; justify-content: space-between; font-size: 13.5px; color: var(--chalk-dim); }
+.focus .row b { color: var(--chalk); font-variant-numeric: tabular-nums; }
+#spark { width: 100%; height: 70px; margin-top: 10px; }
+#about { font-size: 12px; color: var(--dim); line-height: 1.5; }
+
+#transport {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 64px; display: flex; align-items: center; gap: 12px;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(16px, env(safe-area-inset-left, 0px));
+  background: var(--plate-solid); border-top: 1px solid var(--line);
+}
+#transport > button { border: 1px solid var(--line); background: transparent; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+#play { width: 44px; font-size: 16px; }
+#time { min-width: 64px; font: 600 18px/1 var(--display); letter-spacing: .04em; }
+#scrub { position: relative; flex: 1; min-width: 120px; }
+#seek { width: 100%; accent-color: var(--amber); }
+#marks { position: absolute; left: 0; right: 0; top: -6px; height: 6px; pointer-events: none; }
+#marks i { position: absolute; width: 3px; height: 8px; border-radius: 1px; transform: translateX(-50%); }
+
+#picker { position: fixed; inset: 0; background: radial-gradient(ellipse at 50% 0%, #123020 0%, var(--night) 60%); display: grid; place-items: center; z-index: 10; padding: 24px 16px; overflow-y: auto; }
+#picker .sheet { width: min(760px, 100%); display: grid; gap: 18px; }
+#picker h1 { font: 700 clamp(48px, 9vw, 84px)/.9 var(--display); letter-spacing: .04em; text-transform: uppercase; margin: 0; }
+#picker .lede { font-size: 18px; color: var(--chalk-dim); margin: 0; max-width: 60ch; }
+#list { display: grid; gap: 10px; }
+.fixture { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; align-items: center; text-align: left; border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; background: rgba(7, 11, 9, .6); cursor: pointer; color: var(--chalk); }
+.fixture:hover, .fixture:focus-visible { border-color: var(--amber); outline: none; }
+.fixture .teams { font: 700 24px/1.1 var(--display); letter-spacing: .03em; text-transform: uppercase; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.fixture .teams i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; box-shadow: 0 0 0 1px rgba(241,240,232,.35); }
+.fixture .score { font: 700 30px/1 var(--display); font-variant-numeric: tabular-nums; }
+.fixture .sub { grid-column: 1 / -1; font-size: 12.5px; color: var(--dim); }
+.fixture .badge { color: var(--ok); }
+#loading { position: fixed; inset: 0; display: grid; place-items: center; font: 600 20px/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); background: var(--night); z-index: 9; }
+
+@media (max-width: 820px) {
+  #stage { right: 0; }
+  #rail { width: min(340px, 100%); z-index: 5; }
+  body:not(.rail-closed) #stage { right: 0; }
+  #source, #speed { display: none; }
+  .momentum { display: none; }
+  .cards { width: 220px; top: 70px; }
+}

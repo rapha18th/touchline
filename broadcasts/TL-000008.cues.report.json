@@ -1,0 +1,2600 @@
+{
+ "match": "TL-000008",
+ "score": "Northgate FC 3-4 Saltbridge Athletic",
+ "wall_s": 188.1,
+ "state_cues": {
+  "player_tag": 120,
+  "pass_card": 31,
+  "shot_card": 45,
+  "momentum": 14,
+  "stat": 47,
+  "milestone": 10,
+  "scorebug": 7,
+  "instant_line": 7
+ },
+ "crew_jobs": 35,
+ "mcp_calls": 198,
+ "fallbacks": 2,
+ "repairs": 9,
+ "errors": [],
+ "jobs": [
+  {
+   "kind": "hard_pass",
+   "match_s": 27.31,
+   "ms": 13667,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 1130,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 6850
+    },
+    {
+     "role": "narrator",
+     "ms": 3024,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 18,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 2158,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 1130,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 6850
+      },
+      {
+       "role": "narrator",
+       "ms": 3024,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 18,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 2158,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "goal",
+   "match_s": 1389.24,
+   "ms": 15851,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 2970,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 6904
+    },
+    {
+     "role": "narrator",
+     "ms": 3340,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 621,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1995,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "goal",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 2970,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 6904
+      },
+      {
+       "role": "narrator",
+       "ms": 3340,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 621,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1995,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 1388.04,
+   "ms": 18453,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 2970,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 5013
+    },
+    {
+     "role": "narrator",
+     "ms": 3115,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 16,
+     "ok": false,
+     "problems": 1
+    },
+    {
+     "role": "narrator",
+     "ms": 3127,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 15,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 4171,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 2970,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 5013
+      },
+      {
+       "role": "narrator",
+       "ms": 3115,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 16,
+       "ok": false,
+       "problems": 1
+      },
+      {
+       "role": "narrator",
+       "ms": 3127,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 15,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 4171,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_chance",
+   "match_s": 1564.86,
+   "ms": 13178,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 636,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3138
+    },
+    {
+     "role": "narrator",
+     "ms": 3418,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 25,
+     "ok": false,
+     "problems": 1
+    },
+    {
+     "role": "narrator",
+     "ms": 3145,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 15,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 2792,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_chance",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 636,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3138
+      },
+      {
+       "role": "narrator",
+       "ms": 3418,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 25,
+       "ok": false,
+       "problems": 1
+      },
+      {
+       "role": "narrator",
+       "ms": 3145,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 15,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 2792,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 1934.08,
+   "ms": 13522,
+   "fallback": true,
+   "attempts": 2,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 481,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 2713
+    },
+    {
+     "role": "narrator",
+     "ms": 3500,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 17,
+     "ok": false,
+     "problems": 2
+    },
+    {
+     "role": "narrator",
+     "ms": 3017,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 16,
+     "ok": false,
+     "problems": 3
+    },
+    {
+     "role": "fallback",
+     "ms": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 3767,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 3,
+     "fallback": true,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 481,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 2713
+      },
+      {
+       "role": "narrator",
+       "ms": 3500,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 17,
+       "ok": false,
+       "problems": 2
+      },
+      {
+       "role": "narrator",
+       "ms": 3017,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 16,
+       "ok": false,
+       "problems": 3
+      },
+      {
+       "role": "fallback",
+       "ms": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 3767,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 1665.13,
+   "ms": 16751,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 391,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 7129
+    },
+    {
+     "role": "narrator",
+     "ms": 5688,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 20,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 3514,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 391,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 7129
+      },
+      {
+       "role": "narrator",
+       "ms": 5688,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 20,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 3514,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "goal",
+   "match_s": 1937.2,
+   "ms": 10414,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 413,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 4213
+    },
+    {
+     "role": "narrator",
+     "ms": 3534,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 404,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1840,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "goal",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 413,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 4213
+      },
+      {
+       "role": "narrator",
+       "ms": 3534,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 404,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1840,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "milestone",
+   "match_s": 1937.2,
+   "ms": 9298,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 8,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 4384
+    },
+    {
+     "role": "narrator",
+     "ms": 3229,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 22,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1646,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "milestone",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 8,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 4384
+      },
+      {
+       "role": "narrator",
+       "ms": 3229,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 22,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1646,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_chance",
+   "match_s": 2021.31,
+   "ms": 10041,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 405,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3433
+    },
+    {
+     "role": "narrator",
+     "ms": 3301,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 17,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 2876,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_chance",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 405,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3433
+      },
+      {
+       "role": "narrator",
+       "ms": 3301,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 17,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 2876,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "goal",
+   "match_s": 2023.12,
+   "ms": 11980,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 474,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 6389
+    },
+    {
+     "role": "narrator",
+     "ms": 2943,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 466,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1701,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "goal",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 474,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 6389
+      },
+      {
+       "role": "narrator",
+       "ms": 2943,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 466,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1701,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "goal",
+   "match_s": 2224.84,
+   "ms": 9026,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 488,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3620
+    },
+    {
+     "role": "narrator",
+     "ms": 3364,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 16,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1529,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "goal",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 488,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3620
+      },
+      {
+       "role": "narrator",
+       "ms": 3364,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 16,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1529,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 2223.53,
+   "ms": 16136,
+   "fallback": true,
+   "attempts": 2,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 493,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 4122
+    },
+    {
+     "role": "narrator",
+     "ms": 6033,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 367,
+     "ok": false,
+     "problems": 2
+    },
+    {
+     "role": "narrator",
+     "ms": 3234,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 16,
+     "ok": false,
+     "problems": 1
+    },
+    {
+     "role": "fallback",
+     "ms": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1862,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 3,
+     "fallback": true,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 493,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 4122
+      },
+      {
+       "role": "narrator",
+       "ms": 6033,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 367,
+       "ok": false,
+       "problems": 2
+      },
+      {
+       "role": "narrator",
+       "ms": 3234,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 16,
+       "ok": false,
+       "problems": 1
+      },
+      {
+       "role": "fallback",
+       "ms": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1862,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 2700.84,
+   "ms": 12745,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 561,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3347
+    },
+    {
+     "role": "narrator",
+     "ms": 3041,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 20,
+     "ok": false,
+     "problems": 1
+    },
+    {
+     "role": "narrator",
+     "ms": 3852,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 39,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1861,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 561,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3347
+      },
+      {
+       "role": "narrator",
+       "ms": 3041,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 20,
+       "ok": false,
+       "problems": 1
+      },
+      {
+       "role": "narrator",
+       "ms": 3852,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 39,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1861,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_chance",
+   "match_s": 2800.32,
+   "ms": 13395,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 599,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3366
+    },
+    {
+     "role": "narrator",
+     "ms": 3961,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 28,
+     "ok": false,
+     "problems": 1
+    },
+    {
+     "role": "narrator",
+     "ms": 3587,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 19,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1812,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_chance",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 599,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3366
+      },
+      {
+       "role": "narrator",
+       "ms": 3961,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 28,
+       "ok": false,
+       "problems": 1
+      },
+      {
+       "role": "narrator",
+       "ms": 3587,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 19,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1812,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 3140.2799999999997,
+   "ms": 8552,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 598,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 2831
+    },
+    {
+     "role": "narrator",
+     "ms": 2998,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 17,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 2100,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 598,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 2831
+      },
+      {
+       "role": "narrator",
+       "ms": 2998,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 17,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 2100,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_chance",
+   "match_s": 3140.9,
+   "ms": 8929,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 8,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3844
+    },
+    {
+     "role": "narrator",
+     "ms": 3265,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 15,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1789,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_chance",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 8,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3844
+      },
+      {
+       "role": "narrator",
+       "ms": 3265,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 15,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1789,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_save",
+   "match_s": 3221.52,
+   "ms": 10183,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 625,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3069
+    },
+    {
+     "role": "narrator",
+     "ms": 4173,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 20,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 2288,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_save",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 625,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3069
+      },
+      {
+       "role": "narrator",
+       "ms": 4173,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 20,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 2288,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_chance",
+   "match_s": 3221.5299999999997,
+   "ms": 11137,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 10,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3261
+    },
+    {
+     "role": "narrator",
+     "ms": 3133,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 629,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 4096,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_chance",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 10,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3261
+      },
+      {
+       "role": "narrator",
+       "ms": 3133,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 629,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 4096,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 3415.84,
+   "ms": 12287,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 760,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 5251
+    },
+    {
+     "role": "narrator",
+     "ms": 2719,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 15,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 3533,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 760,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 5251
+      },
+      {
+       "role": "narrator",
+       "ms": 2719,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 15,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 3533,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 3903.88,
+   "ms": 8977,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 815,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3458
+    },
+    {
+     "role": "narrator",
+     "ms": 2965,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 15,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1715,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 815,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3458
+      },
+      {
+       "role": "narrator",
+       "ms": 2965,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 15,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1715,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "half_time",
+   "match_s": 2861.72,
+   "ms": 42082,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 642,
+     "mcp_calls": 2
+    },
+    {
+     "role": "recap",
+     "ms": 37457,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 523,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 3453,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "half_time",
+     "cues": 1,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 642,
+       "mcp_calls": 2
+      },
+      {
+       "role": "recap",
+       "ms": 37457,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 523,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 3453,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 4362.37,
+   "ms": 10196,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 845,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3773
+    },
+    {
+     "role": "narrator",
+     "ms": 2919,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 494,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 2157,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 845,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3773
+      },
+      {
+       "role": "narrator",
+       "ms": 2919,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 494,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 2157,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_chance",
+   "match_s": 4547.91,
+   "ms": 10694,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 914,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 2787
+    },
+    {
+     "role": "narrator",
+     "ms": 3204,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 17,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 3766,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_chance",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 914,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 2787
+      },
+      {
+       "role": "narrator",
+       "ms": 3204,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 17,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 3766,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "goal",
+   "match_s": 4610.84,
+   "ms": 12446,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 967,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 4770
+    },
+    {
+     "role": "narrator",
+     "ms": 3690,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 631,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 2366,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "goal",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 967,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 4770
+      },
+      {
+       "role": "narrator",
+       "ms": 3690,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 631,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 2366,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "milestone",
+   "match_s": 4610.84,
+   "ms": 9351,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 10,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 2535
+    },
+    {
+     "role": "narrator",
+     "ms": 3327,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 936,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 2530,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "milestone",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 10,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 2535
+      },
+      {
+       "role": "narrator",
+       "ms": 3327,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 936,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 2530,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 4729.85,
+   "ms": 12617,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 878,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 2827
+    },
+    {
+     "role": "narrator",
+     "ms": 3073,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 19,
+     "ok": false,
+     "problems": 1
+    },
+    {
+     "role": "narrator",
+     "ms": 3827,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 16,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1968,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 878,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 2827
+      },
+      {
+       "role": "narrator",
+       "ms": 3073,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 19,
+       "ok": false,
+       "problems": 1
+      },
+      {
+       "role": "narrator",
+       "ms": 3827,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 16,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1968,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_save",
+   "match_s": 4922.24,
+   "ms": 9036,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 1693,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 2653
+    },
+    {
+     "role": "narrator",
+     "ms": 3078,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 18,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1586,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_save",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 1693,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 2653
+      },
+      {
+       "role": "narrator",
+       "ms": 3078,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 18,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1586,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "goal",
+   "match_s": 4731.4,
+   "ms": 13254,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 923,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 4460
+    },
+    {
+     "role": "narrator",
+     "ms": 3896,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 1074,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 2889,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "goal",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 923,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 4460
+      },
+      {
+       "role": "narrator",
+       "ms": 3896,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 1074,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 2889,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 4982.96,
+   "ms": 18737,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 1031,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3434
+    },
+    {
+     "role": "narrator",
+     "ms": 4669,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 1628,
+     "ok": false,
+     "problems": 2
+    },
+    {
+     "role": "narrator",
+     "ms": 3226,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 1155,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 3572,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 1031,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3434
+      },
+      {
+       "role": "narrator",
+       "ms": 4669,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 1628,
+       "ok": false,
+       "problems": 2
+      },
+      {
+       "role": "narrator",
+       "ms": 3226,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 1155,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 3572,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "goal",
+   "match_s": 5216.32,
+   "ms": 14001,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 2975,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 4225
+    },
+    {
+     "role": "narrator",
+     "ms": 3523,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 1249,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 2006,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "goal",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 2975,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 4225
+      },
+      {
+       "role": "narrator",
+       "ms": 3523,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 1249,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 2006,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_chance",
+   "match_s": 4983.65,
+   "ms": 18779,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 1158,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 5203
+    },
+    {
+     "role": "narrator",
+     "ms": 3664,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 1408,
+     "ok": false,
+     "problems": 3
+    },
+    {
+     "role": "narrator",
+     "ms": 3959,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 648,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 2699,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_chance",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 1158,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 5203
+      },
+      {
+       "role": "narrator",
+       "ms": 3664,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 1408,
+       "ok": false,
+       "problems": 3
+      },
+      {
+       "role": "narrator",
+       "ms": 3959,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 648,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 2699,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "milestone",
+   "match_s": 5216.32,
+   "ms": 9574,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 1022,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3565
+    },
+    {
+     "role": "narrator",
+     "ms": 3201,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 25,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1738,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "milestone",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 1022,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3565
+      },
+      {
+       "role": "narrator",
+       "ms": 3201,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 25,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1738,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 5354.62,
+   "ms": 9662,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 1291,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3465
+    },
+    {
+     "role": "narrator",
+     "ms": 3288,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 21,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1587,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 1291,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3465
+      },
+      {
+       "role": "narrator",
+       "ms": 3288,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 21,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1587,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_chance",
+   "match_s": 5355.969999999999,
+   "ms": 10435,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 1628,
+     "mcp_calls": 2
+    },
+    {
+     "role": "analyst",
+     "ms": 3158
+    },
+    {
+     "role": "narrator",
+     "ms": 4018,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 20,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1601,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_chance",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 1628,
+       "mcp_calls": 2
+      },
+      {
+       "role": "analyst",
+       "ms": 3158
+      },
+      {
+       "role": "narrator",
+       "ms": 4018,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 20,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1601,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "full_time",
+   "match_s": 5955.4,
+   "ms": 38015,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 1268,
+     "mcp_calls": 2
+    },
+    {
+     "role": "recap",
+     "ms": 32054,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 11,
+     "ok": true,
+     "problems": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 4673,
+     "langs": 2
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "full_time",
+     "cues": 1,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 1268,
+       "mcp_calls": 2
+      },
+      {
+       "role": "recap",
+       "ms": 32054,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 11,
+       "ok": true,
+       "problems": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 4673,
+       "langs": 2
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+.git
+.venv
+.notes
+.claude
+**/__pycache__
+**/*.egg-info
+data/runs
+data/*.log
+data/*.jsonl
+reports
+scripts

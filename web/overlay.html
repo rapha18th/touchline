@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Touchline Overlay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/web/css/touchline.css">
+<style>
+  /* A browser source over a live feed: transparent page, graphics only, 1920x1080 by default. */
+  html, body { background: transparent; }
+  body.preview { background: repeating-conic-gradient(#1a1f1c 0% 25%, #141815 0% 50%) 0 0 / 40px 40px; }
+  #gfx { position: fixed; inset: 0; }
+  #gfx .lower { bottom: 60px; }
+  #hint { position: fixed; left: 16px; bottom: 12px; font: 400 12px/1.4 var(--mono); color: var(--dim); }
+</style>
+</head>
+<body>
+<div id="gfx" class="gfx"></div>
+<div id="hint" hidden></div>
+<script type="module">
+import { Graphics } from "/web/js/graphics.js";
+import { HALF, airTime, loadBroadcast } from "/web/js/match.js";
+
+const q = new URLSearchParams(location.search);
+const id = q.get("match"), persona = q.get("persona") || "studio", lang = q.get("lang") || "en";
+const speed = Number(q.get("speed") || 1), mode = q.get("mode") || "recorded";
+if (q.get("preview") !== "0") document.body.classList.add("preview");
+const meta = await fetch(`/api/match/${id}`).then((r) => r.json());
+const g = new Graphics(document.querySelector("#gfx"), meta, { persona, lang, showSources: q.get("sources") === "1" });
+const len1 = meta.periods[0].length_s;
+const clock = (ms) => {
+  const p = ms < HALF ? 1 : 2, t = p === 1 ? ms : ms - HALF, base = p === 1 ? 0 : 45, m = Math.floor(t / 60);
+  return m >= 45 ? `${base + 45}+${m - 44}'` : `${base + m}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
+};
+const hint = document.querySelector("#hint");
+hint.hidden = !document.body.classList.contains("preview");
+hint.textContent = `overlay · ${id} · ${persona} · ${lang} · ${mode} · add ?preview=0 for a transparent browser source`;
+
+if (mode === "live") {
+  const ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws/live/${id}?speed=${speed}&start=${q.get("t") || 0}`);
+  ws.onmessage = (ev) => {
+    const m = JSON.parse(ev.data);
+    if (m.type === "clock") g.clock(clock(m.match_s), m.score);
+    if (m.type === "cue" && m.cue.kind !== "player_tag") g.show(m.cue);
+  };
+} else {
+  const cues = (await loadBroadcast(id)).filter((c) => c.kind !== "player_tag").sort((a, b) => airTime(a) - airTime(b));
+  let T = Number(q.get("t") || 0), i = cues.findIndex((c) => airTime(c) >= T), last = performance.now();
+  if (i < 0) i = cues.length;
+  const tick = (now) => {
+    T += ((now - last) / 1000) * speed; last = now;
+    if (T > len1 && T < HALF) T = HALF;
+    while (i < cues.length && airTime(cues[i]) <= T) g.show(cues[i++]);
+    g.clock(clock(T));
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+</script>
+</body>
+</html>
