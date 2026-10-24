@@ -1,0 +1,71 @@
+{
+ "seeds": "1-24",
+ "model": "gpt-5-mini",
+ "rounds": 2,
+ "trials": 6,
+ "accepted": 0,
+ "promoted": 0,
+ "refused_measured": 6,
+ "refused_for_leaving_band": 6,
+ "refused_before_measuring": 2,
+ "baseline": {
+  "in_band": 11,
+  "distance": 2.0346,
+  "margin": 18.63
+ },
+ "incumbent": {
+  "trial": 0,
+  "dials": {
+   "LOSS": 0.04,
+   "RESIST_FINAL_THIRD": 0.7,
+   "RESIST_SHOOTING_RANGE": 0.28,
+   "BOX_RESIST": 0.7,
+   "SHOT_VALUE": 0.8,
+   "SHOT_RANGE": 33.0,
+   "HEADER_SHOT": 0.55,
+   "SAVED_SHARE": 0.4,
+   "RESTART_PACE": 1.0,
+   "SUB_STOP_S": 0.0,
+   "LATE_STALL": 0.0,
+   "GOAL_STOP_S": 62.0,
+   "TREATMENT": 0.12,
+   "YELLOW_SHARE": 0.19,
+   "RED_STRAIGHT": 0.002,
+   "RED_SECOND": 0.035,
+   "FINISH_LOGIT": 0.0,
+   "BLOCK_SCALE": 1.0,
+   "FOUL_RATE": 1.0
+  },
+  "in_band": 11,
+  "distance": 2.0346,
+  "margin": 18.63,
+  "means": {
+   "goals_per_match": 3.9167,
+   "shots_per_team": 16.4375,
+   "sot_per_team": 6.4167,
+   "goals_per_shot": 0.1184,
+   "sot_share": 0.3926,
+   "fouls_per_team": 11.3333,
+   "corners_per_team": 4.875,
+   "yellows_per_match": 4.1667,
+   "reds_per_match": 0.25,
+   "xg_per_shot": 0.1217,
+   "passes_per_team": 416.0208,
+   "pass_completion": 0.7794,
+   "ball_in_play_min": 62.2999,
+   "match_length_min": 100.3806,
+   "distance_km_outfield": 11.3901,
+   "top_speed_kmh": 30.619
+  },
+  "changed_from_defaults": {}
+ },
+ "path": [
+  {
+   "trial": 0,
+   "round": 0,
+   "in_band": 11,
+   "distance": 2.0346,
+   "margin": 18.63
+  }
+ ]
+}
