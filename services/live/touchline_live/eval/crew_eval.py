@@ -831,6 +831,8 @@ async def report(a, moments: list[dict]):
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(json.dumps(rep, indent=1, ensure_ascii=False), encoding="utf-8")
     print(markdown(rep))
+    print()
+    print(gallery_md(rep))
     return rep, lines
 
 
@@ -854,6 +856,27 @@ def markdown(rep: dict) -> str:
                 cells.append(f"{v:g}")
         rows.append(f"| {lab}{' (paired)' if s['derived_from_A'] else ''} | " + " | ".join(cells) + " |")
     return "\n".join(rows)
+
+
+def gallery_md(rep: dict) -> str:
+    """The failure gallery as markdown: drafts the Verifier blocked, then bad lines that still aired in A."""
+    g = rep["gallery"]
+    out = [f"Blocked drafts in A: {g['blocked_drafts']}. Reasons: " +
+           ", ".join(f"{k} {v}" for k, v in g["blocked_reasons"].items()) + ".", "",
+           "| run | attack | persona | blocked draft | why | aired instead |", "|---|---|---|---|---|---|"]
+    cell = lambda s: (s or "").replace("|", "/").replace("\n", " ")
+    for b in g["blocked"]:
+        out.append(f"| {b['run']} | {b['attack']} | {b['persona'] or ''} | {cell(b['blocked'])} | "
+                   f"{cell('; '.join(b['why']))} | {cell(b['aired_instead'])}{' (fallback)' if b['fallback'] else ''} |")
+    out += ["", f"Lines flagged after airing in A: {len(g['aired_bad_in_A'])}.", "",
+            "| line | attack | text | deterministic | judge |", "|---|---|---|---|---|"]
+    for l in g["aired_bad_in_A"]:
+        det = "; ".join(f"{k}: {', '.join(map(str, v))}" for k, v in l["deterministic"].items())
+        j = l["judge"] or {}
+        jtxt = "ok" if j.get("ok") else f"{', '.join(j.get('errors', []))}: {j.get('note', '')}"
+        out.append(f"| {l['key']} | {l['attack']} | {cell(l['text'])}{' (fallback)' if l['fallback'] else ''} | "
+                   f"{cell(det) or 'clean'} | {cell(jtxt)} |")
+    return "\n".join(out)
 
 
 def show_handcheck(lines: list[dict], moments: list[dict], k: int, seed: int):
