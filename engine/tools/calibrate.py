@@ -46,6 +46,7 @@ BOUNDS = {
     "SAVED_SHARE": (0.3, 0.5, "share of unblocked misses the keeper saves; moves shots on target and on-target share, never goals"),
     "FINISH_LOGIT": (-0.6, 0.3, "shift on every chance's xG logit (the league finishing level); lower means lower xG per shot, fewer goals per shot and fewer goals, and slightly fewer shots because shots look less attractive"),
     "BLOCK_SCALE": (0.8, 1.5, "multiplier on the chance bodies in the lane block a shot; higher means more blocked shots, lower xG per shot, fewer goals, lower on-target share, slightly fewer shots"),
+    "CORNER_DEFLECT": (0.8, 2.0, "multiplier on the chance a saved, blocked or missed shot goes behind for a corner; higher means more corners and slightly less ball in play, nothing else"),
     "FOUL_RATE": (0.8, 1.4, "multiplier on the chance a challenge or tackle is a foul; higher means more fouls, cards and free kicks, and less ball in play"),
     "RESTART_PACE": (0.9, 1.6, "multiplier on the dead time before throw-ins, goal kicks, corners and free kicks; higher means less ball in play"),
     "SUB_STOP_S": (0.0, 60.0, "seconds each substitution window holds up the restart (about 4 to 5 windows a match)"),

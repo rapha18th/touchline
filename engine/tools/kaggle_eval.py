@@ -153,17 +153,25 @@ def run_script(slot: str, render, label: str, log=print, max_wait_s: int = 5400)
     for attempt in (1, 2):
         token = uuid.uuid4().hex[:12]
         d = build(slot, render(token))
+        net_fails = 0
         while True:
             out = _run(["kernels", "push", "-p", str(d)], timeout=300)
-            if "successfully pushed" in out.lower() or "kernel version" in out.lower():
+            low = out.lower()
+            if "successfully pushed" in low or "kernel version" in low:
                 break
-            if "maximum batch cpu session" in out.lower() or "timeout" in out.lower():
+            if "maximum batch cpu session" in low:
                 log(f"{slot}: waiting for a free CPU session ({out.strip()[-80:]})")
                 time.sleep(90)
+                continue
+            if net_fails < 12 and any(w in low for w in ("timeout", "connection", "resolve", "max retries", "temporarily")):
+                net_fails += 1
+                log(f"{slot}: network trouble on push, retry {net_fails} ({out.strip()[-80:]})")
+                time.sleep(45)
                 continue
             raise RuntimeError(f"{slot}: push failed: {out.strip()[-300:]}")
         log(f"{slot}: pushed {label}, attempt {attempt}")
         t0 = time.time()
+        missing_since = None
         time.sleep(60)
         while time.time() - t0 < max_wait_s:
             st = status(slot)
@@ -172,7 +180,9 @@ def run_script(slot: str, render, label: str, log=print, max_wait_s: int = 5400)
                 if data is not None:
                     log(f"{slot}: complete in {data['wall_s']} s on {data['cores']} cores")
                     return data
-                if time.time() - t0 > 240:
+                # Status can lag a fresh push, and a pull can drop on the network: keep polling a while.
+                missing_since = missing_since or time.time()
+                if time.time() - missing_since > 900:
                     log(f"{slot}: complete but the result is missing or stale")
                     break
             elif st in ("ERROR", "CANCELACKNOWLEDGED", "CANCELREQUESTED"):

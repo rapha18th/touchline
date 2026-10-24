@@ -38,6 +38,7 @@ SAVED_SHARE = 0.4             # share of unblocked misses that the keeper saves
 FINISH_LOGIT = 0.0            # shift on every chance's xG logit: the league's finishing level
 BLOCK_SCALE = 1.0             # multiplier on the chance that bodies in the lane block a shot
 FOUL_RATE = 1.0               # multiplier on the chance a challenge or tackle is a foul
+CORNER_DEFLECT = 1.0          # multiplier on the chance a saved, blocked or missed shot goes behind for a corner
 RESTART_PACE = 1.0            # multiplier on the dead time before throw-ins, goal kicks, corners, free kicks
 SUB_STOP_S = 0.0              # seconds a substitution window adds to the stoppage
 LATE_STALL = 0.0              # extra share of dead time when the restarting side leads after the hour
@@ -48,7 +49,7 @@ RED_STRAIGHT = 0.002          # chance a foul is a straight red
 RED_SECOND = 0.035            # chance a foul by a booked player is a second yellow
 
 DIALS = ("LOSS", "RESIST_FINAL_THIRD", "RESIST_SHOOTING_RANGE", "BOX_RESIST", "SHOT_VALUE", "SHOT_RANGE",
-         "HEADER_SHOT", "SAVED_SHARE", "FINISH_LOGIT", "BLOCK_SCALE", "FOUL_RATE", "RESTART_PACE", "SUB_STOP_S", "LATE_STALL", "GOAL_STOP_S", "TREATMENT",
+         "HEADER_SHOT", "SAVED_SHARE", "FINISH_LOGIT", "BLOCK_SCALE", "FOUL_RATE", "CORNER_DEFLECT", "RESTART_PACE", "SUB_STOP_S", "LATE_STALL", "GOAL_STOP_S", "TREATMENT",
          "YELLOW_SHARE", "RED_STRAIGHT", "RED_SECOND")
 
 
@@ -838,7 +839,7 @@ class Match:
         elif outcome == "saved":
             self.emit("save", gk, start=end2, q={"shot": r["ev"]})
             u = self.rng.random()
-            if u < 0.25:
+            if u < min(0.25 * CORNER_DEFLECT, 0.6):
                 self.emit("out", None, dfn, start=end2, q={"restart": "corner"})
                 self.dead("corner", team, self.corner_spot(team, end2), self.rng.normal(31, 6))
             elif u < 0.78:
@@ -850,13 +851,13 @@ class Match:
         elif outcome == "blocked":
             blocker = self.nearest(dfn, end2)
             self.emit("block", blocker, start=end2, q={"shot": r["ev"]})
-            if self.rng.random() < 0.3:
+            if self.rng.random() < min(0.3 * CORNER_DEFLECT, 0.7):
                 self.emit("out", None, dfn, start=end2, q={"restart": "corner"})
                 self.dead("corner", team, self.corner_spot(team, end2), self.rng.normal(31, 6))
             else:
                 self.loose(end2 + self.rng.normal(0, 4, 2))
         else:
-            if self.rng.random() < 0.08:
+            if self.rng.random() < min(0.08 * CORNER_DEFLECT, 0.3):
                 self.emit("out", None, dfn, start=end2, q={"restart": "corner"})
                 self.dead("corner", team, self.corner_spot(team, end2), self.rng.normal(31, 6))
             else:
