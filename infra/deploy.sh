@@ -40,6 +40,9 @@ AI_ID=$(az cognitiveservices account show -n "$AI" -g "$RG" --query id -o tsv)
 az role assignment create --assignee-object-id "$PRINCIPAL" --assignee-principal-type ServicePrincipal --role AcrPull --scope "$ACR_ID" --output none
 az role assignment create --assignee-object-id "$PRINCIPAL" --assignee-principal-type ServicePrincipal --role "Cognitive Services OpenAI User" --scope "$AI_ID" --output none
 az containerapp registry set -n "$APP" -g "$RG" --server "$ACR.azurecr.io" --identity system --output none
-az containerapp update -n "$APP" -g "$RG" --image "$IMAGE" \
+az containerapp update -n "$APP" -g "$RG" --image "$IMAGE" --revision-suffix "r$TAG" --no-wait \
   --set-env-vars TOUCHLINE_AI_ENDPOINT="https://$AI.openai.azure.com/" TOUCHLINE_CREW=1 --output none
+# Poll in short calls: a long-held connection to ARM drops on some networks.
+until s=$(az containerapp show -n "$APP" -g "$RG" --query properties.provisioningState -o tsv 2>/dev/null) && [[ "$s" =~ ^(Succeeded|Failed)$ ]]; do sleep 15; done
+echo "rollout $s"
 echo "https://$(az containerapp show -n "$APP" -g "$RG" --query properties.configuration.ingress.fqdn -o tsv)"
