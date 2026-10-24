@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
 import time
 from collections import Counter
 from pathlib import Path
@@ -20,6 +21,7 @@ from .match_io import load
 from .state import LiveState, Moment
 
 ROOT = Path(__file__).resolve().parents[3]
+DATA = Path(os.environ.get("TOUCHLINE_DATA", ROOT / "data" / "matches"))
 
 # Which moments earn words, and how often.
 ALWAYS = {"goal", "red_card", "half_time", "full_time"}
@@ -57,7 +59,7 @@ def job_for(mo: Moment, st: LiveState, langs: list[str], viewer: dict | None) ->
 
 async def run(match_id: str, *, speed: float, langs: list[str], until: float | None, out: Path,
               concurrency: int = 3, viewer: dict | None = None) -> dict:
-    m = load(ROOT / "data" / "matches" / match_id)
+    m = load(DATA / match_id)
     st = LiveState(m)
     producer = Producer()
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -67,7 +69,7 @@ async def run(match_id: str, *, speed: float, langs: list[str], until: float | N
     sem = asyncio.Semaphore(concurrency)
     t0 = time.perf_counter()
 
-    async with MatchRecord(ROOT / "data" / "matches") as record:
+    async with MatchRecord(DATA) as record:
         async def crew(job: Job):
             async with sem:
                 a = time.perf_counter()
