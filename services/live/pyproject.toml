@@ -9,6 +9,8 @@ dependencies = [
     "mcp>=1.30,<2",
     "azure-identity>=1.26",
     "pydantic>=2",
+    "opentelemetry-sdk==1.45.1",
+    "azure-monitor-opentelemetry-exporter==1.0.0b58",
 ]
 
 [project.optional-dependencies]

@@ -34,20 +34,26 @@ COMMON = {"The", "A", "An", "He", "His", "They", "Their", "That", "This", "What"
 
 
 class MatchRecord:
-    """A long-lived MCP client session to the match server."""
+    """A long-lived MCP client session to the match server: a stdio child process by default, or any
+    streamable HTTP endpoint such as the web service's /mcp when `url` is given."""
 
-    def __init__(self, data_dir: str | Path):
+    def __init__(self, data_dir: str | Path, url: str | None = None):
         self.data_dir = str(data_dir)
+        self.url = url
         self.stack = AsyncExitStack()
         self.session: ClientSession | None = None
         self.calls = 0
 
     async def __aenter__(self):
-        import sys
-        params = StdioServerParameters(command=sys.executable, args=["-m", "touchline_live.mcp_server"],
-                                       env={"TOUCHLINE_DATA": self.data_dir, "PYTHONPATH": str(Path(__file__).resolve().parents[2])},
-                                       cwd=str(Path(__file__).resolve().parents[2]))
-        read, write = await self.stack.enter_async_context(stdio_client(params))
+        if self.url:
+            from mcp.client.streamable_http import streamable_http_client
+            read, write, _ = await self.stack.enter_async_context(streamable_http_client(self.url))
+        else:
+            import sys
+            params = StdioServerParameters(command=sys.executable, args=["-m", "touchline_live.mcp_server"],
+                                           env={"TOUCHLINE_DATA": self.data_dir, "PYTHONPATH": str(Path(__file__).resolve().parents[2])},
+                                           cwd=str(Path(__file__).resolve().parents[2]))
+            read, write = await self.stack.enter_async_context(stdio_client(params))
         self.session = await self.stack.enter_async_context(ClientSession(read, write))
         await self.session.initialize()
         return self
@@ -56,8 +62,13 @@ class MatchRecord:
         await self.stack.aclose()
 
     async def call(self, tool: str, **args):
+        from .. import telemetry
         self.calls += 1
-        res = await self.session.call_tool(tool, args)
+        with telemetry.mcp_call(tool, args) as span:
+            res = await self.session.call_tool(tool, args)
+            if res.isError:
+                span.set_attribute("error.type", "tool_error")
+                raise RuntimeError(f"MCP {tool}: " + "".join(getattr(c, "text", "") for c in res.content))
         if res.structuredContent is not None:
             out = res.structuredContent
             return out.get("result", out) if isinstance(out, dict) else out
