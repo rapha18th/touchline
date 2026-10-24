@@ -111,3 +111,4 @@ body:not(.crew-closed) #stage { left: var(--crew-w); }
   #crewroom { --crew-w: 100%; }
   #toggle-crew { padding: 8px 10px; }
 }
+.cr-err { padding: 0 12px 10px; }

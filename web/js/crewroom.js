@@ -82,6 +82,7 @@ export class CrewRoom {
     this.root = root;
     this.M = M;
     this.list = [];
+    this.errors = [];
     this.count = -1;
     this.open = new Set();
     this.follow = true;           // the newest moment opens itself until the viewer picks one
@@ -129,7 +130,14 @@ export class CrewRoom {
     if (this.visible) this.render();
   }
 
-  reset() { this.list = []; this.count = -1; this.dirty = true; if (this.visible) this.render(); }
+  /** Live mode: a crew run that failed outright (the model could not be reached, say). Nothing aired for it. */
+  failed(msg) {
+    this.errors.push({ key: `err-${msg.kind}-${msg.match_s}`, match_s: msg.match_s ?? 0, kind: msg.kind, error: msg.error });
+    this.dirty = true;
+    if (this.visible) this.render();
+  }
+
+  reset() { this.list = []; this.errors = []; this.count = -1; this.dirty = true; if (this.visible) this.render(); }
 
   render() {
     if (!this.dirty && this.$list.childElementCount) return;
@@ -143,8 +151,14 @@ export class CrewRoom {
       [ms.length, "moments"], [n("first"), "first draft"], [n("repaired"), "repaired"], [n("fallback"), "fallback"],
       [claims, "claims checked"], [mcp, "MCP calls"],
     ].map(([v, k]) => `<div><b class="num">${v}</b><span>${k}</span></div>`).join("") : "";
-    this.$empty.hidden = !!ms.length;
-    this.$list.innerHTML = ms.slice(0, 80).map((m) => this.card(m)).join("");
+    const rows = [...ms, ...this.errors].sort((a, b) => b.match_s - a.match_s);
+    this.$empty.hidden = !!rows.length;
+    this.$list.innerHTML = rows.slice(0, 80).map((m) => (m.error ? this.errorCard(m) : this.card(m))).join("");
+  }
+
+  errorCard(e) {
+    return `<li class="cr-moment"><div class="cr-head"><span class="cr-clock num">${this.M.clock(e.match_s)}</span><span class="cr-kind">${esc(label(e.kind))}</span>
+      <span class="cr-out fallback">Crew error</span></div><p class="cr-note fallback cr-err">${esc(e.error)}. The run stopped before the Verifier, so nothing aired for this moment.</p></li>`;
   }
 
   card(m) {

@@ -299,6 +299,7 @@ function goLive() {
     }
     else if (msg.type === "clock") { T = msg.match_s; gfx.clock(M.clock(T), msg.score); }
     else if (msg.type === "cue") { crew.push(msg.cue); air(msg.cue); }
+    else if (msg.type === "crew_error") crew.failed(msg);
     else if (msg.type === "end") { goRecorded(); }
   };
   ws.onclose = () => { if (view.source === "live") { view.source = "recorded"; markSource?.("recorded"); } };

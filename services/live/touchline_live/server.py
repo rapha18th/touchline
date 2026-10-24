@@ -195,7 +195,7 @@ class Channel:
                         try:
                             await run_job(record, self.push, job)
                         except Exception as exc:
-                            await self.send_all({"type": "crew_error", "kind": job.kind, "error": f"{type(exc).__name__}"})
+                            await self.send_all({"type": "crew_error", "kind": job.kind, "match_s": job.match_s, "error": f"{type(exc).__name__}"})
             # Catch the state up to the start point at full speed, then play live from there.
             for it in feed.items(m, track_every=25, end_s=self.start_s):
                 if it.kind == "event":
