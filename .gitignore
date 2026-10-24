@@ -10,3 +10,4 @@ data/
 *.mp4
 *.wav
 *.egg-info/
+.claude/worktrees/
