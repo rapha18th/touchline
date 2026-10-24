@@ -234,6 +234,23 @@ def measure(vectors: list[dict], seeds: list[int], per_kernel: int = 2, slots: l
             results[r["id"]] = r
     return [results.get(i) for i in range(len(vectors))]
 
+
+def report(vector: dict, seeds: list[int], parts: int = 4, slots: list[str] | None = None, log=print) -> dict:
+    """One dial vector over many seeds, split across kernels; returns a realism report (matches, summary, rows)."""
+    sys.path.insert(0, str(ENGINE.parent))
+    from touchline_engine import realism
+    chunks = [seeds[i::parts] for i in range(parts)]
+    tasks = [(render_sweep([{"id": 0, "dials": vector}], c, f"report part {k}"), f"report part {k} ({len(c)} seeds)")
+             for k, c in enumerate(chunks)]
+    out = run_many(tasks, slots, log)
+    if any(d is None for d in out):
+        raise RuntimeError("a report kernel failed")
+    rows = sorted((r for d in out for r in d["results"][0]["rows"]), key=lambda r: r["seed"])
+    rep = realism.summarise(rows)
+    rep["generated_on"] = {"kernels": [d["kernel"] for d in out], "cores": out[0]["cores"],
+                           "wall_s": [d["wall_s"] for d in out]}
+    return rep
+
 if __name__ == "__main__":
     import argparse
 
@@ -245,9 +262,16 @@ if __name__ == "__main__":
     ap.add_argument("--seeds", default="1-24")
     ap.add_argument("--per-kernel", type=int, default=2)
     ap.add_argument("--out", default=None, help="write the results as JSON here")
+    ap.add_argument("--report", default=None, help="one vector: split the seeds over --parts kernels, write a realism report")
+    ap.add_argument("--parts", type=int, default=4)
     a = ap.parse_args()
     base = sim.dials()
     vecs = [{**base, **json.loads(d)} for d in (a.dials or ["{}"])]
+    if a.report:
+        rep = report(vecs[0], parse_seeds(a.seeds), parts=a.parts)
+        print(realism.table(rep))
+        realism.save(rep, a.report)
+        sys.exit(0)
     res = measure(vecs, parse_seeds(a.seeds), per_kernel=a.per_kernel)
     for v, r in zip(vecs, res):
         if r is None:
