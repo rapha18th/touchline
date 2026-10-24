@@ -107,6 +107,28 @@ def _one(seed: int) -> dict:
 def run(seeds: list[int], workers: int = 4) -> dict:
     with ProcessPoolExecutor(max_workers=workers) as ex:
         rows = list(ex.map(_one, seeds))
+    return summarise(rows)
+
+
+def band_distance(mean: float, lo: float, hi: float) -> float:
+    """How far a mean sits outside its band, in band widths; 0 inside the band."""
+    if mean < lo:
+        return (lo - mean) / (hi - lo)
+    if mean > hi:
+        return (mean - hi) / (hi - lo)
+    return 0.0
+
+
+def score(report: dict) -> dict:
+    """Metrics in band and the summed normalised distance to the bands: what the calibration gate reads."""
+    s = report["summary"]
+    dist = {k: 0.0 if s[k]["pass"] else max(round(band_distance(s[k]["mean"], s[k]["low"], s[k]["high"]), 4), 1e-4)
+            for k in TARGETS}
+    return {"in_band": sum(d == 0 for d in dist.values()), "distance": round(sum(dist.values()), 4),
+            "per_metric": dist}
+
+
+def summarise(rows: list[dict]) -> dict:
     summary = {}
     for name, (lo, hi, src, per) in TARGETS.items():
         vals = [r[name] for r in rows]
