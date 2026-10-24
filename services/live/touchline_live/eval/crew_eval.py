@@ -474,7 +474,18 @@ def judge_record(mo: dict, ctx: dict, squads: dict) -> dict:
             "state": ctx["state"], "clubs": {"home": mo["clubs"][0], "away": mo["clubs"][1]}, "squads": squads}
 
 
-async def judge_moment(agent, mo: dict, ctx: dict, squads: dict, lines: list[dict], seed: int, chunk: int = 14) -> tuple[dict, list]:
+async def _judge_call(agent, msg: str, tries: int = 4):
+    """A judge call that survives this network's dropped connections."""
+    for k in range(tries):
+        try:
+            return await agent.run(msg, options={"response_format": Verdicts, "reasoning": {"effort": "low"}})
+        except Exception as exc:
+            if "Connection error" not in str(exc) or k == tries - 1:
+                raise
+            await asyncio.sleep(10 * (k + 1))
+
+
+async def judge_moment(agent, mo: dict, ctx: dict, squads: dict, lines: list[dict], seed: int, chunk: int = 8) -> tuple[dict, list]:
     """One blinded call per chunk of lines: the judge never sees which condition wrote a line."""
     uniq: dict[str, list[str]] = defaultdict(list)          # text -> keys
     persona = {}
@@ -493,7 +504,7 @@ async def judge_moment(agent, mo: dict, ctx: dict, squads: dict, lines: list[dic
         led = {"llm": [], "verify": []}
         tok = _LEDGER.set(led)
         try:
-            r = await agent.run(msg, options={"response_format": Verdicts, "reasoning": {"effort": "low"}})
+            r = await _judge_call(agent, msg)
             got = {v.id: v for v in r.value.items}
         finally:
             _LEDGER.reset(tok)
@@ -795,6 +806,26 @@ def gallery(runs: list[dict], lines: list[dict], moments: list[dict], k_blocked:
             "blocked": picked, "aired_bad_in_A": aired_bad}
 
 
+def gate_vs_judge(runs: list[dict], lines: list[dict]) -> dict:
+    """A's first drafts under attack (the paired B lines): the Verifier's first verdict on each line, set
+    against the blinded judge and the deterministic checker on the true record. It measures the gate itself:
+    what it blocked that was bad, what it blocked that was fine, and what it passed that was bad."""
+    a_runs = {r["key"]: r for r in runs if r["cond"] == "A" and not r["error"]}
+    cells = defaultdict(lambda: {"n": 0, "judge_bad": 0, "det_bad": 0})
+    for l in lines:
+        a = a_runs.get(f"{l['idx']}:A:{l['attack']}")
+        if l["cond"] != "B" or l["attack"] == "none" or not a or not l.get("judge") or l["judge"]["ok"] is None:
+            continue
+        v = next((v for v in a["verify"] if v["text"] == l["text"]), None)
+        if v is None:
+            continue
+        c = cells["blocked" if not v["ok"] else "passed"]
+        c["n"] += 1
+        c["judge_bad"] += not l["judge"]["ok"]
+        c["det_bad"] += l["det"]["flags"]["any"]
+    return dict(cells)
+
+
 def problem_kind(p: str) -> str:
     for prefix, name in (("number ", "unsupported number"), ("name ", "unknown name"), ("claim failed", "claim failed"),
                          ("banned wording", "banned wording"), ("too long", "too long"), ("missing a line", "missing line")):
@@ -828,6 +859,7 @@ async def report(a, moments: list[dict]):
         "moment_kinds": {k: sum(1 for mo in moments if mo["kind"] == k) for k in sorted({mo["kind"] for mo in moments})},
         "summary": summary,
         "paired_b_runs": len(first),
+        "gate_vs_judge": gate_vs_judge(runs, lines),
         "gallery": gallery(runs, lines, moments),
         "handcheck": {"labels_file": str(HANDCHECK.relative_to(ROOT)).replace("\\", "/"), **agreement(lines, labels)} if labels else None,
         "runs": [{k: r[k] for k in ("key", "cond", "attack", "ms", "error", "fallback", "attempts", "derived")} |
