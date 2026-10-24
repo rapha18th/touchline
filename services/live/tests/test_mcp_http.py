@@ -50,7 +50,7 @@ def test_mcp_lists_only_read_only_tools(record):
         return (await s.list_tools()).tools
     tools = asyncio.run(_with_session(go))
     names = {t.name for t in tools}
-    assert {"list_matches", "match_info", "get_events", "events_between", "state_at", "player_line", "verify_numbers"} == names
+    assert {"list_matches", "match_info", "get_events", "events_between", "state_at", "player_line", "leaders", "verify_numbers"} == names
     for t in tools:
         assert t.annotations.readOnlyHint is True and t.annotations.destructiveHint is False
 
@@ -69,6 +69,23 @@ def test_mcp_state_at_and_get_events_answer_from_the_record(record):
     events = ev.structuredContent["result"]
     assert [e["id"] for e in events] == [0, 1, 2]
     assert all("truth" not in e and "clock" in e for e in events)
+    assert bad.isError
+
+
+def test_leaders_and_leader_claims(record):
+    async def go(s):
+        top = await s.call_tool("leaders", {"match_id": "TL-000023", "stat": "passes", "match_s": 500, "team": "home", "limit": 3})
+        rows = top.structuredContent["result"]
+        claims = [{"kind": "leader", "stat": "passes", "team": "home", "player": rows[0]["id"]},
+                  {"kind": "leader", "stat": "passes", "team": "home", "player": rows[-1]["id"]}]
+        checked = await s.call_tool("verify_numbers", {"match_id": "TL-000023", "match_s": 500, "claims": claims})
+        bad = await s.call_tool("leaders", {"match_id": "TL-000023", "stat": "charisma", "match_s": 500})
+        return rows, checked.structuredContent["result"], bad
+    rows, checked, bad = asyncio.run(_with_session(go))
+    assert len(rows) == 3 and rows[0]["passes"] >= rows[1]["passes"] >= rows[2]["passes"]
+    assert all(r["team"] == rows[0]["team"] for r in rows)
+    assert checked[0]["ok"] is True
+    assert checked[1]["ok"] is (rows[-1]["passes"] == rows[0]["passes"])      # only a tie may share the lead
     assert bad.isError
 
 

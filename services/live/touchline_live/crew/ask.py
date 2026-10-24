@@ -10,7 +10,9 @@ record could not back an answer, and is shown why.
 
 from __future__ import annotations
 
+import asyncio
 import json
+import re
 import time
 
 import httpx
@@ -22,7 +24,9 @@ from . import llm, prompts
 from .models import Claim
 from .verify import MatchRecord, verify_text
 
-TOOLS = ("match_info", "state_at", "events_between", "get_events", "player_line")
+TOOLS = ("match_info", "state_at", "events_between", "get_events", "player_line", "leaders")
+# Words that rank players. The Verifier checks numbers, so a ranking needs its own checkable claim.
+RANKING = re.compile(r"\b(most|least|highest|lowest|fewest|furthest|farthest|fastest|top)\b", re.I)
 MAX_WORDS = 45
 
 INSTRUCTIONS = f"""You answer a fan's question about one synthetic football match, as of a match time the fan is
@@ -33,13 +37,16 @@ Which tool:
 - events_between(from_s=0, to_s=match_s, types=[...]): who did what and when. Types include goal, shot, save,
   card, substitution, corner, foul, offside. Each event has an id, a clock and the player's name.
 - player_line(player, match_s): one player's numbers. match_info: squads, venue, referee.
+- leaders(stat, match_s, team): who leads a stat, best first. Use it for every "who has the most" question, and
+  back the answer with {{"kind": "leader", "stat": "<stat>", "team": "home" | "away" | null, "player": "<id>"}}.
 - get_events(ids): only for ids you already saw in a tool result.
 Answer in one or two short sentences, {MAX_WORDS - 5} words at most, plain and friendly. Give match times
 exactly as the event clock gives them, like 22:48, and cite that event.
 `sources` holds event ids from tool results (their `id` field), never times. Leave it empty when the answer
 rests on state_at alone.
-Never claim a ranking or a superlative (most, furthest, best, only) unless your tool results cover every player
-or event it ranks. If the tools cannot answer the question, say so in one sentence and make no claims.
+Never rank players (most, highest, furthest, top) without a leader claim from the leaders tool.
+Claims are for numbers and rankings only; names and words need none.
+If the tools cannot answer the question, say so in one sentence and make no claims.
 
 {prompts.RULES}"""
 
@@ -75,6 +82,17 @@ def _tool_traffic(messages) -> tuple[list[dict], list]:
     return calls, results
 
 
+async def _run(agent: Agent, prompt: str, tries: int = 3):
+    """One agent run. A dropped connection to the model is retried after a short pause; nothing else is."""
+    for i in range(tries):
+        try:
+            return await agent.run(prompt, options={"response_format": Answer, "reasoning": {"effort": "none"}})
+        except Exception as exc:
+            if i == tries - 1 or "connection" not in str(exc).lower():
+                raise
+            await asyncio.sleep(1.5 * (i + 1))
+
+
 async def ask(question: str, match_id: str, match_s: float, mcp_url: str, *, http_client: httpx.AsyncClient | None = None) -> dict:
     """Answer one question. Returns the answer (or None), its claims and sources, and the whole trace."""
     question = " ".join(question.split())[:300]
@@ -86,13 +104,15 @@ async def ask(question: str, match_id: str, match_s: float, mcp_url: str, *, htt
             info = await record.call("match_info", match_id=match_id)
             roster = [p["name"] for s in ("home", "away") for p in info["squads"][s]]
             clubs = [info["home"], info["away"]]
+            # The referee and the ground are named in the record too.
+            roster += [n for n in (info.get("referee"), info.get("venue")) if n] + [info.get("referee", "").replace(".", "")]
             agent = Agent(client=llm.client(llm.FAST), name="record", instructions=INSTRUCTIONS, tools=[tool])
             prompt = json.dumps({"match_id": match_id, "match_s": round(match_s, 1), "home": clubs[0], "away": clubs[1],
                                  "question": question}, ensure_ascii=False)
             ans = None
             for attempt in range(2):
                 t0 = time.perf_counter()
-                run = await agent.run(prompt, options={"response_format": Answer, "reasoning": {"effort": "none"}})
+                run = await _run(agent, prompt)
                 ans = run.value
                 calls, results = _tool_traffic(run.messages)
                 trace.append({"role": "record", "ms": round((time.perf_counter() - t0) * 1000), "attempt": attempt, "mcp": calls})
@@ -100,6 +120,8 @@ async def ask(question: str, match_id: str, match_s: float, mcp_url: str, *, htt
                 v = await verify_text(record, match_id, match_s, ans.answer, ans.claims, {"tool_results": results},
                                       roster, clubs, max_words=MAX_WORDS)
                 problems = list(v["problems"])
+                if RANKING.search(ans.answer) and not any(c.kind == "leader" for c in ans.claims):
+                    problems.append("a ranking needs a leader claim from the leaders tool")
                 if ans.sources:
                     cited = await record.call("get_events", match_id=match_id, ids=ans.sources[:20])
                     problems += [f"event #{e['id']} is after the viewer's match time" for e in cited or [] if e["match_s"] > match_s + 1]
