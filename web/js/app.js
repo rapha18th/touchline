@@ -1,4 +1,5 @@
 // Touchline fan app: one match, one cue stream, a different broadcast for every viewer.
+import { CrewRoom } from "./crewroom.js";
 import { Graphics } from "./graphics.js";
 import { HALF, airTime, loadBroadcast, loadMatch } from "./match.js";
 import { Pitch } from "./pitch.js";
@@ -21,7 +22,7 @@ const view = {
   persona: store.get("persona", "casual"), lang: store.get("lang", "en"), club: "", player: "", metric: "",
   camera: "broadcast", speed: Number(store.get("speed", 2)), source: "recorded",
 };
-let M, pitch, gfx, cues = [], ptr = 0, T = 0, playing = false, last = performance.now(), activeTags = [], ws = null;
+let M, pitch, gfx, crew, cues = [], ptr = 0, T = 0, playing = false, last = performance.now(), activeTags = [], ws = null;
 
 async function pickMatch() {
   const list = await fetch("/api/matches").then((r) => r.json());
@@ -278,6 +279,7 @@ function goRecorded() {
   view.source = "recorded";
   markSource?.("recorded");
   if (ws) { ws.close(); ws = null; }
+  crew.reset();
   seek(T);
 }
 
@@ -286,13 +288,17 @@ function goLive() {
   markSource?.("live");
   if (ws) ws.close();
   gfx.clear();
+  crew.reset();
   const proto = location.protocol === "https:" ? "wss" : "ws";
   ws = new WebSocket(`${proto}://${location.host}/ws/live/${M.meta.match_id}?speed=${view.speed}&start=${Math.floor(T)}`);
   ws.onmessage = (ev) => {
     const msg = JSON.parse(ev.data);
-    if (msg.type === "hello") { (msg.recent || []).filter((c) => c.kind === "momentum").slice(-1).forEach((c) => gfx.show(c)); }
+    if (msg.type === "hello") {
+      (msg.recent || []).filter((c) => c.kind === "momentum").slice(-1).forEach((c) => gfx.show(c));
+      (msg.recent || []).forEach((c) => crew.push(c));
+    }
     else if (msg.type === "clock") { T = msg.match_s; gfx.clock(M.clock(T), msg.score); }
-    else if (msg.type === "cue") air(msg.cue);
+    else if (msg.type === "cue") { crew.push(msg.cue); air(msg.cue); }
     else if (msg.type === "end") { goRecorded(); }
   };
   ws.onclose = () => { if (view.source === "live") { view.source = "recorded"; markSource?.("recorded"); } };
@@ -306,6 +312,7 @@ function frame(now) {
   last = now;
   if (view.source === "live" && playing) T += dt * view.speed;     // smooth between server clocks
   advance(dt);
+  if (view.source === "recorded") crew.sync(cues, ptr);
   pitch.period = T < HALF ? 1 : 2;
   pitch.resize();
   const focus = view.player ? slotOf(view.player, T) : null;
@@ -331,12 +338,16 @@ async function main() {
   gfx = new Graphics($("#gfx"), M.meta, { persona: view.persona, lang: view.lang });
   buildRail();
   applyPersona(view.persona);
+  crew = new CrewRoom($("#crewroom"), M);
+  $("#toggle-crew").onclick = () => { crew.toggle(); store.set("crew", crew.visible ? "1" : "0"); };
+  if ((qs.get("crew") ?? store.get("crew", "0")) === "1") crew.toggle(true);
   $("#seek").max = String(M.end);
   $("#marks").innerHTML = M.goals.map((g) => `<i style="left:${(100 * g.ms) / M.end}%;background:${M.meta[g.team].kit.primary}" title="${M.name(g.player)} ${M.clock(g.ms)}"></i>`).join("");
   $("#seek").oninput = (e) => { if (view.source === "live") goRecorded(); seek(Number(e.target.value)); };
   $("#play").onclick = () => { playing = !playing; $("#play").textContent = playing ? "❚❚" : "▶"; };
   document.addEventListener("keydown", (e) => {
-    if (e.target.tagName === "SELECT") return;
+    if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
+    if (e.code === "KeyC") $("#toggle-crew").click();
     if (e.code === "Space") { e.preventDefault(); $("#play").click(); }
     if (e.code === "ArrowRight") seek(T + 15);
     if (e.code === "ArrowLeft") seek(T - 15);

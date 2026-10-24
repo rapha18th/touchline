@@ -9,15 +9,18 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/web/css/touchline.css">
 <link rel="stylesheet" href="/web/css/app.css">
+<link rel="stylesheet" href="/web/css/crewroom.css">
 <script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js"}}</script>
 </head>
-<body>
+<body class="crew-closed">
 <main id="stage">
   <canvas id="pitch"></canvas>
   <div id="tags" class="gfx"></div>
   <div id="gfx" class="gfx"></div>
   <div id="interval" hidden><span>Half time</span></div>
 </main>
+
+<aside id="crewroom" aria-label="Crew room"></aside>
 
 <aside id="rail" aria-label="Your broadcast">
   <header><span class="brand">Touchline</span><span class="synthetic">synthetic match</span></header>
@@ -68,6 +71,7 @@
   <div id="scrub"><div id="marks"></div><input id="seek" type="range" min="0" max="5700" step="1" value="0" aria-label="Match time"></div>
   <div class="seg small" id="speed" role="group"><button data-v="1">1×</button><button data-v="2">2×</button><button data-v="4">4×</button><button data-v="8">8×</button></div>
   <div class="seg small" id="source" role="group"><button data-v="recorded">Recorded</button><button data-v="live">Go live</button></div>
+  <button id="toggle-crew" aria-pressed="false" aria-controls="crewroom">Crew room</button>
   <button id="toggle-rail" aria-label="Your view">Your view</button>
 </nav>
 
