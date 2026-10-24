@@ -72,6 +72,8 @@ How to work:
 - Use the measured history to estimate each dial's effect. Effects interact: fewer shots also means fewer
   goal kicks, corners and goals, so less dead time and more ball in play.
 - Watch the metrics near a band edge: a proposal that fixes one metric but pushes an in-band one out is refused.
+  standard_errors_inside_band says how safe each metric is (negative means outside); under about 1, match-to-match
+  noise alone can push it out, so move it toward the middle of its band when a dial allows.
 - Make your proposals in a round differ from each other so they test different hypotheses, for example one
   careful step and one bolder step, or two different dials for the same goal.
 - Stay inside the bounds. List only the dials you change from the incumbent.
@@ -210,8 +212,10 @@ def _models():
 
 def brief(inc: dict, trials: list[dict], k: int) -> str:
     s = inc["summary"]
+    z = per_metric_z(inc)
     table = [{"metric": m, "mean": s[m]["mean"], "sd_across_matches": s[m]["sd"], "band": [s[m]["low"], s[m]["high"]],
-              "in_band": s[m]["pass"], "distance": inc["assess"]["per_metric"][m]} for m in realism.TARGETS]
+              "in_band": s[m]["pass"], "distance": inc["assess"]["per_metric"][m],
+              "standard_errors_inside_band": round(z[m], 2)} for m in realism.TARGETS]
     dials = [{"name": d, "value": inc["dials"][d], "low": BOUNDS[d][0], "high": BOUNDS[d][1], "effect": BOUNDS[d][2]}
              for d in sim.DIALS]
     history = []
@@ -238,7 +242,7 @@ def propose(inc: dict, trials: list[dict], k: int, model: str, log) -> tuple[dic
     agent = Agent(client=client, name="calibrator", instructions=INSTRUCTIONS)
     prompt = brief(inc, trials, k)
     last = None
-    for attempt in range(3):
+    for attempt in range(6):
         t0 = time.perf_counter()
         try:
             r = asyncio.run(agent.run(prompt, options={"response_format": Plan}))
@@ -248,7 +252,7 @@ def propose(inc: dict, trials: list[dict], k: int, model: str, log) -> tuple[dic
         except Exception as e:  # noqa: BLE001
             last = e
             log(f"proposer attempt {attempt + 1} failed: {e}")
-            time.sleep(10)
+            time.sleep(10 * (attempt + 1))
     raise RuntimeError(f"proposer failed: {last}")
 
 

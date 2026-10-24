@@ -80,11 +80,14 @@ if __name__ == "__main__":
 '''
 
 
-def engine_blob() -> str:
+def engine_blob(extra: tuple[Path, ...] = ()) -> str:
+    """The engine package, plus any extra top-level modules, as a base64 zip."""
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         for p in sorted(ENGINE.glob("*.py")):
             z.write(p, f"touchline_engine/{p.name}")
+        for p in extra:
+            z.write(p, p.name)
     return base64.b64encode(buf.getvalue()).decode()
 
 
@@ -108,18 +111,22 @@ def _run(args: list[str], timeout: int = 180) -> str:
         return "timeout"
 
 
-def build(slot: str, jobs: list[dict], seeds: list[int], label: str) -> tuple[Path, str]:
-    token = uuid.uuid4().hex[:12]
+def build(slot: str, script: str) -> Path:
     d = WORK / slot
     d.mkdir(parents=True, exist_ok=True)
-    script = KERNEL.format(label=label, token=token, blob=engine_blob(), jobs=json.dumps(jobs), seeds=json.dumps(seeds))
     (d / "sweep.py").write_text(script, encoding="utf-8")
     meta = {"id": f"{USER}/{slot}", "title": slot, "code_file": "sweep.py", "language": "python",
             "kernel_type": "script", "is_private": True, "enable_gpu": False, "enable_tpu": False,
             "enable_internet": False, "dataset_sources": [], "competition_sources": [], "kernel_sources": [],
             "model_sources": []}
     (d / "kernel-metadata.json").write_text(json.dumps(meta, indent=1), encoding="utf-8")
-    return d, token
+    return d
+
+
+def render_sweep(jobs: list[dict], seeds: list[int], label: str):
+    """A renderer for the realism sweep: token -> script text."""
+    blob = engine_blob()
+    return lambda token: KERNEL.format(label=label, token=token, blob=blob, jobs=json.dumps(jobs), seeds=json.dumps(seeds))
 
 
 def status(slot: str) -> str:
@@ -141,10 +148,11 @@ def pull(slot: str, token: str) -> dict | None:
     return data if data.get("token") == token else None
 
 
-def run_kernel(slot: str, jobs: list[dict], seeds: list[int], label: str, log=print, max_wait_s: int = 5400) -> dict:
-    """Push one kernel, wait for it, pull its result. Raises RuntimeError when it fails twice."""
+def run_script(slot: str, render, label: str, log=print, max_wait_s: int = 5400) -> dict:
+    """Push one kernel rendered from render(token), wait, pull its result.json. Raises when it fails twice."""
     for attempt in (1, 2):
-        d, token = build(slot, jobs, seeds, label)
+        token = uuid.uuid4().hex[:12]
+        d = build(slot, render(token))
         while True:
             out = _run(["kernels", "push", "-p", str(d)], timeout=300)
             if "successfully pushed" in out.lower() or "kernel version" in out.lower():
@@ -154,7 +162,7 @@ def run_kernel(slot: str, jobs: list[dict], seeds: list[int], label: str, log=pr
                 time.sleep(90)
                 continue
             raise RuntimeError(f"{slot}: push failed: {out.strip()[-300:]}")
-        log(f"{slot}: pushed {label} ({len(jobs)} vectors x {len(seeds)} seeds), attempt {attempt}")
+        log(f"{slot}: pushed {label}, attempt {attempt}")
         t0 = time.time()
         time.sleep(60)
         while time.time() - t0 < max_wait_s:
@@ -176,34 +184,30 @@ def run_kernel(slot: str, jobs: list[dict], seeds: list[int], label: str, log=pr
     raise RuntimeError(f"{slot}: no result for {label}")
 
 
-def measure(vectors: list[dict], seeds: list[int], per_kernel: int = 2, slots: list[str] | None = None,
-            label: str = "sweep", log=print) -> list[dict]:
-    """Measure full dial vectors; returns one result per vector, in order, across concurrent kernels."""
+def run_many(tasks: list[tuple], slots: list[str] | None = None, log=print) -> list[dict | None]:
+    """Run (render, label) tasks across the kernel slots, one kernel per slot at a time; results in order."""
     slots = slots or SLOTS
-    jobs = [{"id": i, "dials": v} for i, v in enumerate(vectors)]
-    chunks = [jobs[i:i + per_kernel] for i in range(0, len(jobs), per_kernel)]
     results: dict[int, dict] = {}
     errors: list[str] = []
     lock = threading.Lock()
-    queue = list(enumerate(chunks))
+    queue = list(enumerate(tasks))
 
     def worker(slot: str):
         while True:
             with lock:
                 if not queue:
                     return
-                k, chunk = queue.pop(0)
+                k, (render, label) = queue.pop(0)
             try:
-                data = run_kernel(slot, chunk, seeds, f"{label} part {k}", log=log)
+                data = run_script(slot, render, label, log=log)
+                data["kernel"] = slot
                 with lock:
-                    for r in data["results"]:
-                        r["cores"], r["wall_s"], r["kernel"] = data["cores"], data["wall_s"], slot
-                        results[r["id"]] = r
+                    results[k] = data
             except Exception as e:  # noqa: BLE001
                 with lock:
                     errors.append(str(e))
 
-    threads = [threading.Thread(target=worker, args=(s,)) for s in slots[:max(1, min(len(slots), len(chunks)))]]
+    threads = [threading.Thread(target=worker, args=(s,)) for s in slots[:max(1, min(len(slots), len(tasks)))]]
     for t in threads:
         t.start()
         time.sleep(5)
@@ -211,8 +215,24 @@ def measure(vectors: list[dict], seeds: list[int], per_kernel: int = 2, slots: l
         t.join()
     if errors:
         log("kernel errors: " + " | ".join(errors))
-    return [results.get(i) for i in range(len(vectors))]
+    return [results.get(k) for k in range(len(tasks))]
 
+
+def measure(vectors: list[dict], seeds: list[int], per_kernel: int = 2, slots: list[str] | None = None,
+            label: str = "sweep", log=print) -> list[dict | None]:
+    """Measure full dial vectors; returns one result per vector, in order, across concurrent kernels."""
+    jobs = [{"id": i, "dials": v} for i, v in enumerate(vectors)]
+    chunks = [jobs[i:i + per_kernel] for i in range(0, len(jobs), per_kernel)]
+    tasks = [(render_sweep(c, seeds, f"{label} part {k}"), f"{label} part {k} ({len(c)} vectors x {len(seeds)} seeds)")
+             for k, c in enumerate(chunks)]
+    results: dict[int, dict] = {}
+    for data in run_many(tasks, slots, log):
+        if data is None:
+            continue
+        for r in data["results"]:
+            r["cores"], r["wall_s"], r["kernel"] = data["cores"], data["wall_s"], data["kernel"]
+            results[r["id"]] = r
+    return [results.get(i) for i in range(len(vectors))]
 
 if __name__ == "__main__":
     import argparse
