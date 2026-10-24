@@ -338,7 +338,17 @@ def _line(l) -> dict:
             "sources": list(l.sources)}
 
 
-async def run_one(cond: str, attack: str, mo: dict, record) -> dict:
+async def run_one(cond: str, attack: str, mo: dict, record, retries: int = 3) -> dict:
+    """One crew run. A dropped connection (this network resets long links) restarts the run from scratch,
+    so a row always holds one clean pass through the graph; `retries` counts the restarts."""
+    for k in range(retries + 1):
+        row = await _run_once(cond, attack, mo, record)
+        if not (row["error"] and "Connection error" in row["error"]) or k == retries:
+            return {**row, "retries": k}
+        await asyncio.sleep(10 * (k + 1))
+
+
+async def _run_once(cond: str, attack: str, mo: dict, record) -> dict:
     job = make_job(mo, attack)
     rec = Tampered(record, attack, mo["plant"], mo["clubs"][0]) if attack in ("false_fact", "injection") else record
     cues: list[dict] = []
