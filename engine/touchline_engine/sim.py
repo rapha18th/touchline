@@ -35,6 +35,9 @@ SHOT_VALUE = 0.8              # a shot's worth per unit of xG; the risk dial add
 SHOT_RANGE = 33.0             # metres: the longest shot a carrier considers
 HEADER_SHOT = 0.55            # chance a won header near goal becomes a shot
 SAVED_SHARE = 0.4             # share of unblocked misses that the keeper saves
+FINISH_LOGIT = 0.0            # shift on every chance's xG logit: the league's finishing level
+BLOCK_SCALE = 1.0             # multiplier on the chance that bodies in the lane block a shot
+FOUL_RATE = 1.0               # multiplier on the chance a challenge or tackle is a foul
 RESTART_PACE = 1.0            # multiplier on the dead time before throw-ins, goal kicks, corners, free kicks
 SUB_STOP_S = 0.0              # seconds a substitution window adds to the stoppage
 LATE_STALL = 0.0              # extra share of dead time when the restarting side leads after the hour
@@ -45,7 +48,7 @@ RED_STRAIGHT = 0.002          # chance a foul is a straight red
 RED_SECOND = 0.035            # chance a foul by a booked player is a second yellow
 
 DIALS = ("LOSS", "RESIST_FINAL_THIRD", "RESIST_SHOOTING_RANGE", "BOX_RESIST", "SHOT_VALUE", "SHOT_RANGE",
-         "HEADER_SHOT", "SAVED_SHARE", "RESTART_PACE", "SUB_STOP_S", "LATE_STALL", "GOAL_STOP_S", "TREATMENT",
+         "HEADER_SHOT", "SAVED_SHARE", "FINISH_LOGIT", "BLOCK_SCALE", "FOUL_RATE", "RESTART_PACE", "SUB_STOP_S", "LATE_STALL", "GOAL_STOP_S", "TREATMENT",
          "YELLOW_SHARE", "RED_STRAIGHT", "RED_SECOND")
 
 
@@ -532,7 +535,7 @@ class Match:
         # Shot.
         dgoal = P.goal_distance(*a)
         if dgoal < SHOT_RANGE and P.goal_angle(*a) > 0.1:
-            x = P.xg(*a, pressure=pressure, skill=self.roster[slot].finishing)
+            x = P.xg(*a, pressure=pressure, skill=self.roster[slot].finishing, bias=FINISH_LOGIT)
             # Bodies in the shooting lane block it; a shot that misses usually hands the ball
             # over, so it pays the same loss as a bad pass.
             p_block = self.block_chance(team, a)
@@ -542,7 +545,7 @@ class Match:
         # Cross from wide in the final third.
         if a[0] > 78 and abs(a[1] - P.GOAL_Y) > 16:
             tgt = np.array([P.LENGTH - self.rng.uniform(5, 13), P.GOAL_Y + self.rng.normal(0, 5)])
-            hx = P.xg(*tgt, header=True)
+            hx = P.xg(*tgt, header=True, bias=FINISH_LOGIT)
             opts.append(dict(kind="cross", target=tgt, ev=0.3 * hx * (0.8 + 0.4 * risk) - 0.7 * 0.8 * LOSS))
         # Clear it under pressure deep in the own half.
         if a[0] < 30 and pressure > 0.55:
@@ -714,7 +717,7 @@ class Match:
     # ----- shots ------------------------------------------------------------------------
 
     def block_chance(self, team, a_tf) -> float:
-        return min(0.12 + 0.17 * self.lane_defenders(team, a_tf), 0.62)
+        return min((0.12 + 0.17 * self.lane_defenders(team, a_tf)) * BLOCK_SCALE, min(0.62 * BLOCK_SCALE, 0.8))
 
     def do_shot(self, slot, team, xg_open, pressure, a_abs, *, header=False, set_piece=None):
         """xg_open is the chance with a clear lane. The shot's xG folds in the bodies between
@@ -809,7 +812,7 @@ class Match:
             team = r["team"]
             a_tf = self.tf(team, end2)
             if P.goal_distance(*a_tf) < 16 and self.rng.random() < HEADER_SHOT:
-                x = P.xg(*a_tf, header=True, pressure=0.5, skill=self.roster[who].heading)
+                x = P.xg(*a_tf, header=True, pressure=0.5, skill=self.roster[who].heading, bias=FINISH_LOGIT)
                 self.do_shot(who, team, x, 0.5, end2.copy(), header=True, set_piece=r.get("set_piece"))
             else:
                 self.give(who)
@@ -986,7 +989,7 @@ class Match:
             self.do_shot(taker, team, 0.78 + 0.08 * (self.roster[taker].finishing - 0.5), 0.0, spot.copy(), set_piece="penalty")
             return
         if kind == "free_kick" and P.goal_distance(*a_tf) < 30 and abs(a_tf[1] - P.GOAL_Y) < 18 and self.rng.random() < 0.45:
-            x = 0.6 * P.xg(*a_tf, skill=self.roster[taker].finishing)
+            x = 0.6 * P.xg(*a_tf, skill=self.roster[taker].finishing, bias=FINISH_LOGIT)
             self.do_shot(taker, team, x, 0.0, spot.copy(), set_piece="free_kick")
             return
         if kind == "free_kick" and a_tf[0] > 70 and self.rng.random() < 0.6:
@@ -1032,7 +1035,7 @@ class Match:
                 continue
             drib = self.roster[c].dribbling
             a_tf = self.tf(team, self.pos[c])
-            p_foul = 0.08 + 0.04 * self.style(1 - team)[0]
+            p_foul = (0.08 + 0.04 * self.style(1 - team)[0]) * FOUL_RATE
             if P.in_box(*a_tf):
                 p_foul *= 0.3
             if self.rng.random() < p_foul:
@@ -1068,7 +1071,7 @@ class Match:
             return
         team = int(self.team_of[c])
         a_tf = self.tf(team, self.pos[c])
-        p_foul = 0.045 + 0.03 * self.style(1 - team)[0]
+        p_foul = (0.045 + 0.03 * self.style(1 - team)[0]) * FOUL_RATE
         if P.in_box(*a_tf):
             p_foul *= 0.3
         if self.rng.random() < p_foul:

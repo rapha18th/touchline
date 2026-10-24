@@ -41,12 +41,14 @@ def goal_distance(x: float, y: float) -> float:
     return math.hypot(LENGTH - x, GOAL_Y - y)
 
 
-def xg(x: float, y: float, *, header: bool = False, pressure: float = 0.0, skill: float = 0.5) -> float:
+def xg(x: float, y: float, *, header: bool = False, pressure: float = 0.0, skill: float = 0.5,
+       bias: float = 0.0) -> float:
     """Chance a shot from (x, y) scores.
 
     Distance and visible angle drive the logit. Headers cost about a third of the chance,
     a defender on top of the shooter (pressure 1) costs about a third more, and finishing
-    skill moves the logit by up to 0.3 either way.
+    skill moves the logit by up to 0.3 either way. bias shifts the logit for every chance: the
+    engine's league finishing level.
     """
     d = goal_distance(x, y)
     a = goal_angle(x, y)
@@ -54,7 +56,7 @@ def xg(x: float, y: float, *, header: bool = False, pressure: float = 0.0, skill
     if header:
         logit -= 0.8
     logit -= 0.55 * pressure
-    logit += 0.6 * (skill - 0.5)
+    logit += 0.6 * (skill - 0.5) + bias
     return 1.0 / (1.0 + math.exp(-logit))
 
 
