@@ -32,3 +32,29 @@ def test_recorded_broadcasts_carry_the_crew_on_every_crew_cue():
         crew = [c for c in json.loads(cues) if c.get("author") == "crew"]
         assert crew, p.name
         assert all({"trace", "attempts", "verdicts"} <= set(c["crew"]) for c in crew if c["kind"] in ("line", "insight", "recap"))
+
+
+class NoClaims:
+    async def call(self, tool, **args):
+        return []
+
+
+def test_verifier_reads_clock_seconds_with_a_leading_zero():
+    from touchline_live.crew.verify import verify_text
+    facts = {"tool_results": [{"id": 947, "clock": "21:09", "type": "goal"}]}
+    run = lambda text: asyncio.run(verify_text(NoClaims(), "TL-1", 1300, text, [], facts, ["Ibrahim Calard"], ["Saltbridge Athletic"]))
+    assert run("Ibrahim Calard scored at 21:09.")["ok"]
+    assert not run("Ibrahim Calard scored at 21:07.")["ok"]
+
+
+def test_ask_refuses_bad_requests_before_any_model_call():
+    import httpx
+
+    async def go():
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=server.app), base_url="http://touchline.test") as http:
+            empty = await http.post("/api/ask/TL-000023", json={"question": "", "match_s": 60})
+            late = await http.post("/api/ask/TL-000023", json={"question": "Who scored?", "match_s": 99999})
+            nomatch = await http.post("/api/ask/TL-999999", json={"question": "Who scored?", "match_s": 60})
+            return empty.status_code, late.status_code, nomatch.status_code
+
+    assert asyncio.run(go()) == (422, 422, 404)

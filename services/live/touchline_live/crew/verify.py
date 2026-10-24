@@ -37,9 +37,10 @@ class MatchRecord:
     """A long-lived MCP client session to the match server: a stdio child process by default, or any
     streamable HTTP endpoint such as the web service's /mcp when `url` is given."""
 
-    def __init__(self, data_dir: str | Path, url: str | None = None):
+    def __init__(self, data_dir: str | Path, url: str | None = None, http_client=None):
         self.data_dir = str(data_dir)
         self.url = url
+        self.http_client = http_client
         self.stack = AsyncExitStack()
         self.session: ClientSession | None = None
         self.calls = 0
@@ -47,7 +48,7 @@ class MatchRecord:
     async def __aenter__(self):
         if self.url:
             from mcp.client.streamable_http import streamable_http_client
-            read, write, _ = await self.stack.enter_async_context(streamable_http_client(self.url))
+            read, write, _ = await self.stack.enter_async_context(streamable_http_client(self.url, http_client=self.http_client))
         else:
             import sys
             params = StdioServerParameters(command=sys.executable, args=["-m", "touchline_live.mcp_server"],
@@ -103,7 +104,8 @@ def _forms(v: float) -> set[str]:
 
 
 def _norm(n: str) -> str:
-    return n.rstrip("0").rstrip(".") if "." in n else n
+    # 09 on a clock is the number 9: leading zeros on whole numbers do not make a new number.
+    return n.rstrip("0").rstrip(".") if "." in n else (n.lstrip("0") or "0")
 
 
 async def verify_text(record: MatchRecord, match_id: str, match_s: float, text: str, claims: list[Claim],

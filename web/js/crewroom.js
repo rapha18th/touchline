@@ -78,9 +78,10 @@ function moments(list) {
 }
 
 export class CrewRoom {
-  constructor(root, M) {
+  constructor(root, M, now = () => 0) {
     this.root = root;
     this.M = M;
+    this.now = now;
     this.list = [];
     this.errors = [];
     this.count = -1;
@@ -95,12 +96,29 @@ export class CrewRoom {
       <div class="cr-tally" aria-live="polite"></div>
       <div class="cr-legend">${["producer", "analyst", "narrator", "verifier", "localiser", "director"]
         .map((r) => `<span><i class="r-${r}"></i>${ROLE[r]}</span>`).join("")}</div>
+      <section class="cr-ask">
+        <h3>Ask the record</h3>
+        <form><input name="q" maxlength="200" autocomplete="off" placeholder="Who scored? Who has run furthest?" aria-label="Ask about the match so far"><button>Ask</button></form>
+        <div class="cr-answer" aria-live="polite"></div>
+      </section>
       <ol class="cr-list"></ol>
       <p class="cr-empty">The crew's first moment appears here as soon as it airs.</p>`;
     this.$list = root.querySelector(".cr-list");
     this.$tally = root.querySelector(".cr-tally");
     this.$empty = root.querySelector(".cr-empty");
     root.querySelector(".cr-x").onclick = () => this.toggle(false);
+    this.$answer = root.querySelector(".cr-answer");
+    root.querySelector(".cr-ask form").onsubmit = (e) => { e.preventDefault(); this.ask(e.target.q.value.trim(), e.target); };
+    this.$answer.addEventListener("click", async (e) => {
+      const b = e.target.closest(".cr-cite");
+      if (!b) return;
+      const box = this.$answer.querySelector(".cr-fact"), was = b.getAttribute("aria-expanded") === "true";
+      this.$answer.querySelectorAll(".cr-cite").forEach((x) => x.setAttribute("aria-expanded", "false"));
+      box.hidden = was;
+      if (was) return;
+      b.setAttribute("aria-expanded", "true");
+      box.innerHTML = await this.fact(Number(b.dataset.id));
+    });
     this.$list.addEventListener("click", (e) => this.click(e));
   }
 
@@ -108,6 +126,7 @@ export class CrewRoom {
 
   toggle(on = !this.visible) {
     document.body.classList.toggle("crew-closed", !on);
+    if (on && innerWidth <= 820) document.body.classList.add("rail-closed");     // one drawer at a time on a phone
     document.querySelector("#toggle-crew")?.setAttribute("aria-pressed", String(on));
     if (on) this.render();
   }
@@ -177,6 +196,42 @@ export class CrewRoom {
       <h3>On air</h3>${this.aired(m)}
       <h3>Cited events</h3>${this.cites(m)}
     </div></li>`;
+  }
+
+  /** Ask the record: an agent answers over MCP, and the answer shows only if the Verifier passes it. */
+  async ask(question, form) {
+    if (question.length < 3) return;
+    const at = this.now(), btn = form.querySelector("button");
+    btn.disabled = true;
+    this.$answer.className = "cr-answer";
+    this.$answer.innerHTML = `<p class="cr-k">The record agent is looking it up, as of ${this.M.clock(at)}</p>`;
+    try {
+      const r = await fetch(`/api/ask/${this.M.meta.match_id}`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, match_s: at }),
+      });
+      const res = await r.json();
+      if (!r.ok) throw new Error(typeof res.detail === "string" ? res.detail : `the server said ${r.status}`);
+      const tools = res.trace.flatMap((t) => (t.mcp || []).map((c) => c.tool));
+      const counts = Object.entries(tools.reduce((a, t) => ({ ...a, [t]: (a[t] || 0) + 1 }), {}))
+        .map(([t, n]) => `<code>${esc(t)}</code>${n > 1 ? ` ×${n}` : ""}`).join(" ");
+      const last = res.verdicts.at(-1), tries = res.verdicts.length;
+      if (res.ok) {
+        this.$answer.innerHTML = `<p>${esc(res.answer)}</p>
+          <p class="cr-via"><span class="cr-pill ok">Verified</span> ${last.claims_checked} claims checked${tries > 1 ? ", after one repair" : ""} · as of ${this.M.clock(at)}</p>
+          ${counts ? `<p class="cr-via">MCP ${counts}</p>` : ""}
+          ${res.sources.length ? `<div class="cr-cites">${res.sources.map((id) => `<button class="cr-cite" data-id="${id}" aria-expanded="false">#${id}</button>`).join("")}</div><div class="cr-fact" hidden></div>` : ""}`;
+      } else {
+        this.$answer.className = "cr-answer refused";
+        this.$answer.innerHTML = `<p>The Verifier did not pass an answer, so none is shown.</p>
+          <ul class="cr-probs">${last.problems.map((p) => `<li>${esc(reason(p))}</li>`).join("")}</ul>
+          ${counts ? `<p class="cr-via">MCP ${counts}</p>` : ""}`;
+      }
+    } catch (err) {
+      this.$answer.className = "cr-answer refused";
+      this.$answer.innerHTML = `<p>No answer: ${esc(err.message)}.</p>`;
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   steps(m) {

@@ -11,6 +11,7 @@ GET  /api/match/{id}/events   public events (the engine's truth block removed)
 GET  /api/broadcast/{id}      a recorded broadcast: every cue a live run put on air
 WS   /ws/live/{id}            join the live channel: cues and the clock, pushed as they happen
 POST /mcp                     the match MCP server over streamable HTTP (read-only tools, stateless)
+POST /api/ask/{id}            Ask the record: an agent answers over /mcp, the Verifier passes it first
 """
 
 from __future__ import annotations
@@ -24,10 +25,11 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import numpy as np
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 from starlette.routing import Route
 
 from . import feed, telemetry
@@ -135,6 +137,37 @@ def broadcast(mid: str):
     for c in cues:
         c.pop("crew", None) if c.get("kind") not in ("line", "insight", "recap") else None
     return JSONResponse(cues, headers={"Cache-Control": "public, max-age=3600"})
+
+
+# ----- ask the record ------------------------------------------------------------------------
+ASK_LIMIT = int(os.environ.get("TOUCHLINE_ASK_PER_10MIN", "40"))   # a public page spends real model credit
+_asked: list[float] = []
+_ask_gate = asyncio.Semaphore(2)
+
+
+class Question(BaseModel):
+    question: str = Field(min_length=3, max_length=300)
+    match_s: float = Field(ge=0, le=7200)
+
+
+@app.post("/api/ask/{mid}")
+async def ask_the_record(mid: str, q: Question, request: Request):
+    match(mid)
+    if not CREW:
+        raise HTTPException(503, "the crew is off on this server")
+    now = time.time()
+    _asked[:] = [t for t in _asked if now - t < 600]
+    if len(_asked) >= ASK_LIMIT:
+        raise HTTPException(429, "the record has answered a lot of questions; try again in a few minutes")
+    _asked.append(now)
+    from .crew.ask import ask
+    port = (request.scope.get("server") or ("127.0.0.1", 8080))[1]
+    url = os.environ.get("TOUCHLINE_MCP_URL", f"http://127.0.0.1:{port}/mcp")
+    async with _ask_gate:
+        try:
+            return await asyncio.wait_for(ask(q.question, mid, q.match_s, url), 75)
+        except Exception as exc:
+            raise HTTPException(502, f"the record agent did not answer: {type(exc).__name__}")
 
 
 # ----- live channels ------------------------------------------------------------------------
