@@ -24,13 +24,47 @@ from .squads import FORMATIONS, ROLE_GROUP, Team, make_fixture
 DT = 1.0 / P.FPS
 N = 22
 EASE = 1.4   # ground passes decelerate: u = 1 - (1 - tau) ** EASE
-LOSS = 0.04  # value of a possession given away, before the opponent's chance
-# League-level calibration dials: how hard it is to move the ball into the final third
-# and into shooting range. Set so shot volume matches the league base rate.
-RESIST_FINAL_THIRD = 0.7
-RESIST_SHOOTING_RANGE = 0.28
-SHOT_VALUE = 0.8
-SAVED_SHARE = 0.4
+
+# League-level calibration dials. engine/tools/calibrate.py tunes them against the realism
+# report through a gate; docs/REALISM.md records how each value was reached.
+LOSS = 0.045                   # value of a possession given away, before the opponent's chance
+RESIST_FINAL_THIRD = 0.7      # pass success multiplier for targets in the final third
+RESIST_SHOOTING_RANGE = 0.28  # pass and carry success multiplier for targets within 20 m of goal
+BOX_RESIST = 0.7              # extra pass success multiplier for targets in the box
+SHOT_VALUE = 0.9              # a shot's worth per unit of xG; the risk dial adds the rest
+SHOT_RANGE = 30.0             # metres: the longest shot a carrier considers
+HEADER_SHOT = 0.55            # chance a won header near goal becomes a shot
+SAVED_SHARE = 0.37             # share of unblocked misses that the keeper saves
+FINISH_LOGIT = -0.25            # shift on every chance's xG logit: the league's finishing level
+BLOCK_SCALE = 1.1             # multiplier on the chance that bodies in the lane block a shot
+FOUL_RATE = 1.03               # multiplier on the chance a challenge or tackle is a foul
+CORNER_DEFLECT = 1.6          # multiplier on the chance a saved, blocked or missed shot goes behind for a corner
+RESTART_PACE = 1.2            # multiplier on the dead time before throw-ins, goal kicks, corners, free kicks
+SUB_STOP_S = 0.0              # seconds a substitution window adds to the stoppage
+LATE_STALL = 0.0              # extra share of dead time when the restarting side leads after the hour
+GOAL_STOP_S = 62.0            # mean seconds from a goal to the kickoff
+TREATMENT = 0.12              # chance a foul stops play for treatment
+YELLOW_SHARE = 0.21           # chance a foul by an unbooked player is booked
+RED_STRAIGHT = 0.002          # chance a foul is a straight red
+RED_SECOND = 0.035            # chance a foul by a booked player is a second yellow
+
+DIALS = ("LOSS", "RESIST_FINAL_THIRD", "RESIST_SHOOTING_RANGE", "BOX_RESIST", "SHOT_VALUE", "SHOT_RANGE",
+         "HEADER_SHOT", "SAVED_SHARE", "FINISH_LOGIT", "BLOCK_SCALE", "FOUL_RATE", "CORNER_DEFLECT", "RESTART_PACE", "SUB_STOP_S", "LATE_STALL", "GOAL_STOP_S", "TREATMENT",
+         "YELLOW_SHARE", "RED_STRAIGHT", "RED_SECOND")
+
+
+def dials() -> dict:
+    """The current dial vector."""
+    return {k: globals()[k] for k in DIALS}
+
+
+def set_dials(values: dict) -> None:
+    """Set dials by name. Unknown names raise, so a typo never runs silently on defaults."""
+    unknown = sorted(set(values) - set(DIALS))
+    if unknown:
+        raise KeyError(f"unknown dials: {unknown}")
+    for k, v in values.items():
+        globals()[k] = float(v)
 
 
 def _dials_from_env():
@@ -39,12 +73,10 @@ def _dials_from_env():
     import os
     raw = os.environ.get("TOUCHLINE_DIALS")
     if raw:
-        for k, v in json.loads(raw).items():
-            if k in globals() and k.isupper():
-                globals()[k] = v
+        set_dials(json.loads(raw))
 
 
-_dials_from_env()  # a shot's worth per unit of xG; the rest of a goal's worth is the risk dial
+_dials_from_env()
 
 
 @dataclass
@@ -441,7 +473,7 @@ class Match:
         if P.goal_distance(*b) < 20:
             p *= RESIST_SHOOTING_RANGE
         if box:
-            p *= 0.7                                   # blocks, sliding defenders, the keeper's reach
+            p *= BOX_RESIST                            # blocks, sliding defenders, the keeper's reach
             if P.goal_distance(*b) < 11:
                 p *= 0.7                               # the keeper sweeps balls played near goal
         return p, secs, int(opp[k]), best_s, float(p_each[k])
@@ -503,8 +535,8 @@ class Match:
                          stop_frac=float(np.clip(along[k] / segL, 0.2, 0.9))))
         # Shot.
         dgoal = P.goal_distance(*a)
-        if dgoal < 33 and P.goal_angle(*a) > 0.1:
-            x = P.xg(*a, pressure=pressure, skill=self.roster[slot].finishing)
+        if dgoal < SHOT_RANGE and P.goal_angle(*a) > 0.1:
+            x = P.xg(*a, pressure=pressure, skill=self.roster[slot].finishing, bias=FINISH_LOGIT)
             # Bodies in the shooting lane block it; a shot that misses usually hands the ball
             # over, so it pays the same loss as a bad pass.
             p_block = self.block_chance(team, a)
@@ -514,7 +546,7 @@ class Match:
         # Cross from wide in the final third.
         if a[0] > 78 and abs(a[1] - P.GOAL_Y) > 16:
             tgt = np.array([P.LENGTH - self.rng.uniform(5, 13), P.GOAL_Y + self.rng.normal(0, 5)])
-            hx = P.xg(*tgt, header=True)
+            hx = P.xg(*tgt, header=True, bias=FINISH_LOGIT)
             opts.append(dict(kind="cross", target=tgt, ev=0.3 * hx * (0.8 + 0.4 * risk) - 0.7 * 0.8 * LOSS))
         # Clear it under pressure deep in the own half.
         if a[0] < 30 and pressure > 0.55:
@@ -686,7 +718,7 @@ class Match:
     # ----- shots ------------------------------------------------------------------------
 
     def block_chance(self, team, a_tf) -> float:
-        return min(0.12 + 0.17 * self.lane_defenders(team, a_tf), 0.62)
+        return min((0.12 + 0.17 * self.lane_defenders(team, a_tf)) * BLOCK_SCALE, min(0.62 * BLOCK_SCALE, 0.8))
 
     def do_shot(self, slot, team, xg_open, pressure, a_abs, *, header=False, set_piece=None):
         """xg_open is the chance with a clear lane. The shot's xG folds in the bodies between
@@ -780,8 +812,8 @@ class Match:
             who = r["who"]
             team = r["team"]
             a_tf = self.tf(team, end2)
-            if P.goal_distance(*a_tf) < 16 and self.rng.random() < 0.55:
-                x = P.xg(*a_tf, header=True, pressure=0.5, skill=self.roster[who].heading)
+            if P.goal_distance(*a_tf) < 16 and self.rng.random() < HEADER_SHOT:
+                x = P.xg(*a_tf, header=True, pressure=0.5, skill=self.roster[who].heading, bias=FINISH_LOGIT)
                 self.do_shot(who, team, x, 0.5, end2.copy(), header=True, set_piece=r.get("set_piece"))
             else:
                 self.give(who)
@@ -802,12 +834,12 @@ class Match:
             var = self.rng.random() < 0.25
             if var:
                 self.emit("var_check", None, None, q={"goal": r["ev"], "decision": "goal stands"})
-            pause = self.rng.normal(62, 10) + (self.rng.uniform(50, 110) if var else 0)
+            pause = self.rng.normal(GOAL_STOP_S, 10) + (self.rng.uniform(50, 110) if var else 0)
             self.dead("kickoff", dfn, np.array([P.LENGTH / 2, P.GOAL_Y]), pause)
         elif outcome == "saved":
             self.emit("save", gk, start=end2, q={"shot": r["ev"]})
             u = self.rng.random()
-            if u < 0.25:
+            if u < min(0.25 * CORNER_DEFLECT, 0.6):
                 self.emit("out", None, dfn, start=end2, q={"restart": "corner"})
                 self.dead("corner", team, self.corner_spot(team, end2), self.rng.normal(31, 6))
             elif u < 0.78:
@@ -819,13 +851,13 @@ class Match:
         elif outcome == "blocked":
             blocker = self.nearest(dfn, end2)
             self.emit("block", blocker, start=end2, q={"shot": r["ev"]})
-            if self.rng.random() < 0.3:
+            if self.rng.random() < min(0.3 * CORNER_DEFLECT, 0.7):
                 self.emit("out", None, dfn, start=end2, q={"restart": "corner"})
                 self.dead("corner", team, self.corner_spot(team, end2), self.rng.normal(31, 6))
             else:
                 self.loose(end2 + self.rng.normal(0, 4, 2))
         else:
-            if self.rng.random() < 0.08:
+            if self.rng.random() < min(0.08 * CORNER_DEFLECT, 0.3):
                 self.emit("out", None, dfn, start=end2, q={"restart": "corner"})
                 self.dead("corner", team, self.corner_spot(team, end2), self.rng.normal(31, 6))
             else:
@@ -898,6 +930,12 @@ class Match:
 
     def dead(self, kind, team, spot, seconds):
         spot = np.array(spot, float)
+        if kind in ("throw_in", "goal_kick", "corner", "free_kick"):
+            seconds *= RESTART_PACE
+            # Game management: a side in front after the hour takes its time over restarts.
+            mins = (self.period - 1) * 45 + self.clock() / 60
+            if mins > 60 and self.score[team] > self.score[1 - team]:
+                seconds *= 1 + LATE_STALL
         if kind == "throw_in":
             spot[1] = min(max(spot[1], 0.2), P.WIDTH - 0.2)
         cand = np.where((self.team_of == team) & self.active)[0]
@@ -930,12 +968,17 @@ class Match:
     def take_restart(self):
         r = self.restart
         taker, team, kind, spot = r["taker"], r["team"], r["kind"], r["spot"]
+        if not r.get("subs_checked"):
+            # Substitutions happen while the ball is dead, and a window holds the restart up.
+            r["subs_checked"] = True
+            if self.maybe_subs() and SUB_STOP_S > 0:
+                r["at"] = self.f + int(SUB_STOP_S * P.FPS)
+                return
         if np.linalg.norm(self.pos[taker] - spot) > 1.5 and self.f < r["at"] + 6 * P.FPS:
             return
         self.pos[taker] = spot.copy()
         self.vel[taker] = 0
         self.restart = None
-        self.maybe_subs()
         self.give(taker)
         a_tf = self.tf(team, spot)
         self.emit(kind, taker, start=spot)
@@ -947,7 +990,7 @@ class Match:
             self.do_shot(taker, team, 0.78 + 0.08 * (self.roster[taker].finishing - 0.5), 0.0, spot.copy(), set_piece="penalty")
             return
         if kind == "free_kick" and P.goal_distance(*a_tf) < 30 and abs(a_tf[1] - P.GOAL_Y) < 18 and self.rng.random() < 0.45:
-            x = 0.6 * P.xg(*a_tf, skill=self.roster[taker].finishing)
+            x = 0.6 * P.xg(*a_tf, skill=self.roster[taker].finishing, bias=FINISH_LOGIT)
             self.do_shot(taker, team, x, 0.0, spot.copy(), set_piece="free_kick")
             return
         if kind == "free_kick" and a_tf[0] > 70 and self.rng.random() < 0.6:
@@ -993,7 +1036,7 @@ class Match:
                 continue
             drib = self.roster[c].dribbling
             a_tf = self.tf(team, self.pos[c])
-            p_foul = 0.08 + 0.04 * self.style(1 - team)[0]
+            p_foul = (0.08 + 0.04 * self.style(1 - team)[0]) * FOUL_RATE
             if P.in_box(*a_tf):
                 p_foul *= 0.3
             if self.rng.random() < p_foul:
@@ -1029,7 +1072,7 @@ class Match:
             return
         team = int(self.team_of[c])
         a_tf = self.tf(team, self.pos[c])
-        p_foul = 0.045 + 0.03 * self.style(1 - team)[0]
+        p_foul = (0.045 + 0.03 * self.style(1 - team)[0]) * FOUL_RATE
         if P.in_box(*a_tf):
             p_foul *= 0.3
         if self.rng.random() < p_foul:
@@ -1055,13 +1098,13 @@ class Match:
         pid = self.pid(fouler)
         r = self.rng.random()
         booked = self.yellow.get(pid, 0) >= 1
-        if r < 0.002 or (booked and r < 0.035):
-            self.emit("card", fouler, outcome="red", q={"second_yellow": r >= 0.002})
+        if r < RED_STRAIGHT or (booked and r < RED_STRAIGHT + RED_SECOND):
+            self.emit("card", fouler, outcome="red", q={"second_yellow": r >= RED_STRAIGHT})
             self.send_off(fouler)
-        elif not booked and r < 0.19:
+        elif not booked and r < RED_STRAIGHT + YELLOW_SHARE:
             self.yellow[pid] = self.yellow.get(pid, 0) + 1
             self.emit("card", fouler, outcome="yellow")
-        treat = self.rng.random() < 0.12
+        treat = self.rng.random() < TREATMENT
         if treat:
             self.emit("treatment", fouled, q={"seconds": 0})
         extra = self.rng.uniform(50, 140) if treat else 0.0
@@ -1079,8 +1122,10 @@ class Match:
         self.pos[slot] = [P.LENGTH / 2, side]
         self.vel[slot] = 0
 
-    def maybe_subs(self):
+    def maybe_subs(self) -> bool:
+        """Bring on fresh legs after 56 minutes; True when either side made a change."""
         mins = (self.period - 1) * 45 + self.clock() / 60
+        any_made = False
         for team in (0, 1):
             if mins < 56 or self.subs_made[team] >= 5 or self.sub_windows[team] >= 3:
                 continue
@@ -1107,6 +1152,8 @@ class Match:
                 made = True
             if made:
                 self.sub_windows[team] += 1
+                any_made = True
+        return any_made
 
     # ----- the loop ---------------------------------------------------------------------
 

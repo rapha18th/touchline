@@ -15,126 +15,126 @@
   "box"
  ],
  "weights": [
-  -0.23968,
-  -0.43521,
-  0.04336,
-  -0.41125,
-  0.01925,
-  -1.17423,
-  0.10418,
-  0.14915,
-  0.66855,
-  0.26333,
-  -0.08189,
-  -1.21045,
-  1.40867
+  0.36264,
+  -0.80741,
+  0.12918,
+  -0.34114,
+  -0.26125,
+  -0.91387,
+  -0.03848,
+  0.04149,
+  0.6531,
+  0.41339,
+  0.03764,
+  -1.42635,
+  1.60818
  ],
- "passes": 4209,
- "completion": 0.771,
- "brier": 0.1314,
- "brier_base": 0.1766,
- "corr_with_engine_truth": 0.9565,
+ "passes": 2975,
+ "completion": 0.7808,
+ "brier": 0.1263,
+ "brier_base": 0.1711,
+ "corr_with_engine_truth": 0.9356,
  "calibration": [
   {
-   "predicted": 0.277,
-   "observed": 0.283,
-   "n": 527
+   "predicted": 0.285,
+   "observed": 0.29,
+   "n": 372
   },
   {
-   "predicted": 0.691,
-   "observed": 0.645,
-   "n": 527
+   "predicted": 0.707,
+   "observed": 0.68,
+   "n": 372
   },
   {
-   "predicted": 0.776,
-   "observed": 0.791,
-   "n": 527
+   "predicted": 0.796,
+   "observed": 0.763,
+   "n": 372
   },
   {
-   "predicted": 0.816,
-   "observed": 0.808,
-   "n": 527
+   "predicted": 0.827,
+   "observed": 0.828,
+   "n": 372
   },
   {
-   "predicted": 0.848,
-   "observed": 0.86,
-   "n": 527
+   "predicted": 0.857,
+   "observed": 0.871,
+   "n": 372
   },
   {
-   "predicted": 0.878,
-   "observed": 0.865,
-   "n": 527
+   "predicted": 0.888,
+   "observed": 0.901,
+   "n": 372
   },
   {
-   "predicted": 0.916,
-   "observed": 0.96,
-   "n": 527
+   "predicted": 0.92,
+   "observed": 0.944,
+   "n": 372
   },
   {
-   "predicted": 0.967,
-   "observed": 0.956,
-   "n": 527
+   "predicted": 0.968,
+   "observed": 0.97,
+   "n": 372
   }
  ],
  "held_out": {
-  "passes": 1469,
-  "brier": 0.1237,
-  "brier_engine_truth": 0.1183,
-  "brier_base_rate": 0.1685,
-  "corr_with_engine_truth": 0.9529,
-  "mean_abs_gap_to_truth": 0.0479,
+  "passes": 2263,
+  "brier": 0.1335,
+  "brier_engine_truth": 0.1249,
+  "brier_base_rate": 0.1694,
+  "corr_with_engine_truth": 0.9289,
+  "mean_abs_gap_to_truth": 0.0461,
   "calibration": [
    {
-    "predicted": 0.251,
-    "observed": 0.277,
-    "n": 184
+    "predicted": 0.256,
+    "observed": 0.339,
+    "n": 283
    },
    {
-    "predicted": 0.662,
-    "observed": 0.707,
-    "n": 184
+    "predicted": 0.696,
+    "observed": 0.678,
+    "n": 283
    },
    {
-    "predicted": 0.764,
-    "observed": 0.777,
-    "n": 184
+    "predicted": 0.793,
+    "observed": 0.77,
+    "n": 283
    },
    {
-    "predicted": 0.803,
-    "observed": 0.837,
-    "n": 184
+    "predicted": 0.828,
+    "observed": 0.823,
+    "n": 283
    },
    {
-    "predicted": 0.834,
-    "observed": 0.859,
-    "n": 184
+    "predicted": 0.858,
+    "observed": 0.845,
+    "n": 283
    },
    {
-    "predicted": 0.865,
-    "observed": 0.929,
-    "n": 184
+    "predicted": 0.888,
+    "observed": 0.894,
+    "n": 283
    },
    {
-    "predicted": 0.907,
-    "observed": 0.94,
-    "n": 184
+    "predicted": 0.921,
+    "observed": 0.943,
+    "n": 283
    },
    {
-    "predicted": 0.968,
-    "observed": 0.962,
-    "n": 184
+    "predicted": 0.965,
+    "observed": 0.979,
+    "n": 283
    }
   ]
  },
  "train_seeds": [
-  8,
-  9,
+  7,
   10,
   11,
-  12
+  13
  ],
  "test_seeds": [
-  7,
-  13
+  8,
+  9,
+  12
  ]
 }
