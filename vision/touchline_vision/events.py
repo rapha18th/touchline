@@ -329,7 +329,9 @@ def track_labels(players: list) -> dict:
     return {k: max(v, key=v.get) for k, v in votes.items()}
 
 
-def detect_events(obs: dict, P, H=None) -> dict:
+def detect_events(obs: dict, P, H=None, air: bool = True, back_time: bool = True) -> dict:
+    """All kicks in a clip. air=False and back_time=False are ablations: every flight on the ground,
+    and kicks timed where the ball is first seen moving."""
     P = np.asarray(P, float)
     fps = float(obs["fps"])
     players = obs["players"]
@@ -349,7 +351,8 @@ def detect_events(obs: dict, P, H=None) -> dict:
         fr = np.array([t for t in range(t0 + 1, t1 + 1) if not np.isnan(uv[t, 0])])
         if len(fr) < 3:
             continue
-        t0 = kick_time(t0, fr, g, uv, P, fps, players)
+        if back_time:
+            t0 = kick_time(t0, fr, g, uv, P, fps, players)
         fr = fr[fr > t0]
         if len(fr) < 3:
             continue
@@ -359,7 +362,7 @@ def detect_events(obs: dict, P, H=None) -> dict:
         tt = np.linspace(0, (t1 - t0) / fps, 50)
         za = eval_air(ca, tt)[:, 2]
         # In the air only if that model explains the pixels clearly better and is physically sane.
-        aerial = bool(len(fr) >= 6 and ra < 0.7 * rg and 0.6 < za.max() < 30 and ca[5] < 0
+        aerial = bool(air and len(fr) >= 6 and ra < 0.7 * rg and 0.6 < za.max() < 30 and ca[5] < 0
                       and np.hypot(ca[2], ca[3]) < 45)
         T1 = (t1 - t0) / fps
         if aerial:
@@ -382,7 +385,7 @@ def detect_events(obs: dict, P, H=None) -> dict:
         kind = classify(start, vel, end, speed, kicker, receiver, sides, height if aerial else 0.0)
         # Shots rise: when the in-the-air model explains a shot as well as rolling does, use it.
         za_max = float(za.max())
-        if kind == "shot" and not aerial and ra <= 1.05 * rg and 0.3 < za_max < 6 and np.hypot(ca[2], ca[3]) < 45:
+        if air and kind == "shot" and not aerial and ra <= 1.05 * rg and 0.3 < za_max < 6 and np.hypot(ca[2], ca[3]) < 45:
             aerial = True
             start = np.array([ca[0], ca[1]])
             end = start + np.array([ca[2], ca[3]]) * T1

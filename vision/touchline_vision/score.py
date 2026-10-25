@@ -201,7 +201,9 @@ def main(argv=None) -> int:
                          "homography": {k: (round(v, 3) if isinstance(v, float) else v) for k, v in herr.items()},
                          "camera_centre_err_m": round(cam_err, 2), "calib_fit": cal["fit"],
                          "tracks": track_quality(t, obs, np.array(cal["P"]), w, h),
-                         "vision": grade_kicks(ev["kicks"], tk), "oracle": grade_kicks(oev["kicks"], tk)})
+                         "vision": grade_kicks(ev["kicks"], tk), "oracle": grade_kicks(oev["kicks"], tk),
+                         "ablation_ground_only": grade_kicks(detect_events(obs, np.array(cal["P"]), air=False)["kicks"], tk),
+                         "ablation_no_kick_timing": grade_kicks(detect_events(obs, np.array(cal["P"]), back_time=False)["kicks"], tk)})
     H = [c["homography"] for c in per_clip]
     tr = [c["tracks"] for c in per_clip]
 
@@ -215,13 +217,15 @@ def main(argv=None) -> int:
                               "camera_centre_err_m_median": round(float(np.median([c["camera_centre_err_m"] for c in per_clip])), 2)},
                "tracks": {k: agg(tr, k) for k in tr[0]} if tr else {},
                "vision": summarise(per_clip, "vision"), "oracle": summarise(per_clip, "oracle"),
+               "ablation_ground_only": summarise(per_clip, "ablation_ground_only"),
+               "ablation_no_kick_timing": summarise(per_clip, "ablation_no_kick_timing"),
                "by_match": {m: summarise([c for c in per_clip if c["match"] == m], "vision") for m in sorted({c["match"] for c in per_clip})},
                "match_frames": MATCH_FRAMES}
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "summary.json").write_text(json.dumps(summary, indent=1), encoding="utf-8")
     (args.out / "clips.json").write_text(json.dumps(per_clip, indent=1), encoding="utf-8")
     print(json.dumps({k: summary[k] for k in ("homography", "tracks")}, indent=1))
-    for k in ("vision", "oracle"):
+    for k in ("vision", "oracle", "ablation_ground_only", "ablation_no_kick_timing"):
         s = summary[k]
         print(k, json.dumps({x: s[x] for x in ("kicks", "pass", "shot")}), json.dumps({x: s[x] for x in ("pass_length_m", "ball_speed_kmh", "shot_speed_kmh")}))
     return 0
