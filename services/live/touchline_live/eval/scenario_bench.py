@@ -168,6 +168,38 @@ def tilt_summary(rep: dict) -> dict:
     return out
 
 
+def tables(rep: dict) -> str:
+    """The tables docs/SCENARIO.md prints, from the saved report alone."""
+    s = rep["summary"]
+    pct = lambda a, b: f"{100 * a / b:.0f}%" if b else "n/a"
+    out = ["| arm | gold beats met | stories with every gold beat | own beats met | candidates (pruned) | match minutes played | wall s |",
+           "|---|---|---|---|---|---|---|"]
+    for arm in ARMS:
+        if arm in s:
+            r = s[arm]
+            out.append(f"| {arm} | {r['gold_met']} of {r['gold_total']} ({pct(r['gold_met'], r['gold_total'])}) | "
+                       f"{r['stories_all_gold']} of {r['stories']} | {r['own_met']} of {r['own_total']} | "
+                       f"{r['candidates']} ({r['pruned']}) | {r['played_min']:.0f} | {r['wall_s']:.0f} |")
+    out += ["", "| Director | gold beats read | extra beats |", "|---|---|---|"]
+    for who in ("director", "rules"):
+        r = s.get(f"read_{who}")
+        if r:
+            out.append(f"| {who} | {r['read']} of {r['gold']} | {r['extra']} |")
+    t = rep.get("tilt_summary")
+    if t:
+        out += ["", "| settings | single matches | gold beats met | matches with every gold beat | goals a match |", "|---|---|---|---|---|"]
+        for arm in TILT_ARMS:
+            if arm in t:
+                r = t[arm]
+                out.append(f"| {arm} | {r['matches']} | {r['beats_met']} of {r['beats_checked']} ({pct(r['beats_met'], r['beats_checked'])}) | "
+                           f"{r['matches_all_gold']} of {r['matches']} | {r['goals_per_match']} |")
+    out += ["", "| story | gold | director | rules | untouched | no_prune |", "|---|---|---|---|---|---|"]
+    for row in rep["stories"]:
+        cell = lambda a: (f"{row['arms'][a]['gold']['met']}/{row['arms'][a]['gold']['total']}" if a in row.get("arms", {}) else "")
+        out.append(f"| {row['story']} | {', '.join(row['gold'])} | " + " | ".join(cell(a) for a in ARMS) + " |")
+    return "\n".join(out)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(prog="touchline_live.eval.scenario_bench")
     ap.add_argument("--out", default=str(ROOT / "reports" / "scenario_bench.json"))
@@ -179,8 +211,12 @@ def main() -> None:
     ap.add_argument("--arms", default=",".join(ARMS))
     ap.add_argument("--period-s", type=float, default=None, help="short periods for a quick check; the report uses full matches")
     ap.add_argument("--tilt", type=int, default=0, help="also play this many single matches per story and arm (no search)")
+    ap.add_argument("--tables", action="store_true", help="print the tables from the saved report and stop")
     a = ap.parse_args()
     out, work = Path(a.out), Path(a.work)
+    if a.tables:
+        print(tables(json.loads(out.read_text(encoding="utf-8"))))
+        return
     work.mkdir(parents=True, exist_ok=True)
     rep = json.loads(out.read_text(encoding="utf-8")) if out.exists() else {}
     rep.setdefault("stories", [])
