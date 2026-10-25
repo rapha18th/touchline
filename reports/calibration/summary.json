@@ -1,12 +1,12 @@
 {
  "seeds": "1-24",
  "model": "gpt-5-mini",
- "rounds": 3,
- "trials": 10,
+ "rounds": 4,
+ "trials": 14,
  "accepted": 1,
  "promoted": 1,
- "refused_measured": 9,
- "refused_for_leaving_band": 9,
+ "refused_measured": 13,
+ "refused_for_leaving_band": 13,
  "refused_before_measuring": 2,
  "baseline": {
   "in_band": 11,
