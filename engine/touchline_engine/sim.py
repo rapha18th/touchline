@@ -27,15 +27,15 @@ EASE = 1.4   # ground passes decelerate: u = 1 - (1 - tau) ** EASE
 
 # League-level calibration dials. engine/tools/calibrate.py tunes them against the realism
 # report through a gate; docs/REALISM.md records how each value was reached.
-LOSS = 0.04                   # value of a possession given away, before the opponent's chance
+LOSS = 0.045                   # value of a possession given away, before the opponent's chance
 RESIST_FINAL_THIRD = 0.7      # pass success multiplier for targets in the final third
 RESIST_SHOOTING_RANGE = 0.28  # pass and carry success multiplier for targets within 20 m of goal
 BOX_RESIST = 0.7              # extra pass success multiplier for targets in the box
-SHOT_VALUE = 0.8              # a shot's worth per unit of xG; the risk dial adds the rest
+SHOT_VALUE = 0.9              # a shot's worth per unit of xG; the risk dial adds the rest
 SHOT_RANGE = 30.0             # metres: the longest shot a carrier considers
 HEADER_SHOT = 0.55            # chance a won header near goal becomes a shot
 SAVED_SHARE = 0.37             # share of unblocked misses that the keeper saves
-FINISH_LOGIT = -0.35            # shift on every chance's xG logit: the league's finishing level
+FINISH_LOGIT = -0.25            # shift on every chance's xG logit: the league's finishing level
 BLOCK_SCALE = 1.1             # multiplier on the chance that bodies in the lane block a shot
 FOUL_RATE = 1.03               # multiplier on the chance a challenge or tackle is a foul
 CORNER_DEFLECT = 1.6          # multiplier on the chance a saved, blocked or missed shot goes behind for a corner
