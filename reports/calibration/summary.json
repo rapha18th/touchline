@@ -1,13 +1,13 @@
 {
  "seeds": "1-24",
  "model": "gpt-5-mini",
- "rounds": 8,
- "trials": 34,
+ "rounds": 10,
+ "trials": 41,
  "accepted": 5,
  "promoted": 3,
- "refused_measured": 29,
- "refused_for_leaving_band": 29,
- "refused_before_measuring": 2,
+ "refused_measured": 36,
+ "refused_for_leaving_band": 35,
+ "refused_before_measuring": 3,
  "baseline": {
   "in_band": 11,
   "distance": 2.0346,
