@@ -44,7 +44,7 @@ On a goal, a verified caption airs at once from the record; the crew's lines fol
 
 ```bash
 .venv/Scripts/python -m pip install -e services/live
-.venv/Scripts/python -m touchline_live.live TL-000007 --speed 0 --langs es zu   # needs an Azure login
+.venv/Scripts/python -m touchline_live.live TL-000007 --speed 0 --langs es fr pt   # needs an Azure login
 .venv/Scripts/python -m touchline_live.mcp_server --http                        # the match record over MCP
 .venv/Scripts/python -m pytest services/live
 ```
@@ -60,7 +60,7 @@ The fan app plays a match on a floodlit 3D pitch and builds the graphics from th
 - **Your club** narrows the player list and tints the story.
 - **Follow a player**: the camera rides with them, a ring marks them, and a live line builds from the event log and the tracking: passes and accuracy, shots and xG, distance and top speed.
 - **One number all match**: an xG race, the difficulty of the hardest completed passes, or your player's speed.
-- **Language**: English, Spanish and isiZulu, translated by the crew with every number carried intact.
+- **Language**: English, Spanish, French and Portuguese, translated by the crew with every number carried intact.
 - **Recorded or live**: recorded broadcasts replay every cue a live crew run put on air, at the latency it measured; Go live starts a fresh run on the server with the crew working as the match plays.
 
 `/overlay?match=TL-000007&persona=studio&preview=0` serves the same graphics on a transparent page for a vision mixer or a browser source.

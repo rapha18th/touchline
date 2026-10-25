@@ -247,7 +247,7 @@ class Channel:
                 if CREW:
                     for mo in moments:
                         if producer.wants(mo):
-                            tasks.append(asyncio.create_task(crew(job_for(mo, st, ["es", "zu"], None))))
+                            tasks.append(asyncio.create_task(crew(job_for(mo, st, ["es", "fr", "pt"], None))))
                 self.clock = it.match_s
                 if time.perf_counter() - last_clock > 0.5:
                     last_clock = time.perf_counter()

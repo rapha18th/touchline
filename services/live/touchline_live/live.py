@@ -1,6 +1,6 @@
 """Run a match live: feed -> state -> cues, and moments -> the crew -> verified lines.
 
-    python -m touchline_live.live TL-000007 --speed 8 --langs es zu --until 1800
+    python -m touchline_live.live TL-000007 --speed 8 --langs es fr pt --until 1800
 """
 
 from __future__ import annotations
