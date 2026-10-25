@@ -200,6 +200,15 @@ def test_rejudge_summary_keeps_the_first_judge():
     assert s["share_judge_bad_v1"] == 0.5     # a second pass never overwrites the first judge
 
 
+def test_fallback_quality_finds_raw_lists_and_long_decimals():
+    ls = [{**_rep_line("7:A:none:casual", text="Fallowmere Albion [2, 1]"), "kind": "milestone", "fallback": True},
+          {**_rep_line("4:A:none:casual", text="Draova saves, a chance worth 0.3583 xG."), "kind": "big_save", "fallback": True},
+          {**_rep_line("5:A:none:casual", text="Big chance for Garo, xG 0.36, saved."), "kind": "big_chance", "fallback": True},
+          {**_rep_line("6:B:none:casual", text="Fallowmere Albion [2, 1]"), "fallback": False}]
+    q = ce.fallback_quality({"lines": ls})
+    assert q["fallback_lines"] == 3 and q["malformed"] == 2 and q["by_kind"] == {"milestone": 1, "big_save": 1}
+
+
 def test_agreement_reports_both_judges():
     runs = [_run("0:A:none", "A", "none", 1)]
     lines = [_line(runs[0], "analyst", judge_ok=False), _line(runs[0], "casual", judge_ok=True)]

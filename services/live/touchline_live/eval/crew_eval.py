@@ -834,6 +834,20 @@ def aired_bad(lines: list[dict]) -> list[dict]:
             for l in lines if l["cond"] == "A" and is_bad(l)]
 
 
+RAW = re.compile(r"\[\d+, \d+\]|\d\.\d{3,}")       # a Python list or an unrounded float on air
+
+
+def fallback_quality(rep: dict) -> dict:
+    """Template lines the crew aired after its Fallback: how many show a raw list or an unrounded number."""
+    fb = [l for l in rep["lines"] if l["cond"] == "A" and l["fallback"]]
+    bad = [l for l in fb if RAW.search(l["text"])]
+    kinds = defaultdict(int)
+    for l in bad:
+        kinds[l["kind"]] += 1
+    return {"fallback_lines": len(fb), "malformed": len(bad), "by_kind": dict(kinds),
+            "examples": sorted({f"{l['kind']}: {l['text']}" for l in bad})}
+
+
 def rejudge_summary(rep: dict) -> None:
     """Recompute the judge columns of the summary from the report's lines, keeping the first judge's numbers."""
     lines = report_lines(rep)
@@ -986,6 +1000,7 @@ def finish() -> dict:
     rep = json.loads(REPORT.read_text(encoding="utf-8"))
     rep["gate_vs_judge"] = gate_from_report(rep)
     rep["gallery"]["aired_bad_in_A"] = aired_bad(report_lines(rep))
+    rep["gallery"]["fallback_quality"] = fallback_quality(rep)
     if HANDCHECK.exists():
         hc = json.loads(HANDCHECK.read_text(encoding="utf-8"))
         rep["handcheck"] = {"labels_file": str(HANDCHECK.relative_to(ROOT)).replace("\\", "/"), "labeler": hc.get("labeler"),
@@ -1083,6 +1098,10 @@ def gallery_md(rep: dict) -> str:
         jtxt = "ok" if j.get("ok") else f"{', '.join(j.get('errors', []))}: {j.get('note', '')}"
         out.append(f"| {l['key']} | {l['attack']} | {cell(l['text'])}{' (fallback)' if l['fallback'] else ''} | "
                    f"{cell(det) or 'clean'} | {cell(jtxt)} |")
+    fq = g.get("fallback_quality")
+    if fq:
+        out += ["", f"Fallback lines aired in A: {fq['fallback_lines']}, malformed (a raw list or an unrounded number): "
+                    f"{fq['malformed']} " + json.dumps(fq["by_kind"]) + "."] + [f"- {e}" for e in fq["examples"]]
     return "\n".join(out)
 
 
