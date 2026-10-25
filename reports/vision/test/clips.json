@@ -1,0 +1,5311 @@
+[
+ {
+  "clip": "m000009-p05",
+  "match": "TL-000009",
+  "kind": "passes",
+  "homography": {
+   "px_mean": 0.074,
+   "px_p90": 0.112,
+   "m_mean": 0.01,
+   "m_p90": 0.02,
+   "n": 1166
+  },
+  "camera_centre_err_m": 0.08,
+  "calib_fit": {
+   "cost": 5.699,
+   "model_to_image_px": 0.122,
+   "image_to_model_px": 1.142,
+   "line_px": 11668,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     34.1,
+     113.95,
+     28.43
+    ],
+    "look": [
+     25.07,
+     35.59
+    ],
+    "fov": 31.31
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1286.2,
+   "seconds": 45.2
+  },
+  "tracks": {
+   "ball_seen": 0.665,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.94,
+   "ball_px_p95": 659.49,
+   "ball_ground_err_m_median": 0.167,
+   "ball_ground_err_m_p90": 51.917,
+   "players_found": 0.926,
+   "player_err_m_median": 0.158,
+   "player_team_correct": 0.988
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 19.3,
+     "travel_true": 19.27,
+     "speed_true": 70.8,
+     "length_det": 18.25,
+     "speed_det": 69.4
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 20.3,
+     "travel_true": 19.48,
+     "speed_true": 72.5,
+     "length_det": 19.82,
+     "speed_det": 72.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 3,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 7.7,
+     "travel_true": 7.71,
+     "speed_true": 52.1,
+     "length_det": 5.53,
+     "speed_det": 46.9
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 4,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 9.6,
+     "travel_true": 9.56,
+     "speed_true": 55.1,
+     "length_det": 7.37,
+     "speed_det": 50.3
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 19.3,
+     "travel_true": 19.27,
+     "speed_true": 70.8,
+     "length_det": 19.02,
+     "speed_det": 71.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 7.7,
+     "travel_true": 7.71,
+     "speed_true": 52.1,
+     "length_det": 7.85,
+     "speed_det": 51.6
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 9.6,
+     "travel_true": 9.56,
+     "speed_true": 55.1,
+     "length_det": 9.54,
+     "speed_det": 55.1
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 20.3,
+     "travel_true": 19.48,
+     "speed_true": 72.5,
+     "length_det": 19.73,
+     "speed_det": 72.4
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 19.3,
+     "travel_true": 19.27,
+     "speed_true": 70.8,
+     "length_det": 18.25,
+     "speed_det": 69.4
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 20.3,
+     "travel_true": 19.48,
+     "speed_true": 72.5,
+     "length_det": 19.82,
+     "speed_det": 72.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 3,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 7.7,
+     "travel_true": 7.71,
+     "speed_true": 52.1,
+     "length_det": 5.53,
+     "speed_det": 46.9
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 4,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 9.6,
+     "travel_true": 9.56,
+     "speed_true": 55.1,
+     "length_det": 7.37,
+     "speed_det": 50.3
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 20.3,
+     "travel_true": 19.48,
+     "speed_true": 72.5,
+     "length_det": 18.96,
+     "speed_det": 71.9
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 3,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 19.3,
+     "travel_true": 19.27,
+     "speed_true": 70.8,
+     "length_det": 15.8,
+     "speed_det": 67.6
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 3,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 7.7,
+     "travel_true": 7.71,
+     "speed_true": 52.1,
+     "length_det": 5.53,
+     "speed_det": 46.9
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 4,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 9.6,
+     "travel_true": 9.56,
+     "speed_true": 55.1,
+     "length_det": 7.37,
+     "speed_det": 50.3
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": []
+  }
+ },
+ {
+  "clip": "m000009-p06",
+  "match": "TL-000009",
+  "kind": "passes",
+  "homography": {
+   "px_mean": 0.719,
+   "px_p90": 0.842,
+   "m_mean": 0.062,
+   "m_p90": 0.117,
+   "n": 1154
+  },
+  "camera_centre_err_m": 0.07,
+  "calib_fit": {
+   "cost": 4.243,
+   "model_to_image_px": 0.076,
+   "image_to_model_px": 1.051,
+   "line_px": 12547,
+   "icp_kept": false,
+   "camera": {
+    "pos": [
+     74.8,
+     110.31,
+     27.65
+    ],
+    "look": [
+     71.56,
+     33.81
+    ],
+    "fov": 27.1
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1493.98,
+   "seconds": 42.0
+  },
+  "tracks": {
+   "ball_seen": 0.405,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 1.08,
+   "ball_px_p95": 1.45,
+   "ball_ground_err_m_median": 0.142,
+   "ball_ground_err_m_p90": 0.183,
+   "players_found": 0.915,
+   "player_err_m_median": 0.148,
+   "player_team_correct": 0.985
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 33.3,
+     "travel_true": 33.33,
+     "speed_true": 93.6,
+     "length_det": 36.73,
+     "speed_det": 94.4
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 9.9,
+     "travel_true": 3.57,
+     "speed_true": 55.7,
+     "length_det": 4.16,
+     "speed_det": 66.4
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 0
+   },
+   "kick_found": 2,
+   "kick_truth": 4,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 47,
+     "type": "pass",
+     "outcome": "incomplete"
+    },
+    {
+     "rel": 73,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 33.3,
+     "travel_true": 33.33,
+     "speed_true": 93.6,
+     "length_det": 33.73,
+     "speed_det": 93.0
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 9.9,
+     "travel_true": 3.57,
+     "speed_true": 55.7,
+     "length_det": 4.07,
+     "speed_det": 62.5
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "shot",
+     "frame_err": -1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 11.5,
+     "travel_true": 2.76,
+     "speed_true": 58.2,
+     "length_det": 3.23,
+     "speed_det": 65.8
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 1
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 3,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 73,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 33.3,
+     "travel_true": 33.33,
+     "speed_true": 93.6,
+     "length_det": 36.73,
+     "speed_det": 94.4
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 9.9,
+     "travel_true": 3.57,
+     "speed_true": 55.7,
+     "length_det": 4.16,
+     "speed_det": 66.4
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 0
+   },
+   "kick_found": 2,
+   "kick_truth": 4,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 47,
+     "type": "pass",
+     "outcome": "incomplete"
+    },
+    {
+     "rel": 73,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 9.9,
+     "travel_true": 3.57,
+     "speed_true": 55.7,
+     "length_det": 4.16,
+     "speed_det": 66.4
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 33.3,
+     "travel_true": 33.33,
+     "speed_true": 93.6,
+     "length_det": 35.54,
+     "speed_det": 93.3
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 0
+   },
+   "kick_found": 2,
+   "kick_truth": 4,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 47,
+     "type": "pass",
+     "outcome": "incomplete"
+    },
+    {
+     "rel": 73,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  }
+ },
+ {
+  "clip": "m000009-p07",
+  "match": "TL-000009",
+  "kind": "passes",
+  "homography": {
+   "px_mean": 0.07,
+   "px_p90": 0.116,
+   "m_mean": 0.009,
+   "m_p90": 0.019,
+   "n": 1293
+  },
+  "camera_centre_err_m": 0.03,
+  "calib_fit": {
+   "cost": 0.859,
+   "model_to_image_px": 0.113,
+   "image_to_model_px": 0.66,
+   "line_px": 11188,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     35.34,
+     116.16,
+     30.15
+    ],
+    "look": [
+     38.69,
+     38.67
+    ],
+    "fov": 27.3
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1478.06,
+   "seconds": 27.6
+  },
+  "tracks": {
+   "ball_seen": 0.575,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.89,
+   "ball_px_p95": 1.06,
+   "ball_ground_err_m_median": 0.094,
+   "ball_ground_err_m_p90": 0.156,
+   "players_found": 0.947,
+   "player_err_m_median": 0.152,
+   "player_team_correct": 0.969
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 34.3,
+     "travel_true": 24.72,
+     "speed_true": 95.2,
+     "length_det": 25.14,
+     "speed_det": 95.3
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 4.8,
+     "travel_true": 4.79,
+     "speed_true": 47.4,
+     "length_det": 5.04,
+     "speed_det": 46.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 8.4,
+     "travel_true": 8.42,
+     "speed_true": 53.2,
+     "length_det": 7.62,
+     "speed_det": 52.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": false,
+     "length_true": 22.2,
+     "travel_true": 22.19,
+     "speed_true": 75.6,
+     "length_det": 5.61,
+     "speed_det": 77.8
+    }
+   ],
+   "n_truth": {
+    "pass": 5,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 5,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 25,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 34.3,
+     "travel_true": 24.72,
+     "speed_true": 95.2,
+     "length_det": 24.93,
+     "speed_det": 94.3
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": false,
+     "length_true": 22.2,
+     "travel_true": 22.19,
+     "speed_true": 75.6,
+     "length_det": 6.42,
+     "speed_det": 75.5
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 4.8,
+     "travel_true": 4.79,
+     "speed_true": 47.4,
+     "length_det": 5.23,
+     "speed_det": 48.6
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 8.4,
+     "travel_true": 8.42,
+     "speed_true": 53.2,
+     "length_det": 8.97,
+     "speed_det": 54.5
+    }
+   ],
+   "n_truth": {
+    "pass": 5,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 5,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 25,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 34.3,
+     "travel_true": 24.72,
+     "speed_true": 95.2,
+     "length_det": 25.14,
+     "speed_det": 95.3
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 4.8,
+     "travel_true": 4.79,
+     "speed_true": 47.4,
+     "length_det": 5.04,
+     "speed_det": 46.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 8.4,
+     "travel_true": 8.42,
+     "speed_true": 53.2,
+     "length_det": 7.62,
+     "speed_det": 52.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": false,
+     "length_true": 22.2,
+     "travel_true": 22.19,
+     "speed_true": 75.6,
+     "length_det": 5.61,
+     "speed_det": 77.8
+    }
+   ],
+   "n_truth": {
+    "pass": 5,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 5,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 25,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 4.8,
+     "travel_true": 4.79,
+     "speed_true": 47.4,
+     "length_det": 5.04,
+     "speed_det": 46.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 2,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 34.3,
+     "travel_true": 24.72,
+     "speed_true": 95.2,
+     "length_det": 22.91,
+     "speed_det": 92.6
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 8.4,
+     "travel_true": 8.42,
+     "speed_true": 53.2,
+     "length_det": 7.01,
+     "speed_det": 51.0
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": false,
+     "length_true": 22.2,
+     "travel_true": 22.19,
+     "speed_true": 75.6,
+     "length_det": 4.75,
+     "speed_det": 76.2
+    }
+   ],
+   "n_truth": {
+    "pass": 5,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 5,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 25,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  }
+ },
+ {
+  "clip": "m000009-p08",
+  "match": "TL-000009",
+  "kind": "passes",
+  "homography": {
+   "px_mean": 0.048,
+   "px_p90": 0.102,
+   "m_mean": 0.009,
+   "m_p90": 0.016,
+   "n": 1379
+  },
+  "camera_centre_err_m": 0.02,
+  "calib_fit": {
+   "cost": 1.278,
+   "model_to_image_px": 0.137,
+   "image_to_model_px": 0.639,
+   "line_px": 9565,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     42.83,
+     118.97,
+     26.7
+    ],
+    "look": [
+     46.8,
+     33.77
+    ],
+    "fov": 28.01
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1452.98,
+   "seconds": 22.5
+  },
+  "tracks": {
+   "ball_seen": 0.58,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.88,
+   "ball_px_p95": 1.05,
+   "ball_ground_err_m_median": 0.144,
+   "ball_ground_err_m_p90": 0.177,
+   "players_found": 0.973,
+   "player_err_m_median": 0.136,
+   "player_team_correct": 0.991
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 17.6,
+     "travel_true": 17.63,
+     "speed_true": 68.2,
+     "length_det": 16.77,
+     "speed_det": 66.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 5.1,
+     "travel_true": 5.12,
+     "speed_true": 47.9,
+     "length_det": 2.75,
+     "speed_det": 45.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 21.1,
+     "travel_true": 21.1,
+     "speed_true": 73.8,
+     "length_det": 17.51,
+     "speed_det": 73.3
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 3,
+    "shot": 0
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 3,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 109,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 17.6,
+     "travel_true": 17.63,
+     "speed_true": 68.2,
+     "length_det": 17.63,
+     "speed_det": 67.6
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 5.1,
+     "travel_true": 5.12,
+     "speed_true": 47.9,
+     "length_det": 2.97,
+     "speed_det": 50.4
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 21.1,
+     "travel_true": 21.1,
+     "speed_true": 73.8,
+     "length_det": 20.61,
+     "speed_det": 72.7
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [
+    154
+   ],
+   "missed_truth": [
+    {
+     "rel": 109,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 17.6,
+     "travel_true": 17.63,
+     "speed_true": 68.2,
+     "length_det": 16.77,
+     "speed_det": 66.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 5.1,
+     "travel_true": 5.12,
+     "speed_true": 47.9,
+     "length_det": 2.75,
+     "speed_det": 45.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 21.1,
+     "travel_true": 21.1,
+     "speed_true": 73.8,
+     "length_det": 17.51,
+     "speed_det": 73.3
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 3,
+    "shot": 0
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 3,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 109,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 17.6,
+     "travel_true": 17.63,
+     "speed_true": 68.2,
+     "length_det": 16.0,
+     "speed_det": 65.4
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 21.1,
+     "travel_true": 21.1,
+     "speed_true": 73.8,
+     "length_det": 17.51,
+     "speed_det": 73.3
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 0
+   },
+   "kick_found": 2,
+   "kick_truth": 4,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 78,
+     "type": "pass",
+     "outcome": "complete"
+    },
+    {
+     "rel": 109,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  }
+ },
+ {
+  "clip": "m000009-p09",
+  "match": "TL-000009",
+  "kind": "passes",
+  "homography": {
+   "px_mean": 0.398,
+   "px_p90": 0.652,
+   "m_mean": 0.054,
+   "m_p90": 0.085,
+   "n": 1219
+  },
+  "camera_centre_err_m": 0.08,
+  "calib_fit": {
+   "cost": 7.16,
+   "model_to_image_px": 0.197,
+   "image_to_model_px": 1.291,
+   "line_px": 10214,
+   "icp_kept": false,
+   "camera": {
+    "pos": [
+     25.87,
+     119.86,
+     25.99
+    ],
+    "look": [
+     25.06,
+     39.94
+    ],
+    "fov": 30.76
+   },
+   "tries": 3,
+   "trusted": false,
+   "focal_px_from_h": 1308.61,
+   "seconds": 142.6
+  },
+  "tracks": {
+   "ball_seen": 0.595,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 207.43,
+   "ball_px_p95": 379.8,
+   "ball_ground_err_m_median": 33.729,
+   "ball_ground_err_m_p90": 40.121,
+   "players_found": 0.956,
+   "player_err_m_median": 0.198,
+   "player_team_correct": 0.986
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 9.6,
+     "travel_true": 9.56,
+     "speed_true": 55.1,
+     "length_det": 8.25,
+     "speed_det": 52.6
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 10.6,
+     "travel_true": 10.56,
+     "speed_true": 56.7,
+     "length_det": 8.84,
+     "speed_det": 66.3
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 4,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 14.1,
+     "travel_true": 14.12,
+     "speed_true": 62.5,
+     "length_det": 6.02,
+     "speed_det": 60.4
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 2
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [
+    122
+   ],
+   "missed_truth": [
+    {
+     "rel": 114,
+     "type": "pass",
+     "outcome": "complete"
+    }
+   ]
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "shot",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 10.6,
+     "travel_true": 10.56,
+     "speed_true": 56.7,
+     "length_det": 10.52,
+     "speed_det": 57.9
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 14.1,
+     "travel_true": 14.12,
+     "speed_true": 62.5,
+     "length_det": 14.14,
+     "speed_det": 63.7
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "shot",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 10.6,
+     "travel_true": 10.58,
+     "speed_true": 56.7,
+     "length_det": 10.8,
+     "speed_det": 55.9
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 9.6,
+     "travel_true": 9.56,
+     "speed_true": 55.1,
+     "length_det": 9.51,
+     "speed_det": 54.8
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 2
+   },
+   "kick_found": 4,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 9.6,
+     "travel_true": 9.56,
+     "speed_true": 55.1,
+     "length_det": 8.25,
+     "speed_det": 52.6
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 10.6,
+     "travel_true": 10.56,
+     "speed_true": 56.7,
+     "length_det": 8.84,
+     "speed_det": 66.3
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 4,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 14.1,
+     "travel_true": 14.12,
+     "speed_true": 62.5,
+     "length_det": 6.02,
+     "speed_det": 60.4
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 2
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [
+    122
+   ],
+   "missed_truth": [
+    {
+     "rel": 114,
+     "type": "pass",
+     "outcome": "complete"
+    }
+   ]
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 4,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 14.1,
+     "travel_true": 14.12,
+     "speed_true": 62.5,
+     "length_det": 6.02,
+     "speed_det": 60.4
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 2
+   },
+   "kick_found": 1,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [
+    35,
+    122,
+    163
+   ],
+   "missed_truth": [
+    {
+     "rel": 25,
+     "type": "pass",
+     "outcome": "complete"
+    },
+    {
+     "rel": 114,
+     "type": "pass",
+     "outcome": "complete"
+    },
+    {
+     "rel": 157,
+     "type": "pass",
+     "outcome": "complete"
+    }
+   ]
+  }
+ },
+ {
+  "clip": "m000009-s00",
+  "match": "TL-000009",
+  "kind": "shot",
+  "homography": {
+   "px_mean": 0.072,
+   "px_p90": 0.113,
+   "m_mean": 0.01,
+   "m_p90": 0.017,
+   "n": 1161
+  },
+  "camera_centre_err_m": 0.07,
+  "calib_fit": {
+   "cost": 2.763,
+   "model_to_image_px": 0.057,
+   "image_to_model_px": 0.844,
+   "line_px": 11400,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     80.19,
+     123.66,
+     31.52
+    ],
+    "look": [
+     79.97,
+     24.22
+    ],
+    "fov": 27.48
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1469.66,
+   "seconds": 26.8
+  },
+  "tracks": {
+   "ball_seen": 0.778,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.72,
+   "ball_px_p95": 0.89,
+   "ball_ground_err_m_median": 0.18,
+   "ball_ground_err_m_p90": 0.224,
+   "players_found": 0.944,
+   "player_err_m_median": 0.136,
+   "player_team_correct": 0.975
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 29.0,
+     "travel_true": 29.03,
+     "speed_true": 46.4,
+     "length_det": 28.59,
+     "speed_det": 46.8
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "saved",
+     "height": null,
+     "aerial": false,
+     "lands_in_clip": true,
+     "speed_true": 48.3,
+     "length_det": 4.64,
+     "speed_det": 46.6
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 3,
+   "unmatched_det": [
+    87
+   ],
+   "missed_truth": []
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 29.0,
+     "travel_true": 29.03,
+     "speed_true": 46.4,
+     "length_det": 28.51,
+     "speed_det": 46.7
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "saved",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 48.3,
+     "length_det": 4.74,
+     "speed_det": 47.4
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 29.0,
+     "travel_true": 29.03,
+     "speed_true": 46.4,
+     "length_det": 26.6,
+     "speed_det": 149.9
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "saved",
+     "height": null,
+     "aerial": false,
+     "lands_in_clip": true,
+     "speed_true": 48.3,
+     "length_det": 4.64,
+     "speed_det": 46.6
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 3,
+   "unmatched_det": [
+    87
+   ],
+   "missed_truth": []
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 29.0,
+     "travel_true": 29.03,
+     "speed_true": 46.4,
+     "length_det": 28.47,
+     "speed_det": 48.3
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "saved",
+     "height": null,
+     "aerial": false,
+     "lands_in_clip": true,
+     "speed_true": 48.3,
+     "length_det": 4.64,
+     "speed_det": 46.6
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 3,
+   "unmatched_det": [
+    87
+   ],
+   "missed_truth": []
+  }
+ },
+ {
+  "clip": "m000009-s01",
+  "match": "TL-000009",
+  "kind": "shot",
+  "homography": {
+   "px_mean": 0.084,
+   "px_p90": 0.147,
+   "m_mean": 0.007,
+   "m_p90": 0.011,
+   "n": 1172
+  },
+  "camera_centre_err_m": 0.01,
+  "calib_fit": {
+   "cost": 7.149,
+   "model_to_image_px": 0.131,
+   "image_to_model_px": 1.321,
+   "line_px": 11537,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     70.99,
+     117.97,
+     27.8
+    ],
+    "look": [
+     78.03,
+     38.29
+    ],
+    "fov": 29.72
+   },
+   "tries": 3,
+   "trusted": false,
+   "focal_px_from_h": 1355.58,
+   "seconds": 136.1
+  },
+  "tracks": {
+   "ball_seen": 0.288,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.89,
+   "ball_px_p95": 0.97,
+   "ball_ground_err_m_median": 0.199,
+   "ball_ground_err_m_p90": 0.199,
+   "players_found": 0.884,
+   "player_err_m_median": 0.143,
+   "player_team_correct": 0.992
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 1,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 93.9,
+     "length_det": 29.95,
+     "speed_det": 92.9
+    }
+   ],
+   "n_truth": {
+    "pass": 0,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 0,
+    "shot": 1
+   },
+   "kick_found": 1,
+   "kick_truth": 1,
+   "kick_det": 1,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 0,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 93.9,
+     "length_det": 30.75,
+     "speed_det": 92.3
+    }
+   ],
+   "n_truth": {
+    "pass": 0,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 0,
+    "shot": 1
+   },
+   "kick_found": 1,
+   "kick_truth": 1,
+   "kick_det": 1,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "shot",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": false,
+     "lands_in_clip": true,
+     "speed_true": 93.9,
+     "length_det": 36.62,
+     "speed_det": 115.9
+    }
+   ],
+   "n_truth": {
+    "pass": 0,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 0
+   },
+   "kick_found": 1,
+   "kick_truth": 1,
+   "kick_det": 1,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 1,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 93.9,
+     "length_det": 29.95,
+     "speed_det": 92.9
+    }
+   ],
+   "n_truth": {
+    "pass": 0,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 0,
+    "shot": 1
+   },
+   "kick_found": 1,
+   "kick_truth": 1,
+   "kick_det": 1,
+   "unmatched_det": [],
+   "missed_truth": []
+  }
+ },
+ {
+  "clip": "m000009-s02",
+  "match": "TL-000009",
+  "kind": "shot",
+  "homography": {
+   "px_mean": 0.299,
+   "px_p90": 0.521,
+   "m_mean": 0.021,
+   "m_p90": 0.04,
+   "n": 1135
+  },
+  "camera_centre_err_m": 0.06,
+  "calib_fit": {
+   "cost": 3.52,
+   "model_to_image_px": 0.092,
+   "image_to_model_px": 0.955,
+   "line_px": 13506,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     71.44,
+     110.54,
+     28.19
+    ],
+    "look": [
+     74.19,
+     36.33
+    ],
+    "fov": 27.88
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1458.13,
+   "seconds": 35.2
+  },
+  "tracks": {
+   "ball_seen": 0.995,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.88,
+   "ball_px_p95": 278.07,
+   "ball_ground_err_m_median": 0.103,
+   "ball_ground_err_m_p90": 0.187,
+   "players_found": 0.926,
+   "player_err_m_median": 0.137,
+   "player_team_correct": 0.992
+  },
+  "vision": {
+   "rows": [],
+   "n_truth": {
+    "pass": 0,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 0,
+    "shot": 1
+   },
+   "kick_found": 0,
+   "kick_truth": 1,
+   "kick_det": 1,
+   "unmatched_det": [
+    155
+   ],
+   "missed_truth": [
+    {
+     "rel": 150,
+     "type": "shot",
+     "outcome": "saved"
+    }
+   ]
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 0,
+     "outcome": "saved",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 72.0,
+     "length_det": 20.94,
+     "speed_det": 72.5
+    }
+   ],
+   "n_truth": {
+    "pass": 0,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 0,
+    "shot": 1
+   },
+   "kick_found": 1,
+   "kick_truth": 1,
+   "kick_det": 1,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [],
+   "n_truth": {
+    "pass": 0,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 0,
+    "shot": 1
+   },
+   "kick_found": 0,
+   "kick_truth": 1,
+   "kick_det": 1,
+   "unmatched_det": [
+    155
+   ],
+   "missed_truth": [
+    {
+     "rel": 150,
+     "type": "shot",
+     "outcome": "saved"
+    }
+   ]
+  },
+  "ablation_no_kick_timing": {
+   "rows": [],
+   "n_truth": {
+    "pass": 0,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 0,
+    "shot": 1
+   },
+   "kick_found": 0,
+   "kick_truth": 1,
+   "kick_det": 1,
+   "unmatched_det": [
+    155
+   ],
+   "missed_truth": [
+    {
+     "rel": 150,
+     "type": "shot",
+     "outcome": "saved"
+    }
+   ]
+  }
+ },
+ {
+  "clip": "m000009-s03",
+  "match": "TL-000009",
+  "kind": "shot",
+  "homography": {
+   "px_mean": 0.132,
+   "px_p90": 0.251,
+   "m_mean": 0.019,
+   "m_p90": 0.04,
+   "n": 1339
+  },
+  "camera_centre_err_m": 0.08,
+  "calib_fit": {
+   "cost": 2.901,
+   "model_to_image_px": 0.108,
+   "image_to_model_px": 0.822,
+   "line_px": 10400,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     74.59,
+     119.48,
+     30.63
+    ],
+    "look": [
+     73.65,
+     39.35
+    ],
+    "fov": 31.1
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1294.66,
+   "seconds": 30.6
+  },
+  "tracks": {
+   "ball_seen": 0.821,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.68,
+   "ball_px_p95": 1.21,
+   "ball_ground_err_m_median": 0.149,
+   "ball_ground_err_m_p90": 0.18,
+   "players_found": 0.916,
+   "player_err_m_median": 0.135,
+   "player_team_correct": 0.981
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.9,
+     "travel_true": 6.86,
+     "speed_true": 50.7,
+     "length_det": 7.23,
+     "speed_det": 56.4
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 107.5,
+     "length_det": 18.05,
+     "speed_det": 108.3
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 0,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 107.5,
+     "length_det": 20.15,
+     "speed_det": 106.7
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.9,
+     "travel_true": 6.86,
+     "speed_true": 50.7,
+     "length_det": 7.36,
+     "speed_det": 52.5
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.9,
+     "travel_true": 6.86,
+     "speed_true": 50.7,
+     "length_det": 7.23,
+     "speed_det": 56.4
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": false,
+     "lands_in_clip": true,
+     "speed_true": 107.5,
+     "length_det": 22.32,
+     "speed_det": 137.0
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.9,
+     "travel_true": 6.86,
+     "speed_true": 50.7,
+     "length_det": 7.23,
+     "speed_det": 56.4
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 107.5,
+     "length_det": 18.05,
+     "speed_det": 108.3
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  }
+ },
+ {
+  "clip": "m000009-s04",
+  "match": "TL-000009",
+  "kind": "shot",
+  "homography": {
+   "px_mean": 0.066,
+   "px_p90": 0.12,
+   "m_mean": 0.007,
+   "m_p90": 0.013,
+   "n": 1331
+  },
+  "camera_centre_err_m": 0.06,
+  "calib_fit": {
+   "cost": 4.49,
+   "model_to_image_px": 0.116,
+   "image_to_model_px": 1.011,
+   "line_px": 11421,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     77.74,
+     113.6,
+     31.72
+    ],
+    "look": [
+     75.35,
+     27.12
+    ],
+    "fov": 33.63
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1199.15,
+   "seconds": 76.9
+  },
+  "tracks": {
+   "ball_seen": 0.642,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.7,
+   "ball_px_p95": 179.09,
+   "ball_ground_err_m_median": 0.059,
+   "ball_ground_err_m_p90": 27.814,
+   "players_found": 0.937,
+   "player_err_m_median": 0.142,
+   "player_team_correct": 0.986
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 31.9,
+     "travel_true": 31.94,
+     "speed_true": 48.0,
+     "length_det": 31.47,
+     "speed_det": 48.0
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "saved",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 49.2,
+     "length_det": 11.97,
+     "speed_det": 51.3
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 31.9,
+     "travel_true": 31.94,
+     "speed_true": 48.0,
+     "length_det": 31.41,
+     "speed_det": 47.9
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "saved",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 49.2,
+     "length_det": 11.73,
+     "speed_det": 50.3
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 31.9,
+     "travel_true": 31.94,
+     "speed_true": 48.0,
+     "length_det": 31.96,
+     "speed_det": 139.4
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "saved",
+     "height": null,
+     "aerial": false,
+     "lands_in_clip": true,
+     "speed_true": 49.2,
+     "length_det": 10.88,
+     "speed_det": 39.4
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 31.9,
+     "travel_true": 31.94,
+     "speed_true": 48.0,
+     "length_det": 31.44,
+     "speed_det": 48.8
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "saved",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 49.2,
+     "length_det": 11.97,
+     "speed_det": 51.3
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  }
+ },
+ {
+  "clip": "m000011-p05",
+  "match": "TL-000011",
+  "kind": "passes",
+  "homography": {
+   "px_mean": 0.162,
+   "px_p90": 0.32,
+   "m_mean": 0.013,
+   "m_p90": 0.025,
+   "n": 1236
+  },
+  "camera_centre_err_m": 0.15,
+  "calib_fit": {
+   "cost": 1.027,
+   "model_to_image_px": 0.106,
+   "image_to_model_px": 0.692,
+   "line_px": 7649,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     55.22,
+     108.39,
+     33.18
+    ],
+    "look": [
+     54.33,
+     34.25
+    ],
+    "fov": 27.97
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1449.95,
+   "seconds": 23.9
+  },
+  "tracks": {
+   "ball_seen": 0.695,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.83,
+   "ball_px_p95": 1.1,
+   "ball_ground_err_m_median": 0.079,
+   "ball_ground_err_m_p90": 0.097,
+   "players_found": 0.952,
+   "player_err_m_median": 0.203,
+   "player_team_correct": 0.995
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 12.1,
+     "travel_true": 12.16,
+     "speed_true": 59.3,
+     "length_det": 12.05,
+     "speed_det": 60.3
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 16.8,
+     "travel_true": 16.77,
+     "speed_true": 66.8,
+     "length_det": 16.91,
+     "speed_det": 66.5
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 5.7,
+     "travel_true": 5.7,
+     "speed_true": 48.9,
+     "length_det": 5.62,
+     "speed_det": 46.8
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 3,
+    "shot": 0
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 3,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 57,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 16.8,
+     "travel_true": 16.77,
+     "speed_true": 66.8,
+     "length_det": 16.83,
+     "speed_det": 66.4
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 5.7,
+     "travel_true": 5.7,
+     "speed_true": 48.9,
+     "length_det": 6.19,
+     "speed_det": 49.7
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 12.1,
+     "travel_true": 12.16,
+     "speed_true": 59.3,
+     "length_det": 12.79,
+     "speed_det": 60.1
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 3,
+    "shot": 0
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 3,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 57,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 12.1,
+     "travel_true": 12.16,
+     "speed_true": 59.3,
+     "length_det": 12.05,
+     "speed_det": 60.3
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 16.8,
+     "travel_true": 16.77,
+     "speed_true": 66.8,
+     "length_det": 16.91,
+     "speed_det": 66.5
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 5.7,
+     "travel_true": 5.7,
+     "speed_true": 48.9,
+     "length_det": 5.62,
+     "speed_det": 46.8
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 3,
+    "shot": 0
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 3,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 57,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 16.8,
+     "travel_true": 16.77,
+     "speed_true": 66.8,
+     "length_det": 16.12,
+     "speed_det": 65.6
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 5.7,
+     "travel_true": 5.7,
+     "speed_true": 48.9,
+     "length_det": 5.62,
+     "speed_det": 46.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 12.1,
+     "travel_true": 12.16,
+     "speed_true": 59.3,
+     "length_det": 10.65,
+     "speed_det": 57.9
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 3,
+    "shot": 0
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 3,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 57,
+     "type": "pass",
+     "outcome": "incomplete"
+    }
+   ]
+  }
+ },
+ {
+  "clip": "m000011-p06",
+  "match": "TL-000011",
+  "kind": "passes",
+  "homography": {
+   "px_mean": 0.443,
+   "px_p90": 0.672,
+   "m_mean": 0.066,
+   "m_p90": 0.145,
+   "n": 1334
+  },
+  "camera_centre_err_m": 0.14,
+  "calib_fit": {
+   "cost": 3.096,
+   "model_to_image_px": 0.093,
+   "image_to_model_px": 0.841,
+   "line_px": 10635,
+   "icp_kept": false,
+   "camera": {
+    "pos": [
+     73.16,
+     115.57,
+     27.23
+    ],
+    "look": [
+     70.01,
+     31.8
+    ],
+    "fov": 30.36
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1326.63,
+   "seconds": 37.8
+  },
+  "tracks": {
+   "ball_seen": 0.76,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.8,
+   "ball_px_p95": 347.35,
+   "ball_ground_err_m_median": 0.17,
+   "ball_ground_err_m_p90": 22.304,
+   "players_found": 0.918,
+   "player_err_m_median": 0.203,
+   "player_team_correct": 0.981
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 15.0,
+     "travel_true": 10.9,
+     "speed_true": 63.8,
+     "length_det": 10.54,
+     "speed_det": 46.1
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 22.3,
+     "travel_true": 2.67,
+     "speed_true": 75.7,
+     "length_det": 3.31,
+     "speed_det": 81.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.7,
+     "travel_true": 6.74,
+     "speed_true": 50.5,
+     "length_det": 5.05,
+     "speed_det": 50.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 3,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": false,
+     "length_true": 10.5,
+     "travel_true": 10.49,
+     "speed_true": 56.6,
+     "length_det": 3.36,
+     "speed_det": 52.0
+    }
+   ],
+   "n_truth": {
+    "pass": 5,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 5,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 120,
+     "type": "pass",
+     "outcome": "complete"
+    }
+   ]
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 15.0,
+     "travel_true": 10.9,
+     "speed_true": 63.8,
+     "length_det": 11.03,
+     "speed_det": 45.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.7,
+     "travel_true": 6.74,
+     "speed_true": 50.5,
+     "length_det": 6.87,
+     "speed_det": 50.4
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": false,
+     "length_true": 10.5,
+     "travel_true": 10.49,
+     "speed_true": 56.6,
+     "length_det": 5.26,
+     "speed_det": 57.5
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 22.3,
+     "travel_true": 2.67,
+     "speed_true": 75.7,
+     "length_det": 3.21,
+     "speed_det": 76.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.3,
+     "travel_true": 6.31,
+     "speed_true": 49.8,
+     "length_det": 6.8,
+     "speed_det": 51.1
+    }
+   ],
+   "n_truth": {
+    "pass": 5,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 5,
+    "shot": 0
+   },
+   "kick_found": 5,
+   "kick_truth": 5,
+   "kick_det": 5,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 15.0,
+     "travel_true": 10.9,
+     "speed_true": 63.8,
+     "length_det": 10.54,
+     "speed_det": 46.1
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 22.3,
+     "travel_true": 2.67,
+     "speed_true": 75.7,
+     "length_det": 3.31,
+     "speed_det": 81.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.7,
+     "travel_true": 6.74,
+     "speed_true": 50.5,
+     "length_det": 5.05,
+     "speed_det": 50.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 3,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": false,
+     "length_true": 10.5,
+     "travel_true": 10.49,
+     "speed_true": 56.6,
+     "length_det": 3.36,
+     "speed_det": 52.0
+    }
+   ],
+   "n_truth": {
+    "pass": 5,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 5,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 120,
+     "type": "pass",
+     "outcome": "complete"
+    }
+   ]
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 15.0,
+     "travel_true": 10.9,
+     "speed_true": 63.8,
+     "length_det": 10.54,
+     "speed_det": 46.1
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 22.3,
+     "travel_true": 2.67,
+     "speed_true": 75.7,
+     "length_det": 3.31,
+     "speed_det": 81.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.7,
+     "travel_true": 6.74,
+     "speed_true": 50.5,
+     "length_det": 5.05,
+     "speed_det": 50.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 3,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": false,
+     "length_true": 10.5,
+     "travel_true": 10.49,
+     "speed_true": 56.6,
+     "length_det": 3.36,
+     "speed_det": 52.0
+    }
+   ],
+   "n_truth": {
+    "pass": 5,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 5,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": [
+    {
+     "rel": 120,
+     "type": "pass",
+     "outcome": "complete"
+    }
+   ]
+  }
+ },
+ {
+  "clip": "m000011-p07",
+  "match": "TL-000011",
+  "kind": "passes",
+  "homography": {
+   "px_mean": 0.08,
+   "px_p90": 0.136,
+   "m_mean": 0.012,
+   "m_p90": 0.019,
+   "n": 1575
+  },
+  "camera_centre_err_m": 0.04,
+  "calib_fit": {
+   "cost": 1.209,
+   "model_to_image_px": 0.148,
+   "image_to_model_px": 0.619,
+   "line_px": 9748,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     49.34,
+     120.7,
+     31.98
+    ],
+    "look": [
+     48.45,
+     44.31
+    ],
+    "fov": 31.82
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1266.22,
+   "seconds": 23.2
+  },
+  "tracks": {
+   "ball_seen": 0.705,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.77,
+   "ball_px_p95": 0.95,
+   "ball_ground_err_m_median": 0.078,
+   "ball_ground_err_m_p90": 0.103,
+   "players_found": 0.962,
+   "player_err_m_median": 0.221,
+   "player_team_correct": 0.982
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 17.9,
+     "travel_true": 17.85,
+     "speed_true": 68.5,
+     "length_det": 18.01,
+     "speed_det": 69.6
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 14.8,
+     "travel_true": 8.88,
+     "speed_true": 63.6,
+     "length_det": 9.09,
+     "speed_det": 63.6
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 13.5,
+     "travel_true": 13.49,
+     "speed_true": 61.5,
+     "length_det": 13.71,
+     "speed_det": 62.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.9,
+     "travel_true": 6.88,
+     "speed_true": 50.8,
+     "length_det": 7.23,
+     "speed_det": 52.9
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.9,
+     "travel_true": 6.88,
+     "speed_true": 50.8,
+     "length_det": 6.83,
+     "speed_det": 51.4
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 17.9,
+     "travel_true": 17.85,
+     "speed_true": 68.5,
+     "length_det": 17.85,
+     "speed_det": 68.3
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 14.8,
+     "travel_true": 8.88,
+     "speed_true": 63.6,
+     "length_det": 9.03,
+     "speed_det": 63.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 13.5,
+     "travel_true": 13.49,
+     "speed_true": 61.5,
+     "length_det": 13.94,
+     "speed_det": 61.7
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 17.9,
+     "travel_true": 17.85,
+     "speed_true": 68.5,
+     "length_det": 18.01,
+     "speed_det": 69.6
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 14.8,
+     "travel_true": 8.88,
+     "speed_true": 63.6,
+     "length_det": 9.09,
+     "speed_det": 63.6
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 13.5,
+     "travel_true": 13.49,
+     "speed_true": 61.5,
+     "length_det": 13.71,
+     "speed_det": 62.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.9,
+     "travel_true": 6.88,
+     "speed_true": 50.8,
+     "length_det": 7.23,
+     "speed_det": 52.9
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 13.5,
+     "travel_true": 13.49,
+     "speed_true": 61.5,
+     "length_det": 13.71,
+     "speed_det": 62.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.9,
+     "travel_true": 6.88,
+     "speed_true": 50.8,
+     "length_det": 6.02,
+     "speed_det": 50.0
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "incomplete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 14.8,
+     "travel_true": 8.88,
+     "speed_true": 63.6,
+     "length_det": 8.34,
+     "speed_det": 61.7
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 3,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 17.9,
+     "travel_true": 17.85,
+     "speed_true": 68.5,
+     "length_det": 15.61,
+     "speed_det": 66.5
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": []
+  }
+ },
+ {
+  "clip": "m000011-p08",
+  "match": "TL-000011",
+  "kind": "passes",
+  "homography": {
+   "px_mean": 0.085,
+   "px_p90": 0.149,
+   "m_mean": 0.007,
+   "m_p90": 0.012,
+   "n": 1054
+  },
+  "camera_centre_err_m": 0.06,
+  "calib_fit": {
+   "cost": 3.89,
+   "model_to_image_px": 0.108,
+   "image_to_model_px": 1.012,
+   "line_px": 11555,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     32.31,
+     113.61,
+     28.19
+    ],
+    "look": [
+     25.08,
+     30.6
+    ],
+    "fov": 26.83
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1506.33,
+   "seconds": 71.6
+  },
+  "tracks": {
+   "ball_seen": 0.665,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 1.09,
+   "ball_px_p95": 191.8,
+   "ball_ground_err_m_median": 0.211,
+   "ball_ground_err_m_p90": 26.788,
+   "players_found": 0.919,
+   "player_err_m_median": 0.194,
+   "player_team_correct": 0.981
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 16.1,
+     "travel_true": 16.06,
+     "speed_true": 65.6,
+     "length_det": 15.51,
+     "speed_det": 66.1
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 5.6,
+     "travel_true": 5.58,
+     "speed_true": 48.6,
+     "length_det": 5.04,
+     "speed_det": 52.4
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 20.6,
+     "travel_true": 20.62,
+     "speed_true": 73.0,
+     "length_det": 19.11,
+     "speed_det": 72.1
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [
+    30
+   ],
+   "missed_truth": [
+    {
+     "rel": 25,
+     "type": "pass",
+     "outcome": "complete"
+    }
+   ]
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 13.0,
+     "travel_true": 13.04,
+     "speed_true": 60.7,
+     "length_det": 13.06,
+     "speed_det": 60.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 16.1,
+     "travel_true": 16.06,
+     "speed_true": 65.6,
+     "length_det": 16.12,
+     "speed_det": 65.7
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 5.6,
+     "travel_true": 5.58,
+     "speed_true": 48.6,
+     "length_det": 5.49,
+     "speed_det": 51.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 20.6,
+     "travel_true": 20.62,
+     "speed_true": 73.0,
+     "length_det": 20.95,
+     "speed_det": 72.6
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 4,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 16.1,
+     "travel_true": 16.06,
+     "speed_true": 65.6,
+     "length_det": 15.51,
+     "speed_det": 66.1
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 5.6,
+     "travel_true": 5.58,
+     "speed_true": 48.6,
+     "length_det": 5.04,
+     "speed_det": 52.4
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 20.6,
+     "travel_true": 20.62,
+     "speed_true": 73.0,
+     "length_det": 19.11,
+     "speed_det": 72.1
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [
+    30
+   ],
+   "missed_truth": [
+    {
+     "rel": 25,
+     "type": "pass",
+     "outcome": "complete"
+    }
+   ]
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 16.1,
+     "travel_true": 16.06,
+     "speed_true": 65.6,
+     "length_det": 14.66,
+     "speed_det": 65.1
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 20.6,
+     "travel_true": 20.62,
+     "speed_true": 73.0,
+     "length_det": 19.11,
+     "speed_det": 72.1
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 3,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 5.6,
+     "travel_true": 5.58,
+     "speed_true": 48.6,
+     "length_det": 3.87,
+     "speed_det": 47.6
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 4,
+    "shot": 0
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [
+    30
+   ],
+   "missed_truth": [
+    {
+     "rel": 25,
+     "type": "pass",
+     "outcome": "complete"
+    }
+   ]
+  }
+ },
+ {
+  "clip": "m000011-p09",
+  "match": "TL-000011",
+  "kind": "passes",
+  "homography": {
+   "px_mean": 0.073,
+   "px_p90": 0.107,
+   "m_mean": 0.01,
+   "m_p90": 0.02,
+   "n": 1135
+  },
+  "camera_centre_err_m": 0.04,
+  "calib_fit": {
+   "cost": 3.243,
+   "model_to_image_px": 0.074,
+   "image_to_model_px": 0.921,
+   "line_px": 13003,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     74.85,
+     113.14,
+     33.77
+    ],
+    "look": [
+     79.94,
+     36.9
+    ],
+    "fov": 30.04
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1346.69,
+   "seconds": 25.4
+  },
+  "tracks": {
+   "ball_seen": 0.66,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.66,
+   "ball_px_p95": 618.95,
+   "ball_ground_err_m_median": 0.15,
+   "ball_ground_err_m_p90": 39.799,
+   "players_found": 0.932,
+   "player_err_m_median": 0.211,
+   "player_team_correct": 0.954
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "shot",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 10.6,
+     "travel_true": 10.63,
+     "speed_true": 56.8,
+     "length_det": 11.3,
+     "speed_det": 57.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 10.4,
+     "travel_true": 10.38,
+     "speed_true": 56.4,
+     "length_det": 8.35,
+     "speed_det": 59.0
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.3,
+     "travel_true": 6.31,
+     "speed_true": 49.8,
+     "length_det": 4.84,
+     "speed_det": 50.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 3,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 22.9,
+     "travel_true": 22.93,
+     "speed_true": 76.8,
+     "length_det": 20.26,
+     "speed_det": 74.3
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 3,
+    "shot": 1
+   },
+   "kick_found": 4,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 10.4,
+     "travel_true": 10.38,
+     "speed_true": 56.4,
+     "length_det": 10.34,
+     "speed_det": 57.3
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.3,
+     "travel_true": 6.31,
+     "speed_true": 49.8,
+     "length_det": 6.25,
+     "speed_det": 50.3
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 22.9,
+     "travel_true": 22.93,
+     "speed_true": 76.8,
+     "length_det": 23.16,
+     "speed_det": 76.4
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "shot",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 10.6,
+     "travel_true": 10.63,
+     "speed_true": 56.8,
+     "length_det": 11.23,
+     "speed_det": 57.2
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 3,
+    "shot": 1
+   },
+   "kick_found": 4,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "shot",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 10.6,
+     "travel_true": 10.63,
+     "speed_true": 56.8,
+     "length_det": 11.3,
+     "speed_det": 57.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 10.4,
+     "travel_true": 10.38,
+     "speed_true": 56.4,
+     "length_det": 8.35,
+     "speed_det": 59.0
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.3,
+     "travel_true": 6.31,
+     "speed_true": 49.8,
+     "length_det": 4.84,
+     "speed_det": 50.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 3,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 22.9,
+     "travel_true": 22.93,
+     "speed_true": 76.8,
+     "length_det": 20.26,
+     "speed_det": 74.3
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 3,
+    "shot": 1
+   },
+   "kick_found": 4,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "shot",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 10.6,
+     "travel_true": 10.63,
+     "speed_true": 56.8,
+     "length_det": 11.3,
+     "speed_det": 57.8
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 2,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 6.3,
+     "travel_true": 6.31,
+     "speed_true": 49.8,
+     "length_det": 4.3,
+     "speed_det": 48.2
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 3,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 22.9,
+     "travel_true": 22.93,
+     "speed_true": 76.8,
+     "length_det": 20.26,
+     "speed_det": 74.3
+    }
+   ],
+   "n_truth": {
+    "pass": 4,
+    "shot": 0
+   },
+   "n_det": {
+    "pass": 3,
+    "shot": 1
+   },
+   "kick_found": 3,
+   "kick_truth": 4,
+   "kick_det": 4,
+   "unmatched_det": [
+    87
+   ],
+   "missed_truth": [
+    {
+     "rel": 80,
+     "type": "pass",
+     "outcome": "complete"
+    }
+   ]
+  }
+ },
+ {
+  "clip": "m000011-s00",
+  "match": "TL-000011",
+  "kind": "shot",
+  "homography": {
+   "px_mean": 0.09,
+   "px_p90": 0.162,
+   "m_mean": 0.012,
+   "m_p90": 0.024,
+   "n": 1152
+  },
+  "camera_centre_err_m": 0.06,
+  "calib_fit": {
+   "cost": 2.589,
+   "model_to_image_px": 0.115,
+   "image_to_model_px": 0.799,
+   "line_px": 11051,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     71.57,
+     116.26,
+     26.01
+    ],
+    "look": [
+     78.6,
+     27.91
+    ],
+    "fov": 29.44
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1361.23,
+   "seconds": 25.5
+  },
+  "tracks": {
+   "ball_seen": 0.83,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.79,
+   "ball_px_p95": 0.91,
+   "ball_ground_err_m_median": 0.234,
+   "ball_ground_err_m_p90": 0.287,
+   "players_found": 0.932,
+   "player_err_m_median": 0.206,
+   "player_team_correct": 0.969
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 27.0,
+     "travel_true": 26.97,
+     "speed_true": 45.2,
+     "length_det": 26.51,
+     "speed_det": 44.2
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": -1,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 53.3,
+     "length_det": 8.96,
+     "speed_det": 50.4
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 27.0,
+     "travel_true": 26.97,
+     "speed_true": 45.2,
+     "length_det": 26.43,
+     "speed_det": 44.0
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": -1,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 53.3,
+     "length_det": 9.23,
+     "speed_det": 51.9
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 27.0,
+     "travel_true": 26.97,
+     "speed_true": 45.2,
+     "length_det": 26.31,
+     "speed_det": 170.0
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": -1,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": false,
+     "lands_in_clip": true,
+     "speed_true": 53.3,
+     "length_det": 17.59,
+     "speed_det": 104.0
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 27.0,
+     "travel_true": 26.97,
+     "speed_true": 45.2,
+     "length_det": 26.51,
+     "speed_det": 44.2
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": -1,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 53.3,
+     "length_det": 8.96,
+     "speed_det": 50.4
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  }
+ },
+ {
+  "clip": "m000011-s01",
+  "match": "TL-000011",
+  "kind": "shot",
+  "homography": {
+   "px_mean": 0.078,
+   "px_p90": 0.13,
+   "m_mean": 0.012,
+   "m_p90": 0.027,
+   "n": 1142
+  },
+  "camera_centre_err_m": 0.04,
+  "calib_fit": {
+   "cost": 3.523,
+   "model_to_image_px": 0.133,
+   "image_to_model_px": 0.895,
+   "line_px": 11956,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     82.52,
+     115.42,
+     29.19
+    ],
+    "look": [
+     79.98,
+     41.35
+    ],
+    "fov": 28.71
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1411.49,
+   "seconds": 31.2
+  },
+  "tracks": {
+   "ball_seen": 0.566,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.86,
+   "ball_px_p95": 0.96,
+   "ball_ground_err_m_median": 0.17,
+   "ball_ground_err_m_p90": 0.17,
+   "players_found": 0.548,
+   "player_err_m_median": 0.2,
+   "player_team_correct": 0.96
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 31.4,
+     "travel_true": 31.37,
+     "speed_true": 47.7,
+     "length_det": 30.93,
+     "speed_det": 48.0
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "goal",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 40.3,
+     "length_det": 3.57,
+     "speed_det": 35.7
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 31.4,
+     "travel_true": 31.37,
+     "speed_true": 47.7,
+     "length_det": 30.87,
+     "speed_det": 47.9
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "goal",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 40.3,
+     "length_det": 4.12,
+     "speed_det": 41.2
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 31.4,
+     "travel_true": 31.37,
+     "speed_true": 47.7,
+     "length_det": 39.78,
+     "speed_det": 129.9
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "goal",
+     "height": null,
+     "aerial": false,
+     "lands_in_clip": true,
+     "speed_true": 40.3,
+     "length_det": 5.35,
+     "speed_det": 63.7
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 31.4,
+     "travel_true": 31.37,
+     "speed_true": 47.7,
+     "length_det": 30.93,
+     "speed_det": 48.8
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "goal",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 40.3,
+     "length_det": 3.57,
+     "speed_det": 35.7
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  }
+ },
+ {
+  "clip": "m000011-s02",
+  "match": "TL-000011",
+  "kind": "shot",
+  "homography": {
+   "px_mean": 0.09,
+   "px_p90": 0.146,
+   "m_mean": 0.013,
+   "m_p90": 0.029,
+   "n": 1361
+  },
+  "camera_centre_err_m": 0.05,
+  "calib_fit": {
+   "cost": 3.122,
+   "model_to_image_px": 0.115,
+   "image_to_model_px": 0.856,
+   "line_px": 10754,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     44.87,
+     113.61,
+     30.21
+    ],
+    "look": [
+     38.78,
+     35.02
+    ],
+    "fov": 31.18
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1293.14,
+   "seconds": 40.2
+  },
+  "tracks": {
+   "ball_seen": 0.939,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.82,
+   "ball_px_p95": 1.04,
+   "ball_ground_err_m_median": 0.115,
+   "ball_ground_err_m_p90": 0.138,
+   "players_found": 0.962,
+   "player_err_m_median": 0.199,
+   "player_team_correct": 0.984
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 17.9,
+     "travel_true": 17.85,
+     "speed_true": 68.5,
+     "length_det": 17.18,
+     "speed_det": 68.0
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "goal",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 111.0,
+     "length_det": 18.3,
+     "speed_det": 109.8
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 0,
+     "outcome": "goal",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 111.0,
+     "length_det": 20.58,
+     "speed_det": 108.9
+    },
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 17.9,
+     "travel_true": 17.85,
+     "speed_true": 68.5,
+     "length_det": 18.69,
+     "speed_det": 69.1
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 17.9,
+     "travel_true": 17.85,
+     "speed_true": 68.5,
+     "length_det": 17.18,
+     "speed_det": 68.0
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "goal",
+     "height": null,
+     "aerial": false,
+     "lands_in_clip": true,
+     "speed_true": 111.0,
+     "length_det": 20.95,
+     "speed_det": 135.5
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "ground",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 17.9,
+     "travel_true": 17.85,
+     "speed_true": 68.5,
+     "length_det": 17.18,
+     "speed_det": 68.0
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "goal",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 111.0,
+     "length_det": 18.3,
+     "speed_det": 109.8
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  }
+ },
+ {
+  "clip": "m000011-s03",
+  "match": "TL-000011",
+  "kind": "shot",
+  "homography": {
+   "px_mean": 0.068,
+   "px_p90": 0.119,
+   "m_mean": 0.01,
+   "m_p90": 0.019,
+   "n": 1172
+  },
+  "camera_centre_err_m": 0.04,
+  "calib_fit": {
+   "cost": 3.484,
+   "model_to_image_px": 0.159,
+   "image_to_model_px": 0.89,
+   "line_px": 10470,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     71.37,
+     116.05,
+     31.79
+    ],
+    "look": [
+     79.98,
+     21.77
+    ],
+    "fov": 30.62
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1315.7,
+   "seconds": 48.4
+  },
+  "tracks": {
+   "ball_seen": 0.557,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.7,
+   "ball_px_p95": 116.33,
+   "ball_ground_err_m_median": 0.602,
+   "ball_ground_err_m_p90": 30.35,
+   "players_found": 0.443,
+   "player_err_m_median": 0.202,
+   "player_team_correct": 0.945
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 24.3,
+     "travel_true": 24.32,
+     "speed_true": 43.4,
+     "length_det": 17.27,
+     "speed_det": 81.8
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 1
+   },
+   "kick_found": 1,
+   "kick_truth": 2,
+   "kick_det": 3,
+   "unmatched_det": [
+    124,
+    158
+   ],
+   "missed_truth": [
+    {
+     "rel": 150,
+     "type": "shot",
+     "outcome": "off_target"
+    }
+   ]
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 0,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 24.3,
+     "travel_true": 24.32,
+     "speed_true": 43.4,
+     "length_det": 11.92,
+     "speed_det": 53.6
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 1
+   },
+   "kick_found": 1,
+   "kick_truth": 2,
+   "kick_det": 3,
+   "unmatched_det": [
+    123,
+    155
+   ],
+   "missed_truth": [
+    {
+     "rel": 150,
+     "type": "shot",
+     "outcome": "off_target"
+    }
+   ]
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 24.3,
+     "travel_true": 24.32,
+     "speed_true": 43.4,
+     "length_det": 19.69,
+     "speed_det": 143.8
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 1
+   },
+   "kick_found": 1,
+   "kick_truth": 2,
+   "kick_det": 3,
+   "unmatched_det": [
+    124,
+    158
+   ],
+   "missed_truth": [
+    {
+     "rel": 150,
+     "type": "shot",
+     "outcome": "off_target"
+    }
+   ]
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 24.3,
+     "travel_true": 24.32,
+     "speed_true": 43.4,
+     "length_det": 17.27,
+     "speed_det": 81.8
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 2,
+    "shot": 1
+   },
+   "kick_found": 1,
+   "kick_truth": 2,
+   "kick_det": 3,
+   "unmatched_det": [
+    124,
+    158
+   ],
+   "missed_truth": [
+    {
+     "rel": 150,
+     "type": "shot",
+     "outcome": "off_target"
+    }
+   ]
+  }
+ },
+ {
+  "clip": "m000011-s04",
+  "match": "TL-000011",
+  "kind": "shot",
+  "homography": {
+   "px_mean": 0.065,
+   "px_p90": 0.077,
+   "m_mean": 0.004,
+   "m_p90": 0.007,
+   "n": 981
+  },
+  "camera_centre_err_m": 0.01,
+  "calib_fit": {
+   "cost": 4.541,
+   "model_to_image_px": 0.098,
+   "image_to_model_px": 1.026,
+   "line_px": 9396,
+   "icp_kept": true,
+   "camera": {
+    "pos": [
+     78.23,
+     112.14,
+     27.85
+    ],
+    "look": [
+     79.97,
+     24.72
+    ],
+    "fov": 25.94
+   },
+   "tries": 1,
+   "trusted": true,
+   "focal_px_from_h": 1554.05,
+   "seconds": 50.8
+  },
+  "tracks": {
+   "ball_seen": 0.722,
+   "ball_in_frame": 1.0,
+   "ball_px_median": 0.85,
+   "ball_px_p95": 1.04,
+   "ball_ground_err_m_median": 0.181,
+   "ball_ground_err_m_p90": 0.233,
+   "players_found": 0.87,
+   "player_err_m_median": 0.198,
+   "player_team_correct": 0.967
+  },
+  "vision": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 38.2,
+     "travel_true": 38.16,
+     "speed_true": 50.7,
+     "length_det": 37.85,
+     "speed_det": 51.6
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 52.6,
+     "length_det": 10.05,
+     "speed_det": 53.2
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "oracle": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": -1,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": true,
+     "lands_in_clip": true,
+     "length_true": 38.2,
+     "travel_true": 38.16,
+     "speed_true": 50.7,
+     "length_det": 37.47,
+     "speed_det": 49.6
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 52.6,
+     "length_det": 10.01,
+     "speed_det": 53.0
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_ground_only": {
+   "rows": [
+    {
+     "truth_type": "pass",
+     "det_type": "pass",
+     "frame_err": 1,
+     "outcome": "complete",
+     "height": "high",
+     "aerial": false,
+     "lands_in_clip": true,
+     "length_true": 38.2,
+     "travel_true": 38.16,
+     "speed_true": 50.7,
+     "length_det": 34.4,
+     "speed_det": 149.8
+    },
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": false,
+     "lands_in_clip": true,
+     "speed_true": 52.6,
+     "length_det": 11.23,
+     "speed_det": 66.5
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 2,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [],
+   "missed_truth": []
+  },
+  "ablation_no_kick_timing": {
+   "rows": [
+    {
+     "truth_type": "shot",
+     "det_type": "shot",
+     "frame_err": 2,
+     "outcome": "off_target",
+     "height": null,
+     "aerial": true,
+     "lands_in_clip": true,
+     "speed_true": 52.6,
+     "length_det": 10.05,
+     "speed_det": 53.2
+    }
+   ],
+   "n_truth": {
+    "pass": 1,
+    "shot": 1
+   },
+   "n_det": {
+    "pass": 1,
+    "shot": 1
+   },
+   "kick_found": 1,
+   "kick_truth": 2,
+   "kick_det": 2,
+   "unmatched_det": [
+    88
+   ],
+   "missed_truth": [
+    {
+     "rel": 82,
+     "type": "pass",
+     "outcome": "complete"
+    }
+   ]
+  }
+ }
+]
