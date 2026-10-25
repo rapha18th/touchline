@@ -34,6 +34,10 @@ window.capture = {
   async init(matchId) {
     const meta = await fetch(`/api/match/${matchId}`).then((r) => r.json());
     pitch = new Pitch(canvas, stub(meta));
+    // The feed's camera sits on the near stand's gantry, so the near tier is under it, out of shot.
+    pitch.scene.traverse((o) => {
+      if (o.isMesh && o.geometry.type === "BoxGeometry" && o.geometry.parameters.depth === 14 && o.position.z > 34) o.visible = false;
+    });
     pitch.renderer.setPixelRatio(1);
     pitch.renderer.setSize(W, H, false);
     pitch.camera.aspect = W / H;
