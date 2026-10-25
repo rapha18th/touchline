@@ -9,17 +9,19 @@ dependencies = [
     "mcp>=1.30,<2",
     "azure-identity>=1.26",
     "pydantic>=2",
+    "opentelemetry-sdk==1.45.1",
+    "azure-monitor-opentelemetry-exporter==1.0.0b58",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "jsonschema>=4.20"]
 
 [build-system]
 requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["touchline_live", "touchline_live.crew"]
+packages = ["touchline_live", "touchline_live.crew", "touchline_live.eval"]
 
 [tool.setuptools.package-data]
 touchline_live = ["pass_difficulty.json"]

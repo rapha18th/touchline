@@ -1,0 +1,135 @@
+{
+ "summary": {
+  "match_id": "TL-000008",
+  "match_s": 1960.0,
+  "questions": 10,
+  "first_pass": 8,
+  "repaired": 1,
+  "refused": 0,
+  "errors": 1,
+  "median_ms": 4387.5
+ },
+ "rows": [
+  {
+   "question": "Who scored and when?",
+   "status": 502,
+   "error": "the record agent did not answer: ChatClientException",
+   "ms": 22665
+  },
+  {
+   "question": "How many shots has each side had?",
+   "outcome": "first_pass",
+   "answer": "Northgate FC have had 5 shots, and Saltbridge Athletic have had 5 shots.",
+   "sources": [],
+   "problems": [],
+   "claims_checked": 2,
+   "tools": [
+    "state_at"
+   ],
+   "ms": 14415
+  },
+  {
+   "question": "What is the score?",
+   "outcome": "first_pass",
+   "answer": "Saltbridge Athletic lead 2. The score is 0 to 2.",
+   "sources": [],
+   "problems": [],
+   "claims_checked": 1,
+   "tools": [
+    "state_at"
+   ],
+   "ms": 3926
+  },
+  {
+   "question": "Who has the most passes for the away side?",
+   "outcome": "first_pass",
+   "answer": "Arlo Kenez has the most passes for Saltbridge Athletic with 34.",
+   "sources": [],
+   "problems": [],
+   "claims_checked": 1,
+   "tools": [
+    "leaders"
+   ],
+   "ms": 4475
+  },
+  {
+   "question": "How many corners has Northgate FC won?",
+   "outcome": "first_pass",
+   "answer": "Northgate FC have won 1 corner.",
+   "sources": [],
+   "problems": [],
+   "claims_checked": 1,
+   "tools": [
+    "state_at"
+   ],
+   "ms": 4119
+  },
+  {
+   "question": "Which player has the highest xG so far?",
+   "outcome": "first_pass",
+   "answer": "Ibrahim Calard of Saltbridge Athletic has the highest xG so far, with 0.62.",
+   "sources": [],
+   "problems": [],
+   "claims_checked": 1,
+   "tools": [
+    "leaders"
+   ],
+   "ms": 4239
+  },
+  {
+   "question": "Who is the referee?",
+   "outcome": "first_pass",
+   "answer": "The referee is Ref. Vance.",
+   "sources": [],
+   "problems": [],
+   "claims_checked": 0,
+   "tools": [
+    "match_info"
+   ],
+   "ms": 6206
+  },
+  {
+   "question": "Who is the best player ever?",
+   "outcome": "repaired",
+   "answer": "I cannot tell who is the best player from the facts I have, and this match is in a chaotic state at 32:41 with Saltbridge Athletic ahead 2 to 0.",
+   "sources": [],
+   "problems": [
+    "banned wording or punctuation: 'ever'"
+   ],
+   "claims_checked": 2,
+   "tools": [
+    "match_info",
+    "state_at"
+   ],
+   "ms": 7638
+  },
+  {
+   "question": "Did anyone get booked?",
+   "outcome": "first_pass",
+   "answer": "Yes. Northgate FC have 2 yellow cards, to Rui Karova at 2:53 and Joel Lorola at 12:22.",
+   "sources": [
+    155,
+    523
+   ],
+   "problems": [],
+   "claims_checked": 3,
+   "tools": [
+    "events_between",
+    "state_at"
+   ],
+   "ms": 4300
+  },
+  {
+   "question": "Who will win the league?",
+   "outcome": "first_pass",
+   "answer": "I can’t tell who will win the league from this match snapshot alone. Saltbridge Athletic lead 2 to 0 at 32:41, but that does not determine the league winner.",
+   "sources": [],
+   "problems": [],
+   "claims_checked": 2,
+   "tools": [
+    "state_at"
+   ],
+   "ms": 4228
+  }
+ ]
+}

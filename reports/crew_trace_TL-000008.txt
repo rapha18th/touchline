@@ -1,0 +1,34 @@
+33 spans in 1 trace(s)
+crew.moment hard_pass  11408 ms  {"touchline.outcome": "first_pass", "touchline.attempts": 0, "touchline.claims_checked": 9}
+  workflow.build  8 ms  events=['build.started', 'build.validation_completed', 'build.completed']
+  workflow.run  11026 ms  events=['workflow.started', 'workflow.completed']
+    edge_group.process InternalEdgeGroup  0 ms
+    executor.process producer  282 ms  {"executor.id": "producer"}
+      tools/call get_events  237 ms  {"gen_ai.tool.name": "get_events"}
+      tools/call state_at  44 ms  {"gen_ai.tool.name": "state_at"}
+      message.send  0 ms
+    edge_group.process SwitchCaseEdgeGroup  0 ms
+    executor.process analyst  5987 ms  {"executor.id": "analyst"}
+      invoke_agent analyst  5987 ms  {"gen_ai.agent.name": "analyst", "gen_ai.request.model": "gpt-5.4-mini", "gen_ai.usage.input_tokens": 1475, "gen_ai.usage.output_tokens": 421}
+        chat gpt-5.4-mini  5984 ms  {"gen_ai.request.model": "gpt-5.4-mini", "gen_ai.usage.input_tokens": 1475, "gen_ai.usage.output_tokens": 421}
+      message.send  0 ms
+    edge_group.process SingleEdgeGroup  0 ms
+    executor.process narrator  2864 ms  {"executor.id": "narrator"}
+      invoke_agent narrator  2863 ms  {"gen_ai.agent.name": "narrator", "gen_ai.request.model": "gpt-5.4-mini", "gen_ai.usage.input_tokens": 2125, "gen_ai.usage.output_tokens": 510}
+        chat gpt-5.4-mini  2862 ms  {"gen_ai.request.model": "gpt-5.4-mini", "gen_ai.usage.input_tokens": 2125, "gen_ai.usage.output_tokens": 510}
+      message.send  0 ms
+    edge_group.process SingleEdgeGroup  0 ms
+    executor.process verifier  17 ms  {"executor.id": "verifier", "touchline.verdict.ok": true}  events=['touchline.verdict']
+      tools/call verify_numbers  12 ms  {"gen_ai.tool.name": "verify_numbers"}
+      tools/call verify_numbers  14 ms  {"gen_ai.tool.name": "verify_numbers"}
+      tools/call verify_numbers  15 ms  {"gen_ai.tool.name": "verify_numbers"}
+      message.send  0 ms
+    edge_group.process SwitchCaseEdgeGroup  0 ms
+    executor.process localiser  1859 ms  {"executor.id": "localiser"}
+      invoke_agent localiser  1017 ms  {"gen_ai.agent.name": "localiser", "gen_ai.request.model": "gpt-5.4-mini", "gen_ai.usage.input_tokens": 194, "gen_ai.usage.output_tokens": 66}
+        chat gpt-5.4-mini  1017 ms  {"gen_ai.request.model": "gpt-5.4-mini", "gen_ai.usage.input_tokens": 194, "gen_ai.usage.output_tokens": 66}
+      invoke_agent localiser  1852 ms  {"gen_ai.agent.name": "localiser", "gen_ai.request.model": "gpt-5.4-mini", "gen_ai.usage.input_tokens": 184, "gen_ai.usage.output_tokens": 52}
+        chat gpt-5.4-mini  1851 ms  {"gen_ai.request.model": "gpt-5.4-mini", "gen_ai.usage.input_tokens": 184, "gen_ai.usage.output_tokens": 52}
+      message.send  0 ms
+    edge_group.process SingleEdgeGroup  0 ms
+    executor.process director  1 ms  {"executor.id": "director"}

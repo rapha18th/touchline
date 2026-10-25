@@ -10,6 +10,8 @@ GET  /api/match/{id}/tracking 12.5 Hz tracking, int16 centimetres, little endian
 GET  /api/match/{id}/events   public events (the engine's truth block removed)
 GET  /api/broadcast/{id}      a recorded broadcast: every cue a live run put on air
 WS   /ws/live/{id}            join the live channel: cues and the clock, pushed as they happen
+POST /mcp                     the match MCP server over streamable HTTP (read-only tools, stateless)
+POST /api/ask/{id}            Ask the record: an agent answers over /mcp, the Verifier passes it first
 """
 
 from __future__ import annotations
@@ -19,16 +21,20 @@ import json
 import os
 import time
 from collections import Counter
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import numpy as np
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
+from starlette.routing import Route
 
-from . import feed
+from . import feed, telemetry
 from .match_io import FPS, load
+from .mcp_server import HTTPEndpoint
 from .state import LiveState
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -39,8 +45,19 @@ STEP = 4                                    # 25 Hz -> 6.25 Hz for the browser, 
 UNIT = 10                                   # decimetres: small integers compress well
 CREW = os.environ.get("TOUCHLINE_CREW", "1") == "1"
 
-app = FastAPI(title="Touchline")
+telemetry.setup("touchline-web")
+MCP = HTTPEndpoint()
+
+
+@asynccontextmanager
+async def lifespan(_app):
+    async with MCP.lifespan():
+        yield
+
+
+app = FastAPI(title="Touchline", lifespan=lifespan)
 app.add_middleware(GZipMiddleware, minimum_size=2048)
+app.router.routes.append(Route("/mcp", endpoint=MCP))
 _cache: dict[str, object] = {}
 
 
@@ -122,6 +139,37 @@ def broadcast(mid: str):
     return JSONResponse(cues, headers={"Cache-Control": "public, max-age=3600"})
 
 
+# ----- ask the record ------------------------------------------------------------------------
+ASK_LIMIT = int(os.environ.get("TOUCHLINE_ASK_PER_10MIN", "40"))   # a public page spends real model credit
+_asked: list[float] = []
+_ask_gate = asyncio.Semaphore(2)
+
+
+class Question(BaseModel):
+    question: str = Field(min_length=3, max_length=300)
+    match_s: float = Field(ge=0, le=7200)
+
+
+@app.post("/api/ask/{mid}")
+async def ask_the_record(mid: str, q: Question, request: Request):
+    match(mid)
+    if not CREW:
+        raise HTTPException(503, "the crew is off on this server")
+    now = time.time()
+    _asked[:] = [t for t in _asked if now - t < 600]
+    if len(_asked) >= ASK_LIMIT:
+        raise HTTPException(429, "the record has answered a lot of questions; try again in a few minutes")
+    _asked.append(now)
+    from .crew.ask import ask
+    port = (request.scope.get("server") or ("127.0.0.1", 8080))[1]
+    url = os.environ.get("TOUCHLINE_MCP_URL", f"http://127.0.0.1:{port}/mcp")
+    async with _ask_gate:
+        try:
+            return await asyncio.wait_for(ask(q.question, mid, q.match_s, url), 75)
+        except Exception as exc:
+            raise HTTPException(502, f"the record agent did not answer: {type(exc).__name__}")
+
+
 # ----- live channels ------------------------------------------------------------------------
 
 class Channel:
@@ -151,7 +199,9 @@ class Channel:
         self.counts[cue["kind"]] += 1
         slim = {k: v for k, v in cue.items() if k != "crew"}
         if cue.get("crew"):
-            slim["crew"] = {"trace": cue["crew"]["trace"], "attempts": cue["crew"]["attempts"]}
+            # The Crew room needs the whole story of a line: handoffs, timings, MCP calls and every verdict,
+            # including the drafts the Verifier refused.
+            slim["crew"] = {k: cue["crew"][k] for k in ("job", "trace", "attempts", "verdicts") if k in cue["crew"]}
         self.recent = (self.recent + [slim])[-60:]
         asyncio.get_event_loop().create_task(self.send_all({"type": "cue", "cue": slim}))
 
@@ -166,7 +216,7 @@ class Channel:
                 from contextlib import AsyncExitStack
 
                 from .crew.verify import MatchRecord
-                from .crew.workflow import build
+                from .crew.workflow import run_job
                 from .live import Producer, job_for
                 stack = AsyncExitStack()
                 record = await stack.enter_async_context(MatchRecord(DATA))
@@ -176,9 +226,9 @@ class Channel:
                 async def crew(job):
                     async with sem:
                         try:
-                            await build(record, self.push).run(job)
+                            await run_job(record, self.push, job)
                         except Exception as exc:
-                            await self.send_all({"type": "crew_error", "kind": job.kind, "error": f"{type(exc).__name__}"})
+                            await self.send_all({"type": "crew_error", "kind": job.kind, "match_s": job.match_s, "error": f"{type(exc).__name__}"})
             # Catch the state up to the start point at full speed, then play live from there.
             for it in feed.items(m, track_every=25, end_s=self.start_s):
                 if it.kind == "event":
@@ -197,7 +247,7 @@ class Channel:
                 if CREW:
                     for mo in moments:
                         if producer.wants(mo):
-                            tasks.append(asyncio.create_task(crew(job_for(mo, st, ["es", "zu"], None))))
+                            tasks.append(asyncio.create_task(crew(job_for(mo, st, ["es", "fr", "pt"], None))))
                 self.clock = it.match_s
                 if time.perf_counter() - last_clock > 0.5:
                     last_clock = time.perf_counter()
