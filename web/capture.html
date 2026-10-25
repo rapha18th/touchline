@@ -35,9 +35,15 @@ window.capture = {
     const meta = await fetch(`/api/match/${matchId}`).then((r) => r.json());
     pitch = new Pitch(canvas, stub(meta));
     // The feed's camera sits on the near stand's gantry, so the near tier is under it, out of shot.
+    let hidden = 0;
     pitch.scene.traverse((o) => {
-      if (o.isMesh && o.geometry.type === "BoxGeometry" && o.geometry.parameters.depth === 14 && o.position.z > 34) o.visible = false;
+      if (o.isMesh && o.geometry.type === "BoxGeometry" && o.geometry.parameters.depth === 14 && o.position.z > 34) {
+        o.visible = false;
+        hidden += 1;
+      }
     });
+    // If pitch.js changes the stands, the match above finds nothing: stop rather than film the tier.
+    if (!hidden) throw new Error("capture: the near stand tier was not found in pitch.js; update the match in capture.html");
     pitch.renderer.setPixelRatio(1);
     pitch.renderer.setSize(W, H, false);
     pitch.camera.aspect = W / H;

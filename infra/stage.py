@@ -35,6 +35,8 @@ MATCHES = "data/matches"
 MARKER = ".touchline-stage.json"
 JUNK = shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo", "*.egg-info", ".pytest_cache", ".mypy_cache",
                               ".ruff_cache", "node_modules", ".DS_Store", "Thumbs.db")
+# Files inside copied folders that never ship: the vision capture harness drives pitch.js frame by frame.
+NOT_SHIPPED = {"web/capture.html"}
 
 
 def instructions(dockerfile: Path) -> list[tuple[str, str]]:
@@ -132,6 +134,9 @@ def stage_path(src: str, out: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     if from_path.is_dir():
         shutil.copytree(from_path, dest, ignore=JUNK, dirs_exist_ok=True)
+        for rel in NOT_SHIPPED:
+            if PurePosixPath(rel).is_relative_to(PurePosixPath(src)):
+                (out / rel).unlink(missing_ok=True)
     else:
         shutil.copy2(from_path, dest)
 

@@ -31,6 +31,13 @@ OUT = Path(os.environ.get("TOUCHLINE_VISION_OUT", Path(tempfile.gettempdir()) / 
 
 
 @contextmanager
+def free_port() -> int:
+    import socket
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
+
+
 def serve(port: int):
     """The Touchline web service on localhost, crew off; stopped on exit."""
     env = dict(os.environ, TOUCHLINE_CREW="0", TOUCHLINE_DATA=str(DATA), TOUCHLINE_WEB=str(ROOT / "web"))
@@ -40,12 +47,15 @@ def serve(port: int):
                              "--log-level", "warning"], env=env)
     try:
         for _ in range(120):
+            if proc.poll() is not None:     # our uvicorn exited (the port was taken): never film another server
+                raise RuntimeError(f"web service exited with code {proc.returncode}; is port {port} in use?")
             try:
                 with urllib.request.urlopen(f"http://127.0.0.1:{port}/healthz", timeout=1) as r:
                     if r.status == 200:
                         break
             except OSError:
-                time.sleep(0.25)
+                pass
+            time.sleep(0.25)
         else:
             raise RuntimeError("web service did not start")
         yield f"http://127.0.0.1:{port}"
@@ -80,7 +90,7 @@ def main(argv=None) -> int:
     ap.add_argument("--matches", nargs="+", required=True)
     ap.add_argument("--shots", type=int, default=5, help="shot clips per match")
     ap.add_argument("--passes", type=int, default=5, help="passing clips per match")
-    ap.add_argument("--port", type=int, default=8091)
+    ap.add_argument("--port", type=int, default=0, help="0 picks a free port")
     ap.add_argument("--w", type=int, default=1280)
     ap.add_argument("--h", type=int, default=720)
     ap.add_argument("--quality", type=float, default=0.92, help="JPEG quality")
@@ -93,7 +103,7 @@ def main(argv=None) -> int:
 
     args.out.mkdir(parents=True, exist_ok=True)
     log = []
-    with serve(args.port) as base, sync_playwright() as pw:
+    with serve(args.port or free_port()) as base, sync_playwright() as pw:
         browser = pw.chromium.launch(channel="chrome", headless=True, args=["--enable-unsafe-swiftshader"])
         page = browser.new_page(viewport={"width": args.w, "height": args.h}, device_scale_factor=1)
         page.on("console", lambda m: m.type == "error" and print("[page]", m.text, file=sys.stderr))

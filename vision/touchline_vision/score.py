@@ -13,7 +13,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import tempfile
+from collections import Counter
 from pathlib import Path
 
 import numpy as np
@@ -23,6 +25,9 @@ from .geometry import camera_centre, h_from_p, homography_error, p_from_clip, pr
 
 MATCH_FRAMES = 4
 KICKS = ("pass", "shot")
+DATA = Path(os.environ.get("TOUCHLINE_DATA", Path(__file__).resolve().parents[2] / "data" / "matches"))
+WRONG_PX = 10.0          # a reported ball further than this from the true ball is on the wrong object
+AT_FEET_M = 1.0          # an unseen ball this close to a player is hidden at someone's feet
 
 
 def load_truth(clip_dir: Path) -> dict:
@@ -38,7 +43,7 @@ def truth_kicks(t: dict, n: int) -> list[dict]:
         if e["type"] in KICKS:
             r = e["frame"] - f0
             if 2 <= r < n - 4:
-                end = round(e["t_end"] * 25) - f0 if e.get("t_end") is not None else r
+                end = r + round((e["t_end"] - e["t"]) * 25) if e.get("t_end") is not None else r
                 out.append({**e, "rel": r, "lands_in_clip": end <= n - 2})
     return out
 
@@ -150,8 +155,10 @@ def summarise(per_clip: list[dict], key: str) -> dict:
     return out
 
 
-def track_quality(t: dict, obs: dict, P: np.ndarray, w: int, h: int) -> dict:
-    """Ball: share of frames seen, ground error while it rolls. Players: share found, ground error, team."""
+def track_quality(t: dict, obs: dict, P: np.ndarray, w: int, h: int, raw: dict | None = None) -> dict:
+    """Ball: share of frames seen, share of those on the wrong object, ground error while it rolls, and where
+    the unseen ball was. Players: share found, ground error, team. `raw` collects the per-frame values so a
+    set's figures pool every frame instead of taking a median of clips."""
     from .geometry import ground_at_height
     fr = t["frames"]
     Pt = p_from_clip(t["clip_from_world"][0], w, h)
@@ -159,14 +166,19 @@ def track_quality(t: dict, obs: dict, P: np.ndarray, w: int, h: int) -> dict:
     uv_t = project(Pt, np.column_stack([fr[:, 22, 0], fr[:, 22, 1], z]))
     inside = (uv_t[:, 0] >= 0) & (uv_t[:, 0] < w) & (uv_t[:, 1] >= 0) & (uv_t[:, 1] < h)
     errs, px, seen = [], [], 0
+    unseen, at_feet = 0, 0
     for k, b in enumerate(obs["ball_px"]):
         if b is None:
+            if inside[k]:
+                unseen += 1
+                at_feet += int(np.min(np.hypot(*(fr[k, :22] - fr[k, 22]).T)) <= AT_FEET_M)
             continue
         seen += 1
         px.append(float(np.hypot(b[0] - uv_t[k, 0], b[1] - uv_t[k, 1])))
         if z[k] <= BALL_Z + 0.02:
             g = ground_at_height(P, [b], BALL_Z)[0]
             errs.append(float(np.hypot(*(g - fr[k, 22]))))
+    wrong = sum(v > WRONG_PX for v in px)
     perr, found, vis, team_ok = [], 0, 0, 0
     for k in range(0, len(fr), 5):
         feet = project(Pt, np.column_stack([fr[k, :22], np.zeros(22)]))
@@ -181,13 +193,33 @@ def track_quality(t: dict, obs: dict, P: np.ndarray, w: int, h: int) -> dict:
                 perr.append(float(d[s]))
                 team_ok += int(p[2].split("_")[0] == ("home" if s < 11 else "away"))
         found += len(taken)
+    if raw is not None:
+        for k, v in (("frames", len(fr)), ("in_frame", int(inside.sum())), ("seen", seen), ("wrong", wrong),
+                     ("unseen", unseen), ("at_feet", at_feet), ("vis", vis), ("found", found), ("team_ok", team_ok)):
+            raw[k] = raw.get(k, 0) + v
+        for k, v in (("px", px), ("errs", errs), ("perr", perr)):
+            raw.setdefault(k, []).extend(v)
     return {"ball_seen": round(seen / len(fr), 3), "ball_in_frame": round(float(inside.mean()), 3),
+            "ball_wrong": round(wrong / seen, 3) if seen else None,
+            "ball_true_seen": round((seen - wrong) / len(fr), 3),
+            "unseen_at_feet": round(at_feet / unseen, 3) if unseen else None,
             "ball_px_median": round(float(np.median(px)), 2) if px else None,
             "ball_px_p95": round(float(np.percentile(px, 95)), 2) if px else None,
             "ball_ground_err_m_median": round(float(np.median(errs)), 3) if errs else None,
             "ball_ground_err_m_p90": round(float(np.percentile(errs, 90)), 3) if errs else None,
             "players_found": round(found / max(vis, 1), 3), "player_err_m_median": round(float(np.median(perr)), 3) if perr else None,
             "player_team_correct": round(team_ok / max(len(perr), 1), 3)}
+
+
+def match_shots(matches: list[str]) -> dict:
+    """Shots by outcome over each whole match, when the match is on disk."""
+    out = {}
+    for mid in matches:
+        p = DATA / mid / "events.json"
+        if p.exists():
+            ev = json.loads(p.read_text(encoding="utf-8"))
+            out[mid] = dict(Counter(e["outcome"] for e in ev if e["type"] == "shot"))
+    return out
 
 
 def main(argv=None) -> int:
@@ -198,10 +230,11 @@ def main(argv=None) -> int:
     ap.add_argument("--out", type=Path, default=Path("reports/vision"))
     ap.add_argument("--name", default="dev", help="the clip set: dev (tuned on) or heldout (scored once the code was set)")
     args = ap.parse_args(argv)
-    per_clip = []
+    per_clip, failed, raw = [], [], {}
     for d in sorted(p for p in args.clips.iterdir() if (p / "truth.json").exists()):
         work = args.work / d.name
-        if not (work / "events.json").exists():
+        if not all((work / f).exists() for f in ("events.json", "obs.json", "calib.json")):
+            failed.append(d.name)            # a clip the pipeline did not finish is reported, never dropped quietly
             continue
         info = json.loads((d / "clip.json").read_text(encoding="utf-8"))
         w, h = info["w"], info["h"]
@@ -219,7 +252,7 @@ def main(argv=None) -> int:
         per_clip.append({"clip": d.name, "match": info["match_id"], "kind": t["clip"]["kind"],
                          "homography": {k: (round(v, 3) if isinstance(v, float) else v) for k, v in herr.items()},
                          "camera_centre_err_m": round(cam_err, 2), "calib_fit": cal["fit"],
-                         "tracks": track_quality(t, obs, np.array(cal["P"]), w, h),
+                         "tracks": track_quality(t, obs, np.array(cal["P"]), w, h, raw),
                          "vision": grade_kicks(in_window(ev["kicks"], n), tk),
                          "oracle": grade_kicks(in_window(oev["kicks"], n), tk),
                          "ablation_ground_only": grade_kicks(in_window(detect_events(obs, np.array(cal["P"]), air=False)["kicks"], n), tk),
@@ -231,16 +264,37 @@ def main(argv=None) -> int:
         v = [x[k] for x in xs if x.get(k) is not None]
         return round(float(f(v)), 3) if v else None
 
-    summary = {"clips": len(per_clip), "matches": sorted({c["match"] for c in per_clip}),
+    def pooled() -> dict:
+        """Every frame of the set counted once (a median of clip figures would hide a few bad clips)."""
+        if not raw:
+            return {}
+        q = lambda xs, f: round(float(f(xs)), 3) if xs else None
+        return {"frames": raw["frames"], "ball_seen": round(raw["seen"] / raw["frames"], 3),
+                "ball_in_frame": round(raw["in_frame"] / raw["frames"], 3),
+                "ball_wrong": round(raw["wrong"] / raw["seen"], 3) if raw["seen"] else None,
+                "ball_true_seen": round((raw["seen"] - raw["wrong"]) / raw["frames"], 3),
+                "ball_px_median": q(raw["px"], np.median), "ball_px_p95": q(raw["px"], lambda v: np.percentile(v, 95)),
+                "ball_ground_err_m_median": q(raw["errs"], np.median),
+                "ball_ground_err_m_p90": q(raw["errs"], lambda v: np.percentile(v, 90)),
+                "unseen_at_feet": round(raw["at_feet"] / raw["unseen"], 3) if raw["unseen"] else None,
+                "players_found": round(raw["found"] / max(raw["vis"], 1), 3),
+                "player_err_m_median": q(raw["perr"], np.median),
+                "player_team_correct": round(raw["team_ok"] / max(len(raw["perr"]), 1), 3),
+                "wrong_px": WRONG_PX, "at_feet_m": AT_FEET_M}
+
+    summary = {"clips": len(per_clip), "failed_clips": failed, "matches": sorted({c["match"] for c in per_clip}),
                "homography": {"px_mean_median": agg(H, "px_mean"), "px_mean_max": agg(H, "px_mean", np.max),
                               "m_mean_median": agg(H, "m_mean"), "m_mean_max": agg(H, "m_mean", np.max),
                               "camera_centre_err_m_median": round(float(np.median([c["camera_centre_err_m"] for c in per_clip])), 2)},
-               "tracks": {k: agg(tr, k) for k in tr[0]} if tr else {},
+               "tracks": pooled(),
+               "tracks_clip_median": {k: agg(tr, k) for k in tr[0]} if tr else {},
                "vision": summarise(per_clip, "vision"), "oracle": summarise(per_clip, "oracle"),
                "ablation_ground_only": summarise(per_clip, "ablation_ground_only"),
                "ablation_no_kick_timing": summarise(per_clip, "ablation_no_kick_timing"),
                "by_match": {m: summarise([c for c in per_clip if c["match"] == m], "vision") for m in sorted({c["match"] for c in per_clip})},
-               "match_frames": MATCH_FRAMES}
+               "match_frames": MATCH_FRAMES,
+               # Every shot in the set's matches by outcome: clips are cut around goals, saves and misses only.
+               "match_shots": match_shots(sorted({c["match"] for c in per_clip}))}
     out = args.out / args.name
     out.mkdir(parents=True, exist_ok=True)
     (out / "summary.json").write_text(json.dumps(summary, indent=1), encoding="utf-8")
@@ -254,6 +308,9 @@ def main(argv=None) -> int:
     for k in ("vision", "oracle", "ablation_ground_only", "ablation_no_kick_timing"):
         s = summary[k]
         print(k, json.dumps({x: s[x] for x in ("kicks", "pass", "shot")}), json.dumps({x: s[x] for x in ("pass_length_m", "ball_speed_kmh", "shot_speed_kmh")}))
+    if failed:
+        print(f"{len(failed)} clip(s) have no pipeline output and are not scored: {', '.join(failed)}")
+        return 1
     return 0
 
 

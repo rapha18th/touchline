@@ -72,3 +72,10 @@ def test_stage_refuses_to_clear_a_folder_it_did_not_make(tmp_path):
     with pytest.raises(SystemExit):
         stage.prepare(out)
     assert (out / "keep.txt").read_text(encoding="utf-8") == "mine"
+
+
+def test_the_capture_harness_never_ships(tmp_path):
+    out, _ = run_stage(tmp_path, tmp_path / "empty")
+    assert (out / "web" / "index.html").exists()
+    assert not (out / "web" / "capture.html").exists()
+    assert "web/capture.html" in (stage.ROOT / ".dockerignore").read_text(encoding="utf-8").split()

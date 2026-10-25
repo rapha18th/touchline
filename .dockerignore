@@ -10,3 +10,4 @@ data/*.log
 data/*.jsonl
 reports
 scripts
+web/capture.html

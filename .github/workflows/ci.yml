@@ -1,4 +1,4 @@
-# Every push and pull request: both test suites, the schema contracts, a syntax check of every web
+# Every push and pull request: the engine, live service and vision test suites, the schema contracts, a syntax check of every web
 # module, and an image build from the slim staged context with a health check. No Azure login is
 # needed anywhere in this file.
 name: CI
@@ -34,16 +34,19 @@ jobs:
           cache-dependency-path: |
             engine/pyproject.toml
             services/live/pyproject.toml
-      - name: Install engine and live service with dev extras
+            vision/pyproject.toml
+      - name: Install engine, live service and vision with dev extras
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e "./engine[dev]" -e "./services/live[dev]"
+          python -m pip install -e "./engine[dev]" -e "./services/live[dev]" -e "./vision[dev]"
       - name: Engine tests
         run: python -m pytest engine -q
       - name: Schema contracts (events and cues of a fresh match against schema/*.schema.json)
         run: python -m pytest services/live/tests/test_contracts.py -v
       - name: Live service tests
         run: python -m pytest services/live -q --ignore=services/live/tests/test_contracts.py
+      - name: Vision tests (geometry, flight fits, kick rules, scoring)
+        run: python -m pytest vision/tests -q
       - name: Build context staging tests
         run: python -m pytest infra/tests -q
 

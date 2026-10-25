@@ -123,3 +123,15 @@ def test_wilson_interval():
     lo, hi = wilson(43, 46)
     assert lo < 43 / 46 < hi and 0.8 < lo < 0.85 and hi < 0.98
     assert wilson(0, 0) is None
+
+
+def test_a_second_half_kick_lands_in_the_clip_by_its_own_flight():
+    # Engine times run from the period start; clip frames are absolute. A second-half pass at frame 75100
+    # (t = 4.0 s into the half) that flies 6 s cannot land inside a 100-frame clip.
+    from touchline_vision.score import truth_kicks
+    t = {"clip": {"f0": 75000}, "events": [
+        {"type": "pass", "frame": 75010, "t": 4.0, "t_end": 10.0},
+        {"type": "pass", "frame": 75020, "t": 4.4, "t_end": 5.4},
+        {"type": "shot", "frame": 75030, "t": 4.8, "t_end": None}]}
+    lands = [k["lands_in_clip"] for k in truth_kicks(t, 100)]
+    assert lands == [False, True, True]
