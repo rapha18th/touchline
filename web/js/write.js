@@ -88,7 +88,7 @@ export function mountWrite(root) {
   if (pending) { busy(true); poll(pending); }
 }
 
-function render(job) {
+export function render(job) {
   const parts = [`<p class="write-state">${esc(STATE[job.state] || job.state)}${job.state === "queued" && job.queued_behind ? `, ${job.queued_behind} ahead` : ""}${job.elapsed_s != null ? ` <span class="num dim">${Math.round(job.elapsed_s)} s</span>` : ""}</p>`];
   if (job.headline) {
     parts.push(`<p class="write-headline">${esc(job.headline)}</p>`);
