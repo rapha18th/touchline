@@ -35,6 +35,9 @@
   "tracks": {
    "ball_seen": 0.345,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.043,
+   "ball_true_seen": 0.33,
+   "unseen_at_feet": 0.832,
    "ball_px_median": 1.01,
    "ball_px_p95": 1.24,
    "ball_ground_err_m_median": 0.209,
@@ -319,6 +322,9 @@
   "tracks": {
    "ball_seen": 0.445,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.0,
+   "ball_true_seen": 0.445,
+   "unseen_at_feet": 0.955,
    "ball_px_median": 0.81,
    "ball_px_p95": 0.97,
    "ball_ground_err_m_median": 0.145,
@@ -600,6 +606,9 @@
   "tracks": {
    "ball_seen": 0.495,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.0,
+   "ball_true_seen": 0.495,
+   "unseen_at_feet": 0.891,
    "ball_px_median": 0.68,
    "ball_px_p95": 0.83,
    "ball_ground_err_m_median": 0.114,
@@ -919,6 +928,9 @@
   "tracks": {
    "ball_seen": 0.495,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.0,
+   "ball_true_seen": 0.495,
+   "unseen_at_feet": 0.99,
    "ball_px_median": 0.84,
    "ball_px_p95": 0.98,
    "ball_ground_err_m_median": 0.202,
@@ -1200,6 +1212,9 @@
   "tracks": {
    "ball_seen": 0.56,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.0,
+   "ball_true_seen": 0.56,
+   "unseen_at_feet": 0.886,
    "ball_px_median": 1.19,
    "ball_px_p95": 1.33,
    "ball_ground_err_m_median": 0.081,
@@ -1433,6 +1448,9 @@
   "tracks": {
    "ball_seen": 0.637,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.007,
+   "ball_true_seen": 0.632,
+   "unseen_at_feet": 0.987,
    "ball_px_median": 0.89,
    "ball_px_p95": 1.04,
    "ball_ground_err_m_median": 0.14,
@@ -1645,6 +1663,9 @@
   "tracks": {
    "ball_seen": 0.816,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.0,
+   "ball_true_seen": 0.816,
+   "unseen_at_feet": 0.949,
    "ball_px_median": 0.86,
    "ball_px_p95": 1.0,
    "ball_ground_err_m_median": 0.242,
@@ -1862,6 +1883,9 @@
   "tracks": {
    "ball_seen": 0.825,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.0,
+   "ball_true_seen": 0.825,
+   "unseen_at_feet": 0.946,
    "ball_px_median": 0.74,
    "ball_px_p95": 0.86,
    "ball_ground_err_m_median": 0.209,
@@ -2079,6 +2103,9 @@
   "tracks": {
    "ball_seen": 0.811,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.0,
+   "ball_true_seen": 0.811,
+   "unseen_at_feet": 0.925,
    "ball_px_median": 0.87,
    "ball_px_p95": 1.03,
    "ball_ground_err_m_median": 0.259,
@@ -2305,6 +2332,9 @@
   "tracks": {
    "ball_seen": 0.929,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.0,
+   "ball_true_seen": 0.929,
+   "unseen_at_feet": 0.867,
    "ball_px_median": 1.16,
    "ball_px_p95": 1.48,
    "ball_ground_err_m_median": 0.128,
@@ -2522,6 +2552,9 @@
   "tracks": {
    "ball_seen": 0.545,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.009,
+   "ball_true_seen": 0.54,
+   "unseen_at_feet": 0.978,
    "ball_px_median": 0.81,
    "ball_px_p95": 1.11,
    "ball_ground_err_m_median": 0.092,
@@ -2883,6 +2916,9 @@
   "tracks": {
    "ball_seen": 0.56,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.0,
+   "ball_true_seen": 0.56,
+   "unseen_at_feet": 0.966,
    "ball_px_median": 0.86,
    "ball_px_p95": 1.21,
    "ball_ground_err_m_median": 0.134,
@@ -3220,6 +3256,9 @@
   "tracks": {
    "ball_seen": 0.715,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.014,
+   "ball_true_seen": 0.705,
+   "unseen_at_feet": 0.965,
    "ball_px_median": 0.85,
    "ball_px_p95": 1.15,
    "ball_ground_err_m_median": 0.126,
@@ -3557,6 +3596,9 @@
   "tracks": {
    "ball_seen": 0.555,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.018,
+   "ball_true_seen": 0.545,
+   "unseen_at_feet": 0.854,
    "ball_px_median": 0.89,
    "ball_px_p95": 1.66,
    "ball_ground_err_m_median": 0.131,
@@ -3888,6 +3930,9 @@
   "tracks": {
    "ball_seen": 0.685,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.0,
+   "ball_true_seen": 0.685,
+   "unseen_at_feet": 0.857,
    "ball_px_median": 0.76,
    "ball_px_p95": 0.91,
    "ball_ground_err_m_median": 0.127,
@@ -4219,6 +4264,9 @@
   "tracks": {
    "ball_seen": 0.802,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.029,
+   "ball_true_seen": 0.778,
+   "unseen_at_feet": 0.952,
    "ball_px_median": 0.9,
    "ball_px_p95": 1.4,
    "ball_ground_err_m_median": 0.19,
@@ -4436,6 +4484,9 @@
   "tracks": {
    "ball_seen": 0.679,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.007,
+   "ball_true_seen": 0.675,
+   "unseen_at_feet": 0.956,
    "ball_px_median": 0.83,
    "ball_px_p95": 1.03,
    "ball_ground_err_m_median": 0.257,
@@ -4653,6 +4704,9 @@
   "tracks": {
    "ball_seen": 0.948,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.0,
+   "ball_true_seen": 0.948,
+   "unseen_at_feet": 0.364,
    "ball_px_median": 0.97,
    "ball_px_p95": 1.22,
    "ball_ground_err_m_median": 0.107,
@@ -4870,6 +4924,9 @@
   "tracks": {
    "ball_seen": 0.811,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.006,
+   "ball_true_seen": 0.807,
+   "unseen_at_feet": 1.0,
    "ball_px_median": 0.96,
    "ball_px_p95": 1.31,
    "ball_ground_err_m_median": 0.151,
@@ -5087,6 +5144,9 @@
   "tracks": {
    "ball_seen": 0.934,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.0,
+   "ball_true_seen": 0.934,
+   "unseen_at_feet": 0.571,
    "ball_px_median": 0.83,
    "ball_px_p95": 1.8,
    "ball_ground_err_m_median": 0.082,

@@ -1,0 +1,173 @@
+{
+ "match_id": "TL-923149",
+ "seed": 923149,
+ "final_score": {
+  "home": 0,
+  "away": 1
+ },
+ "clubs": {
+  "home": {
+   "name": "Northgate Rovers",
+   "formation": "4-2-3-1",
+   "style": {
+    "press": 0.38,
+    "directness": 0.36,
+    "width": 0.42,
+    "tempo": 0.34,
+    "risk": 0.24
+   },
+   "strength": 0.52
+  },
+  "away": {
+   "name": "Harbourne Rovers",
+   "formation": "4-2-3-1",
+   "style": {
+    "press": 0.4,
+    "directness": 0.34,
+    "width": 0.4,
+    "tempo": 0.33,
+    "risk": 0.22
+   },
+   "strength": 0.5
+  }
+ },
+ "scenario": {
+  "story": "A tight, cagey game settled by a single goal",
+  "headline": "1 goal",
+  "created": "2026-10-25T16:57:22Z",
+  "spec": {
+   "home": {
+    "strength": 0.52,
+    "style": {
+     "press": 0.38,
+     "directness": 0.36,
+     "width": 0.42,
+     "tempo": 0.34,
+     "risk": 0.24
+    },
+    "formation": "4-2-3-1"
+   },
+   "away": {
+    "strength": 0.5,
+    "style": {
+     "press": 0.4,
+     "directness": 0.34,
+     "width": 0.4,
+     "tempo": 0.33,
+     "risk": 0.22
+    },
+    "formation": "4-2-3-1"
+   },
+   "beats": [
+    {
+     "kind": "total_goals",
+     "side": null,
+     "minute": null,
+     "at_least": 1,
+     "at_most": 1,
+     "says": "a tight, cagey game settled by a single goal"
+    }
+   ]
+  },
+  "trace": [
+   {
+    "role": "director",
+    "model": "gpt-5.4-mini",
+    "ms": 12138,
+    "beats": 1
+   },
+   {
+    "role": "gate",
+    "notes": [],
+    "beats": 1
+   }
+  ],
+  "report": {
+   "met": 1,
+   "total": 1,
+   "all": true,
+   "partial": 1.0,
+   "beats": [
+    {
+     "kind": "total_goals",
+     "beat": "1 goal",
+     "says": "a tight, cagey game settled by a single goal",
+     "ok": true,
+     "partial": 1.0,
+     "detail": "1 goal (0-1)",
+     "sources": [
+      982
+     ]
+    }
+   ]
+  },
+  "search": {
+   "workers": 3,
+   "prune": true,
+   "budget": 3,
+   "spent": 1.6,
+   "wall_s": 78.2,
+   "played_s": 14244.1,
+   "candidates": [
+    {
+     "seed": 923148,
+     "complete": false,
+     "pruned_at": "54'",
+     "met": 0,
+     "total": 1,
+     "score": [
+      0,
+      2
+     ],
+     "played_s": 3410.7,
+     "wall_s": 44.0,
+     "error": null
+    },
+    {
+     "seed": 923149,
+     "complete": true,
+     "pruned_at": null,
+     "met": 1,
+     "total": 1,
+     "score": [
+      0,
+      1
+     ],
+     "played_s": 6056.2,
+     "wall_s": 76.0,
+     "error": null
+    }
+   ],
+   "timed_out": false,
+   "ahead": [
+    {
+     "seed": 923150,
+     "complete": false,
+     "pruned_at": "78'",
+     "met": 0,
+     "total": 1,
+     "score": [
+      0,
+      2
+     ],
+     "played_s": 4777.2,
+     "wall_s": 61.7,
+     "error": null
+    }
+   ]
+  },
+  "events_sha256": "9b3bcf2843f29a9fff43eb26e37b4c33953f240c4b3858b3979efad38644a0ca",
+  "prompt_sha256": "f5731bc634ea9ccf04016c1b647bab646bac4174ac9c9e78d7fc90c827470c82",
+  "git_sha": "4fb2563+changes",
+  "replay": "python -m touchline_live.scenario replay TL-923149 --out <dir>"
+ },
+ "replay_check": {
+  "match_id": "TL-923149",
+  "events": 3359,
+  "events_sha256": "9b3bcf2843f29a9fff43eb26e37b4c33953f240c4b3858b3979efad38644a0ca",
+  "met": 1,
+  "total": 1,
+  "hash_matches": true,
+  "command": "python -m touchline_live.scenario replay reports/scenario_TL-923149.json --out <dir>"
+ }
+}

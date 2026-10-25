@@ -1,9 +1,12 @@
-# Vision: passes and shots read from the broadcast feed
+# Vision: passes and shots read from Touchline's rendered feed
 
-The challenge names a hard problem: "running a model over an incoming video feed to generate the pass and
-speed metrics automatically". Touchline does it on its own broadcast. We film generated matches through the
-fan app's 3D pitch, hand the pipeline the frames and the two kit colours, and it writes every pass and shot
-with its distance and speed. The engine's events, its tracking and the renderer's camera matrix grade it.
+The challenge asks for pass and speed metrics generated automatically from an incoming video feed. Touchline
+does it on its own rendered broadcast. We film generated matches through the fan app's 3D pitch, hand the
+pipeline the frames and each side's shirt, second and keeper colours, and it writes every pass and shot with
+its distance and speed. The engine's events, its tracking and the renderer's camera matrix grade it.
+
+There is no trained model. The camera comes from the painted lines and the flights from least squares, so
+there is nothing to label or license. Nothing in this pipeline runs on Azure.
 
 Every number below comes from `reports/vision/summary.json`. The commands that rebuild it are at the end.
 
@@ -14,15 +17,22 @@ On 20 test clips from two matches held apart until the code was set:
 - **It finds 80% of passes and is right about 93% of the passes it calls** (40 of 50 found, 40 of 43
   right). With perfect detection the same event code finds 84%, so most of the shortfall is in the event
   logic, and seeing costs 4 points.
-- **It finds 8 of 10 shots.** It also calls 5 other kicks shots: two passes played along the grass toward goal
-  from the edge of the box, a third such pass timed late, and two real shots timed more than 4 frames late.
-  The oracle calls about as many (5 of 14).
+- **It finds 8 of the 10 shots it was shown.** Shot clips are cut around goals, saves and misses. Blocked
+  shots are not sampled: they were 11 of the 59 shots in the two test matches, and the feed missed all three
+  it met in dev. Over every shot, recall would be nearer 65% (80% of the 81% that are not blocked). It also
+  calls 5 other kicks shots: two passes played along the grass toward goal from the edge of the box, a third
+  such pass timed late, and two real shots timed more than 4 frames late. The oracle calls about as many (5
+  of 14).
 - **Mean errors: pass length 1.5 m (median 0.75 m), ball speed 3.3 km/h (median 1.2), shot speed 1.9 km/h**,
-  over 32, 40 and 8 measured kicks.
+  over 32, 40 and 8 measured kicks. Pass length reads short: the mean signed error is -1.19 m (oracle -0.37 m).
 - **The pitch is found from its lines alone to 0.08 px** (median clip; worst clip 0.72 px), about a
   centimetre on the grass. The camera position comes out to 6 cm (median).
 - **The 3D flight model earns its place.** Measure every flight as if it rolled and the ball speed error grows
-  from 3.3 to 17.3 km/h and the shot speed error from 1.9 to 21.9 km/h.
+  from 3.3 to 17.3 km/h and the shot speed error from 1.9 to 21.9 km/h. The engine flies the ball on exactly
+  the curve the aerial fit assumes, so this gain is an upper bound for real footage.
+- **The ball tracker sometimes holds the wrong object.** On test, 9.7% of the frames that report a ball sit
+  more than 10 px from the true ball (0.6% on dev, 2.2% on held out). The ball is on the true ball, within
+  10 px, in 61% of test frames.
 - **Timing hidden kicks earns its place.** When the ball leaves a player's feet out of sight, running the
   flight back to where it sat lifts pass recall from 72% to 80%.
 - **White kits are the hard case.** A white kit beside the white ball is the main source of lost tracks. In
@@ -35,38 +45,55 @@ Three clip sets of 20, each from two matches, 1280x720 at 25 fps. Clips are cut 
 busiest open-play passing (8 s), and each has its own fixed camera.
 
 - **Dev** (TL-000007, TL-000012): every threshold was tuned here.
-- **Held out** (TL-000010, TL-000013): filmed and scored once with the code frozen. That first look found a
-  failed calibration, white kits read as the ball, one-metre "kicks" at players' feet and kicks counted in the
-  first frames of a clip, before the truth window opens. We fixed all four, so these clips are now a second
-  dev set. The first look stays in the report as `heldout_first`.
+- **Held out** (TL-000010, TL-000013): filmed and scored once with the code frozen (43ddaf6). That first
+  look found three pipeline faults and one grading fault: a failed calibration, white kits read as the ball,
+  one-metre "kicks" at players' feet, and detections in the first frames of a clip, before the truth window
+  opens (those are now dropped on both sides). We fixed all four, so these clips are now a second dev set.
+  The first look stays in the report as `heldout_first` and in its own column below.
 - **Test** (TL-000009, TL-000011): filmed after the last change (commit c6f743a) and scored once. This is
-  the clean number.
+  the clean number. A 30-frame capture smoke test used TL-000009 on 24 Oct, before the freeze; no detection
+  or scoring ran on it.
 
-| | Test | Test oracle | Held out | Dev |
-|---|---|---|---|---|
-| Passes found (recall) | 40/50 = 80% (67 to 89) | 42/50 = 84% (72 to 92) | 44/53 = 83% (71 to 91) | 41/46 = 89% (77 to 95) |
-| Passes right (precision) | 40/43 = 93% (81 to 98) | 42/44 = 96% (85 to 99) | 44/49 = 90% (78 to 96) | 41/43 = 95% (84 to 99) |
-| Shots found (recall) | 8/10 = 80% (49 to 94) | 9/10 = 90% (60 to 98) | 7/10 = 70% (40 to 89) | 9/13 = 69% (42 to 87) |
-| Shots right (precision) | 8/13 = 62% (36 to 82) | 9/14 = 64% (39 to 84) | 7/10 = 70% (40 to 89) | 9/9 = 100% (70 to 100) |
-| Pass length error | 1.49 m (median 0.75, n 32) | 0.72 m (median 0.39, n 34) | 2.04 m (median 0.82, n 36) | 1.05 m (median 0.81, n 35) |
-| Ball speed error | 3.27 km/h (median 1.15, n 40) | 1.50 km/h (median 0.60, n 42) | 6.45 km/h (median 2.30, n 44) | 2.09 km/h (median 1.50, n 41) |
-| Shot speed error | 1.86 km/h (median 1.45, n 8) | 1.08 km/h (median 0.90, n 9) | 2.80 km/h (median 2.00, n 7) | 5.21 km/h (median 1.30, n 9) |
-| Kick time error | 1.18 frames | 0.44 frames | 0.98 frames | 0.94 frames |
+| | Test | Test oracle | Held out, after fixes (second dev set) | Held out, first look (43ddaf6) | Dev |
+|---|---|---|---|---|---|
+| Passes found (recall) | 40/50 = 80% (67 to 89) | 42/50 = 84% (72 to 92) | 44/53 = 83% (71 to 91) | 43/53 = 81% (69 to 89) | 41/46 = 89% (77 to 95) |
+| Passes right (precision) | 40/43 = 93% (81 to 98) | 42/44 = 96% (85 to 99) | 44/49 = 90% (78 to 96) | 43/62 = 69% (57 to 79) | 41/43 = 95% (84 to 99) |
+| Shots found (recall) | 8/10 = 80% (49 to 94) | 9/10 = 90% (60 to 98) | 7/10 = 70% (40 to 89) | 7/10 = 70% (40 to 89) | 9/13 = 69% (42 to 87) |
+| Shots right (precision) | 8/13 = 62% (36 to 82) | 9/14 = 64% (39 to 84) | 7/10 = 70% (40 to 89) | 7/9 = 78% (45 to 94) | 9/9 = 100% (70 to 100) |
+| Pass length error | 1.49 m (median 0.75, n 32) | 0.72 m (median 0.39, n 34) | 1.48 m (median 0.78, n 33) | 2.86 m (median 0.89, n 34) | 1.05 m (median 0.81, n 35) |
+| Pass length bias (signed) | -1.19 m | -0.37 m | -1.20 m | -2.14 m | -0.37 m |
+| Ball speed error | 3.27 km/h (median 1.15, n 40) | 1.50 km/h (median 0.60, n 42) | 6.45 km/h (median 2.30, n 44) | 8.42 km/h (median 2.30, n 43) | 2.09 km/h (median 1.50, n 41) |
+| Shot speed error | 1.86 km/h (median 1.45, n 8) | 1.08 km/h (median 0.90, n 9) | 2.80 km/h (median 2.00, n 7) | | 5.21 km/h (median 1.30, n 9) |
+| Kick time error | 1.18 frames | 0.44 frames | 0.98 frames | | 0.94 frames |
+| Worst calibration | 0.72 px | | 0.50 px | 228 px | 1.07 px |
 
-| Seeing | Test | Held out | Dev |
+The first look's pass length is scored with the old flag for a pass landing in the clip (see Honest limits);
+its run cache has since been overwritten, so it cannot be scored again.
+
+Pass length reads short. The measured flight ends where the receiver's touch is first seen, while
+`q.length_m` runs from the passer to the target. On test, 24 of 32 matched complete passes read short; the
+worst are m000009-p09 (-8.1 m) and m000011-s03 (-7.0 m).
+
+| Seeing (every frame of the set pooled) | Test | Held out | Dev |
 |---|---|---|---|
 | Pitch reprojection, median of clip means | 0.08 px, 1.1 cm | 0.08 px, 1.0 cm | 0.09 px, 1.0 cm |
 | Pitch reprojection, worst clip | 0.72 px, 6.6 cm | 0.50 px, 7.9 cm | 1.07 px, 11.2 cm |
 | Camera position error, median | 0.06 m | 0.04 m | 0.06 m |
-| Frames with the ball seen | 66% | 61% | 68% |
-| Ball pixel error, median | 0.84 px | 0.84 px | 0.86 px |
-| Rolling ball on the grass, median error | 16 cm | 16 cm | 14 cm |
-| Players found | 93% | 90% | 86% |
-| Player position error, median | 20 cm | 20 cm | 19 cm |
-| Player team right | 98% | 100% | 99% |
+| Frames with a ball reported | 67.3% | 65.3% | 68.4% |
+| Reported ball on the true ball (within 10 px) | 90.3% | 97.8% | 99.4% |
+| Frames with the ball seen on the true ball | 60.8% | 63.9% | 68.0% |
+| Ball pixel error, median | 0.83 px | 0.85 px | 0.88 px |
+| Ball pixel error, 95th percentile | 242 px | 1.2 px | 1.3 px |
+| Rolling ball on the grass, median error | 15 cm | 18 cm | 15 cm |
+| Unseen ball within 1 m of a player | 94% | 90% | 92% |
+| Players found | 88% | 90% | 82% |
+| Player position error, median | 18 cm | 19 cm | 20 cm |
+| Player team right | 97.9% | 99.5% | 97.6% |
 
-The ball is out of sight in a third of the frames. Most of those frames are the ball at a player's feet,
-inside or behind the player model.
+The ball is out of sight in about a third of the frames, and in 90% or more of those it is within a metre of
+a player: at someone's feet, inside or behind the player model. The pooled 95th percentile shows the wrong
+locks the median hides: on test, 8 of 20 clips have a clip 95th percentile between 116 and 659 px.
+`tracks_clip_median` in the summary keeps the older median-of-clips figures.
 
 Recall is the share of the engine's passes (or shots) the feed found and called right. Precision is the share
 of the feed's passes (or shots) that match one. A detection matches a true kick within 4 frames (0.16 s).
@@ -88,9 +115,9 @@ Two switches in `touchline_vision.events.detect_events`, scored on the same dete
 | Full pipeline | test | 80% | 93% | 80% | 1.49 m | 3.27 km/h | 1.86 km/h |
 | Every flight on the grass | test | 80% | 91% | 70% | 1.83 m | 17.28 km/h | 21.93 km/h |
 | Kick timed where first seen moving | test | 72% | 86% | 80% | 1.84 m | 3.65 km/h | 1.86 km/h |
-| Full pipeline | heldout | 83% | 90% | 70% | 2.04 m | 6.45 km/h | 2.80 km/h |
-| Every flight on the grass | heldout | 83% | 88% | 60% | 2.65 m | 12.22 km/h | 5.08 km/h |
-| Kick timed where first seen moving | heldout | 79% | 89% | 80% | 2.56 m | 6.22 km/h | 3.14 km/h |
+| Full pipeline | heldout | 83% | 90% | 70% | 1.48 m | 6.45 km/h | 2.80 km/h |
+| Every flight on the grass | heldout | 83% | 88% | 60% | 2.14 m | 12.22 km/h | 5.08 km/h |
+| Kick timed where first seen moving | heldout | 79% | 89% | 80% | 1.98 m | 6.22 km/h | 3.14 km/h |
 | Full pipeline | dev | 89% | 95% | 69% | 1.05 m | 2.09 km/h | 5.21 km/h |
 | Every flight on the grass | dev | 89% | 93% | 62% | 1.99 m | 18.42 km/h | 28.91 km/h |
 | Kick timed where first seen moving | dev | 80% | 86% | 69% | 1.30 m | 2.39 km/h | 5.24 km/h |
@@ -152,29 +179,44 @@ clearest pass and the clearest shot with their measured and true numbers, and a 
 
 - `01_calibration.png`: the pitch model drawn through the estimated camera over the empty pitch.
 - `02_pass.png`: a lofted pass rebuilt in the air: 37.9 m and 51.6 km/h measured, 38.2 m and 50.7 km/h true.
-- `03_shot.png`: a shot off target: 92.9 km/h measured, 93.9 km/h true.
+- `03_shot.png`: a shot off target: 92.9 km/h measured, 93.9 km/h true. It comes from m000009-s01, a clip
+  the calibration check flagged as untrusted, though its camera was right to 0.08 px.
 - `04_failure.png`: an incomplete pass among black and white kits that the feed missed.
 
-The pass and the shot are the clearest of their kind in the test set. The failure is the first miss in it.
+The pass and the shot are the clearest of their kind in the test set, picked by hand. The failure is the
+first miss in it.
 
 ## Honest limits
 
 - **The feed is clean.** It is a rendered pitch with crisp lines, even light, one fixed camera per clip and a
-  ball that is the only small white sphere on the grass. Broadcast video pans and zooms all the time, blurs a
-  fast ball, lays graphics over play and cuts to close-ups and replays. The fixed-camera background, the
-  once-per-clip calibration and the white-blob detector each rest on the clean feed. These numbers measure the
-  method on an easy feed; real video will score lower.
+  ball that is the only small white sphere on the grass. Players are uniform capsules, and each clip's camera
+  is placed from the true ball path, so the ball never leaves the frame. Broadcast video pans and zooms all
+  the time, blurs a fast ball, lays graphics over play and cuts to close-ups and replays. The fixed-camera
+  background, the once-per-clip calibration and the white-blob detector each rest on the clean feed. These
+  numbers measure the method on an easy feed; real video will score lower, and that drop is not measured.
 - **The engine's ball is simple, and the 3D model matches its shape.** Engine flights run straight over the
   ground with a parabola in height, the same family the aerial fit assumes. A real ball swerves, drags and
   bounces. Ground passes follow one easing curve, which a quadratic follows closely.
 - **Engine shortcuts shape the hard cases.** At the kick the ball jumps from the dribble back to the kicker's
   feet. A blocked shot flies three or four frames and then jumps to the blocker: the feed missed all three
-  blocked shots in the dev set (the oracle found two). The held-out and test sets hold zero. A carrier
-  standing still holds the ball inside the player model, out of sight.
+  blocked shots in the dev set (the oracle found two). Shot clips are cut around goals, saves and misses, so
+  the held-out and test sets hold no blocked shot by design, though about one shot in five in these matches
+  was blocked (`match_shots` in the summary). A carrier standing still holds the ball inside the player
+  model, out of sight.
+- **The tracker can lock onto the wrong object.** With the ball hidden at a player's feet, it can hold a
+  static fragment of a painted line beside a standing player as the ball. Wrong locks rose from 0.6% of
+  reported frames on dev to 9.7% on test, and four test clips report the wrong object in 23% to 56% of their
+  ball frames (m000009-p09 is the worst; `tracks.ball_wrong` in clips.json).
   Headers leave from the grass in the engine; a real header leaves at head height, which the aerial anchor
   would need to know.
 - **Incomplete passes are the most missed.** Of the ten test passes the feed missed, five were incomplete
-  (short flights into a crowd), three started out of sight and were timed late, and two were called shots.
+  (short flights into a crowd), two were timed late, one was never seen to start, and two were called shots.
+- **Two known faults wait for the next clip set,** since the code is frozen for this test set. A kick timed
+  back from where the ball sat can start inside the previous flight: in held-out m000013-s03 it placed a
+  kick at frame 132, inside the previous pass, and the real saved shot at frame 150 was scored as a miss and
+  a false shot. And the rule that lifts a
+  rising shot into the air never re-applies the cross rule, so a ball lofted to between 4.5 and 6 m stays a
+  shot.
 - **A lofted ball cut short reads far too fast.** Five of the six lofted test passes read within 1 km/h. The
   sixth lost the end of its flight and reads 81.8 km/h for 43.4 (m000011-s03). When the cut leaves the rolling
   model the better fit, a cross reads 154 km/h for 44 (held out, m000013-s00).
@@ -187,33 +229,54 @@ The pass and the shot are the clearest of their kind in the test set. The failur
 - **The samples are small.** Ten shots a set gives intervals 40 points wide. The dev set was tuned on. The
   first held-out look found four faults, which we then fixed, so that set is a second dev set; its first
   scores are in `heldout_first` (passes 81% found, 69% right). Only the test set is clean.
-- **It runs offline.** Calibration takes about 40 s a clip and detection about 50 ms a frame on one core.
-  A live feed needs the calibration once per camera position and a faster detector.
+- **A grading fault was fixed after the test.** The flag for a pass that lands inside the clip compared a
+  time from the period start with an absolute frame, so every second-half pass counted as landing. Fixed, it
+  moves only the held-out pass length (2.04 m to 1.48 m, oracle 1.41 m to 0.88 m); dev and test come out the
+  same. The fault is still in `heldout_first`.
+- **It runs offline.** Calibration takes about 40 s a clip on one core (`calib_fit.seconds` in each clip) and
+  detection about 50 ms a frame (timed by hand; not stored in the reports). A live feed needs the
+  calibration once per camera position and a faster detector.
 
 ## Reproduce
 
+Git Bash, from the repository root. The matches come from the engine as it stood when the clips were filmed
+(the realism calibration has changed the engine since), so regenerating them today gives different matches.
+
 ```
-# 1. Film the clips (the service starts on port 8091 with the crew off and stops after).
-set PYTHONPATH=vision
-set TOUCHLINE_DATA=<repo>/data/matches
-python -m touchline_vision.capture --matches TL-000007 TL-000012 --shots 5 --passes 5
-python -m touchline_vision.capture --matches TL-000010 TL-000013 --shots 5 --passes 5 --out %TEMP%/touchline_vision/heldout/clips
-python -m touchline_vision.capture --matches TL-000009 TL-000011 --shots 5 --passes 5 --out %TEMP%/touchline_vision/test/clips
+# 0. The six matches (data/ is not in git).
+for s in 7 9 10 11 12 13; do .venv/Scripts/python -m touchline_engine generate --seed $s --out data/matches; done
+
+# 1. Film the clips (the service starts on a free local port with the crew off and stops after).
+export PYTHONPATH=vision TOUCHLINE_DATA=$PWD/data/matches V=$TEMP/touchline_vision
+.venv/Scripts/python -m touchline_vision.capture --matches TL-000007 TL-000012 --shots 5 --passes 5
+.venv/Scripts/python -m touchline_vision.capture --matches TL-000010 TL-000013 --shots 5 --passes 5 --out $V/heldout/clips
+.venv/Scripts/python -m touchline_vision.capture --matches TL-000009 TL-000011 --shots 5 --passes 5 --out $V/test/clips
 
 # 2. Camera, detections, tracks and kicks for each set.
-python -m touchline_vision.pipeline
-python -m touchline_vision.pipeline --clips %TEMP%/touchline_vision/heldout/clips --work %TEMP%/touchline_vision/heldout/run
-python -m touchline_vision.pipeline --clips %TEMP%/touchline_vision/test/clips --work %TEMP%/touchline_vision/test/run
+.venv/Scripts/python -m touchline_vision.pipeline
+.venv/Scripts/python -m touchline_vision.pipeline --clips $V/heldout/clips --work $V/heldout/run
+.venv/Scripts/python -m touchline_vision.pipeline --clips $V/test/clips --work $V/test/run
 
 # 3. Grade against the engine and draw the gallery.
-python -m touchline_vision.score --name dev
-python -m touchline_vision.score --name heldout --clips %TEMP%/touchline_vision/heldout/clips --work %TEMP%/touchline_vision/heldout/run
-python -m touchline_vision.score --name test --clips %TEMP%/touchline_vision/test/clips --work %TEMP%/touchline_vision/test/run
-python -m touchline_vision.gallery --report reports/vision/test --clips %TEMP%/touchline_vision/test/clips --work %TEMP%/touchline_vision/test/run
+.venv/Scripts/python -m touchline_vision.score --name dev
+.venv/Scripts/python -m touchline_vision.score --name heldout --clips $V/heldout/clips --work $V/heldout/run
+.venv/Scripts/python -m touchline_vision.score --name test --clips $V/test/clips --work $V/test/run
+.venv/Scripts/python -m touchline_vision.gallery --report reports/vision/test --clips $V/test/clips --work $V/test/run
+
+# The first held-out look: the code at 43ddaf6, then score it under its own name.
+git checkout 43ddaf6 -- vision && .venv/Scripts/python -m touchline_vision.pipeline --clips $V/heldout/clips --work $V/heldout/run_first --force
+.venv/Scripts/python -m touchline_vision.score --name heldout_first --clips $V/heldout/clips --work $V/heldout/run_first
+git checkout HEAD -- vision
 
 # Unit tests for the geometry, the fits and the scoring.
-python -m pytest vision/tests
+.venv/Scripts/python -m pytest vision/tests
 ```
+
+The dev and held-out cameras in the published run were cached from code before the freeze (their
+`calib.json` has no `tries` or `trusted` field). A fresh run recalibrates with the final code and can move the
+dev and held-out numbers a little. The test cameras come from the final code. Scoring exits non-zero and
+names any clip the pipeline did not finish (`failed_clips`), so a crashed clip never drops out of the
+denominators unseen.
 
 The package needs numpy and `opencv-python-headless==4.14.0.94`; capture also needs `playwright==1.63.0`
 and Chrome. Calibration takes about 40 s a clip on one CPU core, detection about 50 ms a frame, the events

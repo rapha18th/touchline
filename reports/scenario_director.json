@@ -11,7 +11,7 @@
     "refused_first": 0,
     "repaired": false,
     "fallback": false,
-    "ms": 8898
+    "ms": 7798
    },
    {
     "beats": [
@@ -22,7 +22,7 @@
     "refused_first": 0,
     "repaired": false,
     "fallback": false,
-    "ms": 5419
+    "ms": 4583
    },
    {
     "beats": [
@@ -33,7 +33,19 @@
     "refused_first": 0,
     "repaired": false,
     "fallback": false,
-    "ms": 4088
+    "ms": 3952
+   },
+   {
+    "beats": [
+     "away win",
+     "a goal for away from minute 75",
+     "an away clean sheet",
+     "1 to 2 goals"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 4942
    },
    {
     "beats": [
@@ -44,18 +56,7 @@
     "refused_first": 0,
     "repaired": false,
     "fallback": false,
-    "ms": 4576
-   },
-   {
-    "beats": [
-     "away win",
-     "a goal for away from minute 75",
-     "an away clean sheet"
-    ],
-    "refused_first": 0,
-    "repaired": false,
-    "fallback": false,
-    "ms": 4317
+    "ms": 6651
    }
   ],
   "A wild end-to-end draw with a red card": [
@@ -63,13 +64,45 @@
     "beats": [
      "a draw",
      "a red card",
-     "3 to 5 goals",
-     "a goal from minute 75"
+     "at least 3 goals"
     ],
-    "refused_first": 1,
-    "repaired": true,
+    "refused_first": 0,
+    "repaired": false,
     "fallback": false,
-    "ms": 8078
+    "ms": 4135
+   },
+   {
+    "beats": [
+     "a draw",
+     "a red card",
+     "at least 3 goals"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 6365
+   },
+   {
+    "beats": [
+     "a draw",
+     "a red card",
+     "at least 3 goals"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 5306
+   },
+   {
+    "beats": [
+     "a draw",
+     "a red card",
+     "3 to 5 goals"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 4324
    },
    {
     "beats": [
@@ -80,41 +113,7 @@
     "refused_first": 0,
     "repaired": false,
     "fallback": false,
-    "ms": 5107
-   },
-   {
-    "beats": [
-     "a draw",
-     "a red card",
-     "3 to 6 goals"
-    ],
-    "refused_first": 0,
-    "repaired": false,
-    "fallback": false,
-    "ms": 5055
-   },
-   {
-    "beats": [
-     "a draw",
-     "a red card",
-     "3 to 5 goals",
-     "a goal from minute 75"
-    ],
-    "refused_first": 0,
-    "repaired": false,
-    "fallback": false,
-    "ms": 4334
-   },
-   {
-    "beats": [
-     "a draw",
-     "a red card",
-     "3 to 6 goals"
-    ],
-    "refused_first": 0,
-    "repaired": false,
-    "fallback": false,
-    "ms": 4273
+    "ms": 4471
    }
   ],
   "The home side fall behind and come back to win": [
@@ -126,7 +125,7 @@
     "refused_first": 0,
     "repaired": false,
     "fallback": false,
-    "ms": 3688
+    "ms": 4552
    },
    {
     "beats": [
@@ -136,94 +135,799 @@
     "refused_first": 0,
     "repaired": false,
     "fallback": false,
-    "ms": 3553
+    "ms": 4972
    },
    {
     "beats": [
-     "a home comeback",
-     "home win"
-    ],
-    "refused_first": 0,
-    "repaired": false,
-    "fallback": false,
-    "ms": 4180
-   },
-   {
-    "beats": [
-     "a home comeback",
-     "home win"
-    ],
-    "refused_first": 0,
-    "repaired": false,
-    "fallback": false,
-    "ms": 4199
-   },
-   {
-    "beats": [
-     "a home comeback",
      "home win",
-     "away score first"
+     "a home comeback"
     ],
     "refused_first": 0,
     "repaired": false,
     "fallback": false,
-    "ms": 3796
+    "ms": 3854
+   },
+   {
+    "beats": [
+     "a home comeback",
+     "home win"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 4606
+   },
+   {
+    "beats": [
+     "a home comeback",
+     "home win"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 4319
    }
   ],
   "A tight, cagey game settled by a single goal": [
    {
     "beats": [
-     "home win",
-     "1 goal"
-    ],
-    "refused_first": 0,
-    "repaired": false,
-    "fallback": false,
-    "ms": 3545
-   },
-   {
-    "beats": [
-     "home win",
-     "1 goal"
-    ],
-    "refused_first": 0,
-    "repaired": false,
-    "fallback": false,
-    "ms": 5498
-   },
-   {
-    "beats": [
-     "home win",
      "1 goal",
+     "home win",
      "a home clean sheet"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 4821
+   },
+   {
+    "beats": [
+     "1 goal"
     ],
     "refused_first": 1,
     "repaired": true,
     "fallback": false,
-    "ms": 5679
+    "ms": 6261
    },
    {
     "beats": [
-     "home win",
      "1 goal"
     ],
     "refused_first": 0,
     "repaired": false,
     "fallback": false,
-    "ms": 3726
+    "ms": 3764
    },
    {
     "beats": [
-     "home win",
+     "1 goal",
+     "home win"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 3985
+   },
+   {
+    "beats": [
      "1 goal"
     ],
     "refused_first": 0,
     "repaired": false,
     "fallback": false,
-    "ms": 3440
+    "ms": 4719
    }
   ]
  },
+ "languages": {
+  "es": {
+   "An underdog parks the bus and nicks it late": {
+    "story": "Un equipo modesto aparca el autobús y gana al final",
+    "calls": [
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 75",
+       "an away clean sheet",
+       "away score first"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3944
+     },
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 75",
+       "an away clean sheet"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4298
+     },
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 75",
+       "an away clean sheet"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4287
+     },
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 80",
+       "1 to 2 goals"
+      ],
+      "refused_first": 1,
+      "repaired": true,
+      "fallback": false,
+      "ms": 5688
+     },
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 75",
+       "an away clean sheet"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4089
+     }
+    ]
+   },
+   "A wild end-to-end draw with a red card": {
+    "story": "Un empate loco de ida y vuelta con una tarjeta roja",
+    "calls": [
+     {
+      "beats": [
+       "a draw",
+       "at least 3 goals",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4524
+     },
+     {
+      "beats": [
+       "a draw",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4368
+     },
+     {
+      "beats": [
+       "a draw",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4820
+     },
+     {
+      "beats": [
+       "a draw",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4383
+     },
+     {
+      "beats": [
+       "a draw",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3951
+     }
+    ]
+   },
+   "The home side fall behind and come back to win": {
+    "story": "Los locales van perdiendo y remontan para ganar",
+    "calls": [
+     {
+      "beats": [
+       "home win",
+       "a home comeback"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4073
+     },
+     {
+      "beats": [
+       "a home comeback",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3870
+     },
+     {
+      "beats": [
+       "a home comeback",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3702
+     },
+     {
+      "beats": [
+       "home win",
+       "a home comeback"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4063
+     },
+     {
+      "beats": [
+       "home win",
+       "a home comeback"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3656
+     }
+    ]
+   },
+   "A tight, cagey game settled by a single goal": {
+    "story": "Un partido cerrado y táctico que se decide por un solo gol",
+    "calls": [
+     {
+      "beats": [
+       "1 goal",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3884
+     },
+     {
+      "beats": [
+       "1 goal",
+       "home win",
+       "a goal from minute 70"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3778
+     },
+     {
+      "beats": [
+       "1 goal",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4658
+     },
+     {
+      "beats": [
+       "1 goal",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3916
+     },
+     {
+      "beats": [
+       "1 goal",
+       "home win"
+      ],
+      "refused_first": 1,
+      "repaired": true,
+      "fallback": false,
+      "ms": 6832
+     }
+    ]
+   }
+  },
+  "fr": {
+   "An underdog parks the bus and nicks it late": {
+    "story": "Un petit poucet gare le bus et l'emporte sur le tard",
+    "calls": [
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 75",
+       "home score first"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4242
+     },
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 75",
+       "an away clean sheet",
+       "1 to 2 goals"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4019
+     },
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 75",
+       "an away clean sheet"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3742
+     },
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 75",
+       "an away clean sheet"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4928
+     },
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 75",
+       "an away clean sheet"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3783
+     }
+    ]
+   },
+   "A wild end-to-end draw with a red card": {
+    "story": "Un match nul fou, d'un but à l'autre, avec un carton rouge",
+    "calls": [
+     {
+      "beats": [
+       "a draw",
+       "at least 4 goals",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4109
+     },
+     {
+      "beats": [
+       "a draw",
+       "a goal from minute 70",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4034
+     },
+     {
+      "beats": [
+       "a draw",
+       "at least 2 goals",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3648
+     },
+     {
+      "beats": [
+       "a draw",
+       "2 to 6 goals",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4468
+     },
+     {
+      "beats": [
+       "a draw",
+       "at least 2 goals",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4405
+     }
+    ]
+   },
+   "The home side fall behind and come back to win": {
+    "story": "L'équipe à domicile est menée puis renverse le match pour gagner",
+    "calls": [
+     {
+      "beats": [
+       "home win",
+       "a home comeback",
+       "away score first"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3994
+     },
+     {
+      "beats": [
+       "a home comeback",
+       "home win",
+       "away score first",
+       "a goal for home from minute 75"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3863
+     },
+     {
+      "beats": [
+       "home win",
+       "a home comeback",
+       "away score first"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 5875
+     },
+     {
+      "beats": [
+       "a home comeback",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4987
+     },
+     {
+      "beats": [
+       "home win",
+       "a home comeback"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 6145
+     }
+    ]
+   },
+   "A tight, cagey game settled by a single goal": {
+    "story": "Un match serré et prudent, décidé par un seul but",
+    "calls": [
+     {
+      "beats": [
+       "1 goal",
+       "home win"
+      ],
+      "refused_first": 2,
+      "repaired": true,
+      "fallback": false,
+      "ms": 6070
+     },
+     {
+      "beats": [
+       "1 goal",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4542
+     },
+     {
+      "beats": [
+       "1 goal",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 5542
+     },
+     {
+      "beats": [
+       "1 goal",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3891
+     },
+     {
+      "beats": [
+       "1 goal",
+       "home win"
+      ],
+      "refused_first": 1,
+      "repaired": true,
+      "fallback": false,
+      "ms": 5603
+     }
+    ]
+   }
+  },
+  "pt": {
+   "An underdog parks the bus and nicks it late": {
+    "story": "Um azarão estaciona o ônibus e vence no fim",
+    "calls": [
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 80",
+       "an away clean sheet"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4908
+     },
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 80",
+       "an away clean sheet",
+       "1 to 2 goals"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4962
+     },
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 75",
+       "away score first",
+       "an away clean sheet"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4297
+     },
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 80",
+       "an away clean sheet"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3934
+     },
+     {
+      "beats": [
+       "away win",
+       "a goal for away from minute 80",
+       "an away clean sheet"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 5448
+     }
+    ]
+   },
+   "A wild end-to-end draw with a red card": {
+    "story": "Um empate maluco, lá e cá, com um cartão vermelho",
+    "calls": [
+     {
+      "beats": [
+       "a draw",
+       "a goal from minute 75",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4512
+     },
+     {
+      "beats": [
+       "a draw",
+       "at least 3 goals",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4370
+     },
+     {
+      "beats": [
+       "a draw",
+       "at least 3 goals",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4501
+     },
+     {
+      "beats": [
+       "a draw",
+       "a red card",
+       "at least 3 goals"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4599
+     },
+     {
+      "beats": [
+       "a draw",
+       "a goal from minute 75",
+       "a red card"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 6951
+     }
+    ]
+   },
+   "The home side fall behind and come back to win": {
+    "story": "O time da casa sai perdendo e vira para vencer",
+    "calls": [
+     {
+      "beats": [
+       "a home comeback",
+       "home win",
+       "away score first"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 5029
+     },
+     {
+      "beats": [
+       "a home comeback",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4599
+     },
+     {
+      "beats": [
+       "a home comeback",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4178
+     },
+     {
+      "beats": [
+       "a home comeback",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4258
+     },
+     {
+      "beats": [
+       "a home comeback",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 3604
+     }
+    ]
+   },
+   "A tight, cagey game settled by a single goal": {
+    "story": "Um jogo truncado e cauteloso decidido por um único gol",
+    "calls": [
+     {
+      "beats": [
+       "1 goal",
+       "home win",
+       "a home clean sheet",
+       "home score first"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 5498
+     },
+     {
+      "beats": [
+       "1 goal",
+       "home win"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4203
+     },
+     {
+      "beats": [
+       "1 goal"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4511
+     },
+     {
+      "beats": [
+       "1 goal",
+       "home win",
+       "a goal from minute 70"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4301
+     },
+     {
+      "beats": [
+       "1 goal",
+       "home win",
+       "a home clean sheet"
+      ],
+      "refused_first": 0,
+      "repaired": false,
+      "fallback": false,
+      "ms": 4499
+     }
+    ]
+   }
+  }
+ },
  "calls_per_story": 5,
+ "prompt_sha256": "f5731bc634ea9ccf04016c1b647bab646bac4174ac9c9e78d7fc90c827470c82",
+ "git_sha": "4fb2563+changes",
  "command": "python -m touchline_live.eval.scenario_bench --director-check 5"
 }

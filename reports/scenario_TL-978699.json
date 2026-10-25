@@ -1,0 +1,278 @@
+{
+ "match_id": "TL-978699",
+ "seed": 978699,
+ "final_score": {
+  "home": 3,
+  "away": 3
+ },
+ "clubs": {
+  "home": {
+   "name": "Fallowmere Albion",
+   "formation": "4-2-3-1",
+   "style": {
+    "press": 0.58,
+    "directness": 0.52,
+    "width": 0.52,
+    "tempo": 0.54,
+    "risk": 0.5
+   },
+   "strength": 0.62
+  },
+  "away": {
+   "name": "Thornfield FC",
+   "formation": "3-5-2",
+   "style": {
+    "press": 0.22,
+    "directness": 0.8,
+    "width": 0.42,
+    "tempo": 0.38,
+    "risk": 0.22
+   },
+   "strength": 0.5
+  }
+ },
+ "scenario": {
+  "story": "An underdog parks the bus and nicks it late",
+  "headline": "Away win, a goal for away from minute 75, an away clean sheet, away score first",
+  "created": "2026-10-25T16:55:17Z",
+  "spec": {
+   "home": {
+    "strength": 0.62,
+    "style": {
+     "press": 0.58,
+     "directness": 0.52,
+     "width": 0.52,
+     "tempo": 0.54,
+     "risk": 0.5
+    },
+    "formation": "4-2-3-1"
+   },
+   "away": {
+    "strength": 0.5,
+    "style": {
+     "press": 0.22,
+     "directness": 0.8,
+     "width": 0.42,
+     "tempo": 0.38,
+     "risk": 0.22
+    },
+    "formation": "3-5-2"
+   },
+   "beats": [
+    {
+     "kind": "winner",
+     "side": "away",
+     "minute": null,
+     "at_least": null,
+     "at_most": null,
+     "says": "an underdog nicks it late"
+    },
+    {
+     "kind": "late_goal",
+     "side": "away",
+     "minute": 75,
+     "at_least": null,
+     "at_most": null,
+     "says": "an underdog parks the bus and nicks it late"
+    },
+    {
+     "kind": "clean_sheet",
+     "side": "away",
+     "minute": null,
+     "at_least": null,
+     "at_most": null,
+     "says": "an underdog parks the bus and nicks it late"
+    },
+    {
+     "kind": "first_goal",
+     "side": "away",
+     "minute": null,
+     "at_least": null,
+     "at_most": null,
+     "says": "an underdog parks the bus and nicks it late"
+    }
+   ]
+  },
+  "trace": [
+   {
+    "role": "director",
+    "model": "gpt-5.4-mini",
+    "ms": 8526,
+    "beats": 4
+   },
+   {
+    "role": "gate",
+    "notes": [],
+    "beats": 4
+   }
+  ],
+  "report": {
+   "met": 0,
+   "total": 4,
+   "all": false,
+   "partial": 0.893,
+   "beats": [
+    {
+     "kind": "winner",
+     "beat": "away win",
+     "says": "an underdog nicks it late",
+     "ok": false,
+     "partial": 0.5,
+     "detail": "drawn 3-3",
+     "sources": [
+      971,
+      1149,
+      1953,
+      2021,
+      2119,
+      2639
+     ]
+    },
+    {
+     "kind": "late_goal",
+     "beat": "a goal for away from minute 75",
+     "says": "an underdog parks the bus and nicks it late",
+     "ok": false,
+     "partial": 0.3933333333333333,
+     "detail": "last goal for away at 59'",
+     "sources": [
+      2119
+     ]
+    },
+    {
+     "kind": "clean_sheet",
+     "beat": "an away clean sheet",
+     "says": "an underdog parks the bus and nicks it late",
+     "ok": false,
+     "partial": 0.0,
+     "detail": "away conceded 3",
+     "sources": [
+      971,
+      1149,
+      2639
+     ]
+    },
+    {
+     "kind": "first_goal",
+     "beat": "away score first",
+     "says": "an underdog parks the bus and nicks it late",
+     "ok": false,
+     "partial": 0.0,
+     "detail": "home scored first at 28'",
+     "sources": [
+      971
+     ]
+    }
+   ]
+  },
+  "search": {
+   "workers": 3,
+   "prune": true,
+   "budget": 3,
+   "spent": 3.48,
+   "wall_s": 174.5,
+   "played_s": 20308.4,
+   "candidates": [
+    {
+     "seed": 978694,
+     "complete": false,
+     "pruned_at": "30'",
+     "met": 1,
+     "total": 4,
+     "score": [
+      1,
+      1
+     ],
+     "played_s": 1790.6,
+     "wall_s": 21.5,
+     "error": null
+    },
+    {
+     "seed": 978695,
+     "complete": false,
+     "pruned_at": "90'",
+     "met": 1,
+     "total": 4,
+     "score": [
+      1,
+      1
+     ],
+     "played_s": 5664.8,
+     "wall_s": 70.5,
+     "error": null
+    },
+    {
+     "seed": 978696,
+     "complete": false,
+     "pruned_at": "8'",
+     "met": 0,
+     "total": 4,
+     "score": [
+      1,
+      0
+     ],
+     "played_s": 464.9,
+     "wall_s": 6.2,
+     "error": null
+    },
+    {
+     "seed": 978697,
+     "complete": false,
+     "pruned_at": "27'",
+     "met": 1,
+     "total": 4,
+     "score": [
+      1,
+      1
+     ],
+     "played_s": 1603.3,
+     "wall_s": 19.9,
+     "error": null
+    },
+    {
+     "seed": 978698,
+     "complete": false,
+     "pruned_at": "72'",
+     "met": 2,
+     "total": 4,
+     "score": [
+      1,
+      2
+     ],
+     "played_s": 4633.4,
+     "wall_s": 55.5,
+     "error": null
+    },
+    {
+     "seed": 978699,
+     "complete": true,
+     "pruned_at": null,
+     "met": 0,
+     "total": 4,
+     "score": [
+      3,
+      3
+     ],
+     "played_s": 6151.4,
+     "wall_s": 75.3,
+     "error": null
+    }
+   ],
+   "timed_out": false,
+   "ahead": []
+  },
+  "events_sha256": "7df7a56f2d5bc22b9ef0469c12117e313561e3c3992cc2f828f954e064894642",
+  "prompt_sha256": "f5731bc634ea9ccf04016c1b647bab646bac4174ac9c9e78d7fc90c827470c82",
+  "git_sha": "4fb2563+changes",
+  "replay": "python -m touchline_live.scenario replay TL-978699 --out <dir>"
+ },
+ "replay_check": {
+  "match_id": "TL-978699",
+  "events": 3320,
+  "events_sha256": "7df7a56f2d5bc22b9ef0469c12117e313561e3c3992cc2f828f954e064894642",
+  "met": 0,
+  "total": 4,
+  "hash_matches": true,
+  "command": "python -m touchline_live.scenario replay reports/scenario_TL-978699.json --out <dir>"
+ }
+}

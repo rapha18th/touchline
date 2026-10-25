@@ -1,5 +1,6 @@
 {
  "clips": 20,
+ "failed_clips": [],
  "matches": [
   "TL-000009",
   "TL-000011"
@@ -12,8 +13,28 @@
   "camera_centre_err_m_median": 0.06
  },
  "tracks": {
+  "frames": 4120,
+  "ball_seen": 0.673,
+  "ball_in_frame": 1.0,
+  "ball_wrong": 0.097,
+  "ball_true_seen": 0.608,
+  "ball_px_median": 0.832,
+  "ball_px_p95": 241.642,
+  "ball_ground_err_m_median": 0.148,
+  "ball_ground_err_m_p90": 15.085,
+  "unseen_at_feet": 0.941,
+  "players_found": 0.884,
+  "player_err_m_median": 0.175,
+  "player_team_correct": 0.979,
+  "wrong_px": 10.0,
+  "at_feet_m": 1.0
+ },
+ "tracks_clip_median": {
   "ball_seen": 0.665,
   "ball_in_frame": 1.0,
+  "ball_wrong": 0.025,
+  "ball_true_seen": 0.57,
+  "unseen_at_feet": 0.929,
   "ball_px_median": 0.84,
   "ball_px_p95": 1.155,
   "ball_ground_err_m_median": 0.159,
@@ -468,5 +489,19 @@
    "kick_frame_abs_err": 1.07
   }
  },
- "match_frames": 4
+ "match_frames": 4,
+ "match_shots": {
+  "TL-000009": {
+   "blocked": 5,
+   "saved": 7,
+   "off_target": 15,
+   "goal": 1
+  },
+  "TL-000011": {
+   "off_target": 9,
+   "saved": 11,
+   "blocked": 6,
+   "goal": 5
+  }
+ }
 }

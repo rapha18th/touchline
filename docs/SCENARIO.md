@@ -28,31 +28,39 @@ story -> Match Director -> Gate -> (refusals) -> Director repairs once -> Gate
 1. **Match Director** (gpt-5.4-mini through the keyless client in `crew/llm.py`, reasoning effort none). One
    structured call returns a `ScenarioSpec`: strength, five style dials and an optional formation for each side,
    and up to six beats from a fixed vocabulary. Each beat carries the words of the story it checks.
-2. **Gate** (deterministic). It clamps every setting into the engine's own ranges, fixes malformed beats
-   (swapped bounds, a minute past 89, a side on a beat that takes none), merges duplicates, and refuses beats
-   that cannot all hold together. Satisfiability is checked over every goal order up to ten goals. When the
+2. **Gate** (deterministic). It clamps every setting into the engine's own ranges (a NaN or an infinity becomes
+   the middle of the range, with a note), fixes malformed beats (swapped bounds, a minute past 89, a side on a
+   beat that takes none), merges duplicates, refuses a second goals beat that contradicts the first, and refuses
+   beats that cannot all hold together. Satisfiability is checked over every goal order up to ten goals. When the
    gate refuses a beat, the Director gets one repair round with the gate's reasons, and the repair passes the
    gate again. A failed repair keeps the gated first spec; a failed first call falls back to a keyword Director.
-   The job status shows every round.
+   A story with no checkable beat at all is refused before any play, and the job says so. The job status shows
+   every round.
 3. **Candidates.** Each candidate is `touchline_engine.sim.Match(seed, home, away)` with the clubs from
    `make_fixture(seed)` retuned to the spec: style dials and formation replaced, and every player's skills and
    pace moved with the club's strength the way `squads._player` builds them. Candidates run in a process pool
    sized to the host: one worker in a container, up to four on a laptop (`TOUCHLINE_SCENARIO_WORKERS`
-   overrides). The engine's public interface is unchanged. The watcher subclasses `Match` and reads each event
+   overrides, at most four). Workers run at low priority, so the live channels keep the CPU while a story
+   plays. The engine's public interface is unchanged. The watcher subclasses `Match` and reads each event
    as it is emitted; it draws nothing from the engine's random stream, so a candidate that runs to the end is
    the match `Match.play` would play (a test checks this).
 4. **Pruning.** A candidate is stopped at the goal that rules a beat out for good: a clean sheet conceded, a goal
    cap passed, the wrong side scoring first. Its budget goes to the next seed. The budget is three full matches
-   of play by default. A pruned candidate costs only the minutes it played. Candidates already playing when the
-   budget runs out finish, so a search can play up to about one match more than its budget.
+   of play by default. A pruned candidate costs only the minutes it played. A seed starts only when the play
+   counted so far, plus a full match for every seed still playing, leaves room for it, so the search stays
+   inside its budget.
 5. **Early stop.** The search ends as soon as a finished candidate meets every beat. It never ends empty handed:
-   if every candidate was pruned, one more plays to the end.
+   if every candidate was pruned, one more plays to the end. That candidate is the only play past the budget.
+   Seeds count in order, and a result counts only once every lower seed has counted, so one worker and three
+   workers choose the same match; extra workers only play ahead (`ahead` in the note). A search that runs past
+   its time (900 s, or 400 s a match with one worker; `TOUCHLINE_SCENARIO_WAIT_S`) offers the best finished
+   candidate and fails only if none finished.
 6. **Validator** (deterministic). Every beat is checked from `events.json`, with a plain detail and the event
-   ids it rests on. Candidates rank by finished, beats met, then partial credit (a 1-1 is closer to a comeback
-   than a 0-2).
+   ids it rests on (a shots gap cites the side's shots, up to 30). Candidates rank by finished, beats met, then
+   partial credit (a 1-1 is closer to a comeback than a 0-2).
 7. **Publish.** The best candidate moves into the data dir in one rename, its `meta.json` already carrying a
-   `scenario` note: the story, the headline, the spec, the trace of who did what, the beat report and the
-   search summary. The server keeps the twelve newest written matches (`TOUCHLINE_SCENARIO_KEEP`); the showcase
+   `scenario` note: the story, the headline, the spec, the trace of who did what, the beat report, the
+   search summary, the sha256 of `events.json` and of the Director's prompt, and the commit. The server keeps the twelve newest written matches (`TOUCHLINE_SCENARIO_KEEP`); the showcase
    matches below TL-900000 are never touched.
 
 ### The beats
@@ -61,14 +69,16 @@ story -> Match Director -> Gate -> (refusals) -> Director repairs once -> Gate
 |---|---|---|
 | winner | side: home, away or draw | the final score says so |
 | total_goals | at_least, at_most | the goals in the match fall inside the bounds |
-| late_goal | minute (1 to 89), side or either | a goal (by that side) comes once `minute` minutes are on the match clock; first-half stoppage counts as minute 45 |
+| late_goal | minute (1 to 89), side or either | a goal (by that side) at or after that minute as the screen shows it; first-half stoppage counts as minute 45 |
 | red_card | at_least (1 to 3), side or either | that many red cards are shown |
 | comeback | side or either | the side was behind at some point and won |
 | first_goal | side | that side scored first |
 | clean_sheet | side | that side conceded nothing |
 | shots_diff | side, at_least | that side had at least that many more shots |
 
-Minutes follow the match clock: "from minute 75" means 75:00 played or later, which a broadcast labels 76'.
+Minutes are the ones on the screen: a goal labelled 75' meets "from minute 75". Before the review the
+validator read 74:30 played as minute 74.5 while the screen showed 75', so a goal labelled 89' could miss a
+minute-89 beat. The bench reports below were made with that older reading, which asked for up to a minute more.
 
 ### Settings and their ranges
 
@@ -84,14 +94,16 @@ direct; a side leading late sits deeper.
 ## What reaches the screen
 
 The story is free text from anyone. Nothing in it reaches the engine or another viewer except through typed
-fields. The headline on the match list is built from the beats' types and numbers, never from the story's words.
+fields. The headline on the match list is built only from the beats' types and numbers.
 `/api/match/{id}` returns the headline and the beat report and leaves the story out; the match MCP server never
 reads it. The person who wrote the story sees it again in their own job status. Every name on screen still comes
 from the generated clubs. The Director is told never to name real clubs, players or competitions, and nothing it
 writes is shown except the typed beats.
 
 A public page spends real compute and model credit, so the server takes at most 12 stories an hour
-(`TOUCHLINE_SCENARIO_PER_HOUR`), runs one job at a time and queues at most three.
+(`TOUCHLINE_SCENARIO_PER_HOUR`) and 3 from any one viewer (`TOUCHLINE_SCENARIO_PER_CLIENT`). It runs one job
+at a time and holds at most three, the one playing included (`TOUCHLINE_SCENARIO_QUEUE`). A story refused for
+having nothing to check, or a job that fails on our side, gives its slot back.
 
 ## The API
 
@@ -117,16 +129,27 @@ python -m touchline_live.scenario direct "an underdog parks the bus and nicks it
 python -m touchline_live.scenario write  "an underdog parks the bus and nicks it late"   a match in the data dir
 python -m touchline_live.scenario write  "..." --rules                                    no model: the keyword Director
 python -m touchline_live.scenario replay TL-9..... --out <dir>                            play it again from its meta
+python -m touchline_live.scenario replay reports/scenario_TL-9......json --out <dir>      or from a committed report
 python -m touchline_live.eval.scenario_bench --out reports/scenario_bench.json --workers 3
 ```
 
-`replay` rebuilds the clubs from the seed and the saved spec, plays the match with the plain engine and compares
-the event logs byte for byte.
+`replay` rebuilds the clubs from the seed and the saved spec and plays the match with the plain engine. With the
+original `events.json` at hand it compares the event logs; from a report it compares the sha256 of the new
+`events.json` with the one the note recorded.
 
 ## What we measured
 
 Every number here comes from a file in `reports/`, named where it is used.
 `python -m touchline_live.eval.scenario_bench --tables --out <report>` prints the tables of any bench report.
+Reports made from now on record the sha256 of the Director's prompt and the commit (`prompt_sha256`,
+`git_sha`); the three bench reports predate that.
+
+The bench reports were made before the review fixes, and three of those fixes touch them. The search then
+counted candidates in the order they finished, so with three workers a rerun of the same command could play other
+seeds; now one worker and three choose the same match. The validator read minutes half a minute or so behind the
+screen (see The beats). And the keyword Director ignored a named side for "score first": "the visitors score
+first" became "home score first". That bug decided the keyword arm's 0 of 3 on the visitors story in every run
+below; the fixed reader gives "away score first".
 
 The engine changed under this work. The first runs (`scenario_bench.json`, `scenario_bench_v2.json`) played on the
 engine before its realism calibration (`docs/REALISM.md`, merged here at 19d909f). The current engine plays about
@@ -134,9 +157,15 @@ engine before its realism calibration (`docs/REALISM.md`, merged here at 19d909f
 
 **Headline, current engine.** Over eight hand-written stories on the same seeds and budget, the product (Match
 Director, gate, pruned search, validator) met 9 of 17 hand-written beats and told 3 stories completely. A keyword
-Director with the same search met 9 of 17 and told 2. The Director read 16 of the 17 beats from the words; the
-keywords read 13. On their own, the style dials barely move a result. The search and the validator make the
-story come true, and the Director decides what "true" means.
+Director with the same search also met 9 of 17 and told 2. The Director read 16 of the 17 beats by kind and side
+(13 exactly, bounds and minute too); the keywords read 13 (10 exactly). No effect of the style dials on goals was
+detected over eight matches a setting (a difference of 0.6 goals, standard error 0.7).
+
+**Search against one match.** On the current engine only the director and keyword arms have run, so the
+closed loop has no current-engine baseline yet. On the engine before the realism calibration it had one: the
+Director's search met 9 of 17 gold beats (53%), and single matches with the same settings met 17 of 68 (25%).
+Pruning tried 55 candidates in 2,574 match minutes (2.1 per 100 minutes) against 24 in 2,376 without it (1.0 per
+100).
 
 ### On the current engine
 
@@ -149,8 +178,11 @@ both sides' dials high (tempo and risk 0.85, press and directness 0.75), low (te
 | low | 8 | 2.75 | 0 |
 | as drawn | 8 | 3.25 | 0 |
 
-On the calibrated engine the style dials barely move the result. The Director's prompt now quotes these numbers
-and tells it to set the dials for how the match should look and to let the beats carry the result.
+High against low is 0.62 goals a match with a standard error of 0.72 (the matches gave 7, 3, 2, 2, 4, 4, 2, 3
+and 5, 1, 2, 2, 3, 3, 3, 3 goals). Eight matches cannot tell "no effect" from an effect of 1.5 goals, so this
+says only that no effect on goals was detected. The probe counted goals and red cards; it did not measure how
+the dials change the look of a match. The Director's prompt quotes these numbers, says no effect on goals has
+been shown, and tells it to set the dials for the style the story describes and let the beats carry the result.
 
 **The bench** (`reports/scenario_bench_v3.json`, `--out reports/scenario_bench_v3.json --arms director,rules`).
 The same eight stories, gold beats and seeds as the earlier runs, described below. Two arms: the product with the
@@ -161,10 +193,13 @@ shipped prompt, and the keyword baseline.
 | director | 9 of 17 (53%) | 3 of 8 | 12 of 22 | 35 (19) | 2264 | 909 |
 | rules | 9 of 17 (53%) | 2 of 8 | 12 of 19 | 34 (17) | 2323 | 828 |
 
-| Director | gold beats read | extra beats |
-|---|---|---|
-| director | 16 of 17 | 6 |
-| rules | 13 of 17 | 6 |
+| Director | gold beats read (kind and side) | read exactly (bounds and minute too) | extra beats |
+|---|---|---|---|
+| director | 16 of 17 | 13 of 17 | 6 |
+| rules | 13 of 17 | 10 of 17 | 6 |
+
+"Read" matches a gold beat by kind and side only, so "at least 3 goals" reads gold "at least 4 goals". "Read
+exactly" also needs the same bounds and minute. Extra beats are kinds and sides the gold never asked for.
 
 | story | gold | director | rules |
 |---|---|---|---|
@@ -177,13 +212,12 @@ shipped prompt, and the keyword baseline.
 | the visitors score first, go down to ten men and hang on to win | away score first, a red card for away, away win | 2/3 | 0/3 |
 | a late winner for the home side in a game of few chances | home win, a goal for home from minute 75, at most 3 goals | 1/3 | 3/3 |
 
-**What it says.** The two arms tie on beats. The Director wins where reading matters: the keywords turned "the
-visitors score first" into "home score first" and met none of that story, while the Director met 2 of 3. The
-goalless draw went to the Director by luck as much as anything: both arms stopped every candidate at its first
-goal, and the Director's sixth candidate ended 0-0. The keywords won stories a single seed decided, such as the
-comeback. Three cautions. The keyword list and
-the bench stories were written by the same hand, so the keywords know these phrasings; a Spanish story gives them
-nothing. Eight stories cannot rank close arms. And each run of the Director is a new set of model calls.
+**What it says.** The two arms tie on beats. The visitors story is no evidence for the Director: the keyword
+arm's 0 of 3 there came from the reader bug above. The goalless draw went to the Director by luck as much as
+anything: both arms stopped every candidate at its first goal. The keywords won stories a single seed decided,
+such as the comeback. Three cautions. The keyword list and the bench stories were written by the same hand, so
+the keywords know these phrasings; by construction they read English only. Eight stories cannot rank close arms.
+And each run of the Director is a new set of model calls.
 
 ### On the engine before its realism calibration
 
@@ -204,10 +238,10 @@ Each arm offers its best match by its own beats. The bench then checks that matc
 | untouched | 9 of 17 (53%) | 1 of 8 | 12 of 24 | 56 (41) | 2755 | 1335 |
 | no_prune | 7 of 17 (41%) | 1 of 8 | 10 of 24 | 24 (0) | 2376 | 842 |
 
-| Director | gold beats read | extra beats |
-|---|---|---|
-| director | 17 of 17 | 7 |
-| rules | 13 of 17 | 6 |
+| Director | gold beats read (kind and side) | read exactly (bounds and minute too) | extra beats |
+|---|---|---|---|
+| director | 17 of 17 | 13 of 17 | 7 |
+| rules | 13 of 17 | 10 of 17 | 6 |
 
 | story | gold | director | rules | untouched | no_prune |
 |---|---|---|---|---|---|
@@ -225,8 +259,8 @@ their totals differ.
 
 **What it says.**
 
-- **The Director reads stories better than keywords.** Its beats cover all 17 gold beats; the keyword Director
-  covers 13. It also adds beats nobody asked for: 7 over eight stories, such as a clean sheet for an underdog that
+- **The Director reads stories better than keywords.** Its beats cover all 17 gold beats by kind and side (13
+  exactly); the keyword Director covers 13 (10 exactly). It also adds beats nobody asked for: 7 over eight stories, such as a clean sheet for an underdog that
   "nicks it". An extra beat narrows the match the search looks for. Sometimes it also helps: that clean sheet let
   the search stop 7 of 8 candidates at the first home goal.
 - **The Director arm meets the most.** 9 of 17 gold beats and every gold beat in 2 of 8 stories, against 6 of 17
@@ -271,8 +305,8 @@ another's, so the low end is less clear. The Director's dials stayed near the mi
 "a game of few chances", and 5.0 goals against 3.8 with no settings. Four matches a cell is a small sample. Where
 a story comes true, the search does the work: it keeps the match where the beats hold.
 
-**Calibration: the engine's measured response goes into the prompt.** By hand, from the tilt check, the
-Director's prompt gained one measured line: mild dials barely move the result; both sides at tempo and risk 0.85 (press and directness 0.75)
+**The measured line in the prompt.** By hand, from the tilt check, the Director's prompt gained one measured
+line: mild dials barely move the result; both sides at tempo and risk 0.85 (press and directness 0.75)
 gave about 7 goals a match; tempo 0.3 and risk 0.2 gave about 2.5. The low-end number rests on one story's four
 matches. Then the Director wrote all eight specs again and its arm ran again on the same seeds, in the search and
 in the tilt check (`reports/scenario_bench_v2.json`, same command with `--out reports/scenario_bench_v2.json
@@ -280,47 +314,78 @@ in the tilt check (`reports/scenario_bench_v2.json`, same command with `--out re
 
 | | search: gold beats met | search: stories with every gold beat | single matches: gold beats met | single matches with every gold beat |
 |---|---|---|---|---|
-| Director, calibrated | 11 of 17 | 3 of 8 | 22 of 68 (32%) | 3 of 32 |
+| Director, measured line | 11 of 17 | 3 of 8 | 22 of 68 (32%) | 3 of 32 |
 | Director, first prompt | 9 of 17 | 2 of 8 | 17 of 68 (25%) | 2 of 32 |
 | Director's beats, no settings | 9 of 17 | 1 of 8 | 16 of 68 (24%) | 0 of 32 |
 | keyword Director | 6 of 17 | 0 of 8 | 16 of 68 (24%) | 1 of 32 |
 
-The calibrated Director met the most in both checks, and its goals moved the way the stories asked: the wild draw
-went from 3.5 goals a match to 5.0, "a game of few chances" from 5.0 to 2.8. The calibrated search wrote the
+With the measured line the Director met the most in both checks, and its goals moved the way the stories asked:
+the wild draw went from 3.5 goals a match to 5.0, "a game of few chances" from 5.0 to 2.8. Its search wrote the
 comeback, which no arm had written before. Two cautions. The gain in the single matches, 6 beats of 68 over no
 settings, is about one standard deviation of a count that size: it points the right way and needs more matches
 to stand as a result. And the
 second run is a new set of Director calls, so the change mixes the prompt with the model's own variation (it
-also read one gold beat fewer: 16 of 17). Then the realism calibration landed and the high dials stopped moving
-goals (the dial probe above), so the prompt quotes the probe now and these two runs describe the engine as it was.
+also read one gold beat fewer: 16 of 17). Then the realism calibration landed. On the new engine the dial probe
+above detected no effect on goals, though its eight matches a setting are too few to compare with the 7 and 2.5
+goals of the old tilt cells. The prompt quotes the probe now, and these two runs describe the engine as it was.
 
-**The Director on the app's examples.** Five calls on each of the four stories the app offers, after the repair
-fix below and before the calibration:
+**The Director on the app's examples** (`reports/scenario_director.json`, `--director-check 5`). Five calls
+on each of the four stories the app offers, with the prompt that ships (its sha256 is in the file):
 
 | example story | calls | first spec refused by the gate | repaired | fell back to rules | beats, most common |
 |---|---|---|---|---|---|
-| An underdog parks the bus and nicks it late | 5 | 0 | 0 | 0 | away win, a goal for away from minute 75, an away clean sheet (4 of 5) |
-| A wild end-to-end draw with a red card | 5 | 1 | 1 | 0 | a draw, a red card, 3 to 6 goals (3 of 5) |
+| An underdog parks the bus and nicks it late | 5 | 0 | 0 | 0 | away win, a goal for away from minute 75, an away clean sheet (3 of 5) |
+| A wild end-to-end draw with a red card | 5 | 0 | 0 | 0 | a draw, a red card, at least 3 goals (3 of 5) |
 | The home side fall behind and come back to win | 5 | 0 | 0 | 0 | a home comeback, home win (4 of 5) |
-| A tight, cagey game settled by a single goal | 5 | 1 | 1 | 0 | home win, 1 goal (4 of 5) |
+| A tight, cagey game settled by a single goal | 5 | 1 | 1 | 0 | 1 goal (3 of 5) |
 
-No call fell back, and no spec for the wild draw carried a shots gap after the fix. The Director still adds beats
-of its own: a late goal in two of the wild draws, a side for the single goal.
+No call fell back to the keyword reader, and no spec for the wild draw carried a shots gap. The gate refused
+one first spec of twenty, and the repair passed. The Director still adds beats of its own, such as a clean sheet
+for the underdog. Calls took 3.6 to 7.8 s.
 
-**One match written in the app.** `reports/scenario_TL-942704.json` is the full note of a match written from the
-picker on a laptop with one worker: "A wild end-to-end draw with a red card". The Director's first spec had a
-shots gap with no side; the gate refused it; the Director repaired the spec in 1.9 s and added a home shots edge
-the story never asked for. Three candidates played, 102 to 131 s each while the bench shared the CPU; the job
-took 366 s from story to match. None met every beat; the 1-1 draw met 2 of 4 (the draw and the shots edge) and was offered with the
-missed red card and goals marked as missed. `replay` played it again from its meta alone: 3,545 events,
-identical byte for byte. That repair is why the repair prompt now says to drop a refused beat the story never
-asked for, and why a shots gap is reserved for a side that dominates. The bench's specs were made before that
-fix, and its wild draw carries the same invented edge (home outshoot away by 1). The Director check above was
-made after the fix.
+**Matches written end to end.** Two notes from `python -m touchline_live.scenario write` on this laptop with
+three workers, on the current engine and the shipped prompt, each with a replay from the committed report alone.
 
-**Languages.** The Director read one story each in Spanish, French and Portuguese correctly in a spot check (a
-draw with goals and a red card; the visitors scoring first and holding on; a home comeback). That is three
-calls, not a measurement. The keyword fallback reads English only.
+- `reports/scenario_TL-923149.json`, "A tight, cagey game settled by a single goal". The Director read one beat,
+  "1 goal", in 12.1 s, and the gate passed it. Seed 923148 was stopped at 54' when a second goal broke the beat;
+  seed 923149 finished 0-1 and met it. A third seed, played ahead by a spare worker, was dropped. 78 s from
+  the spec to the match. The replay from the report gives the recorded sha256 (3,359 events).
+- `reports/scenario_TL-978699.json`, "An underdog parks the bus and nicks it late". The Director read four
+  beats: away win, an away goal from minute 75, an away clean sheet, away score first. Five candidates were
+  stopped early (the best had met 2 of 4 when the home side's goal at 72' broke the clean sheet), the budget
+  ran out, and one more played to the end: a 3-3 draw that met none of the four. The job offered it with every
+  beat marked missed. 174 s from the spec to the match; the replay gives the recorded sha256 (3,320 events).
+  The extra beats the Director added, the clean sheet and the first goal, are what pruned the near misses.
+
+`reports/scenario_TL-942704.json` is an earlier note, from the engine before the realism calibration and an
+older prompt. Its first spec had a shots gap with no side, the gate refused it, and the repair added a home
+shots edge the story never asked for; the repair prompt now says to drop a refused beat the story never asked
+for. Its replay needs the original match files, which are gone, and it recorded no hash, so it cannot be
+checked again.
+
+**Languages.** The product speaks English, Spanish, French and Portuguese. The same four examples in Spanish,
+French and Portuguese went through the same five calls each (`languages` in `reports/scenario_director.json`):
+
+| example story | language | calls | fell back to rules | same beats as the English, most common (any order) | beats, most common |
+|---|---|---|---|---|---|
+| Un equipo modesto aparca el autobús y gana al final | es | 5 | 0 | 3 of 5 | away win, a goal for away from minute 75, an away clean sheet (3 of 5) |
+| Un empate loco de ida y vuelta con una tarjeta roja | es | 5 | 0 | 1 of 5 | a draw, a red card (4 of 5) |
+| Los locales van perdiendo y remontan para ganar | es | 5 | 0 | 5 of 5 | home win, a home comeback (3 of 5) |
+| Un partido cerrado y táctico que se decide por un solo gol | es | 5 | 0 | 0 of 5 | 1 goal, home win (4 of 5) |
+| Un petit poucet gare le bus et l'emporte sur le tard | fr | 5 | 0 | 3 of 5 | away win, a goal for away from minute 75, an away clean sheet (3 of 5) |
+| Un match nul fou, d'un but à l'autre, avec un carton rouge | fr | 5 | 0 | 0 of 5 | a draw, at least 2 goals, a red card (2 of 5) |
+| L'équipe à domicile est menée puis renverse le match pour gagner | fr | 5 | 0 | 2 of 5 | home win, a home comeback, away score first (2 of 5) |
+| Un match serré et prudent, décidé par un seul but | fr | 5 | 0 | 0 of 5 | 1 goal, home win (5 of 5) |
+| Um azarão estaciona o ônibus e vence no fim | pt | 5 | 0 | 0 of 5 | away win, a goal for away from minute 80, an away clean sheet (3 of 5) |
+| Um empate maluco, lá e cá, com um cartão vermelho | pt | 5 | 0 | 3 of 5 | a draw, a goal from minute 75, a red card (2 of 5) |
+| O time da casa sai perdendo e vira para vencer | pt | 5 | 0 | 4 of 5 | a home comeback, home win (4 of 5) |
+| Um jogo truncado e cauteloso decidido por um único gol | pt | 5 | 0 | 1 of 5 | 1 goal, home win, a home clean sheet, home score first (1 of 5) |
+
+None of the 60 calls fell back. The beat sets match the English call's most common set in 22 of 60 calls; most
+differences are one beat added, dropped or moved (a home win beside "1 goal", minute 80 for minute 75, no goals
+beat for the wild draw). Five calls a story is a small sample, and the English calls vary too: their own most
+common set covers 3 or 4 of 5. The keyword fallback reads English only, so a story in another language finds no
+beat when the model is out of reach, and the job says so.
 
 **Fixed along the way.** The first bench run showed one Director call failing with "Event loop is closed": each
 job runs its own event loop, and the cached model client still held connections from a closed one. That story
@@ -329,19 +394,23 @@ its own loop; the bench retries once and records any fallback. The affected stor
 
 ## Limits
 
-- **The engine decides.** The settings barely move the odds of a beat on their own, and nothing can script a
-  goal. Rare stories (a comeback, a goalless draw) missed in every arm of the bench. The job then offers the
-  closest match and says which beats it missed.
-- **Waiting.** A full match took 102 to 131 s on this laptop while the bench shared it
-  (`reports/scenario_TL-942704.json`). The container runs one worker on one vCPU, so a story that needs every
-  candidate takes several minutes there; the container was not timed. The job reports each candidate as it plays.
+- **The engine decides.** No effect of the settings on goals has been shown on the current engine, and nothing
+  can script a goal. Rare stories come true on luck: over the seven search runs in the bench reports the
+  comeback came true twice and the goalless draw once. When a story misses, the job offers the closest match and
+  says which beats it missed.
+- **Waiting.** A full match on the current engine takes 126 to 150 s on this laptop (median 139 s over 96
+  matches; the `secs` of each row in `reports/realism.json`). The container runs one worker on one vCPU, so a
+  story that needs every candidate takes several minutes there; the container was not timed. The job reports
+  each candidate as it plays.
 - **The bench is small.** Eight stories, one seed range each, four matches a cell in the tilt check. It shows
   where the product stands; it cannot rank close arms.
 - **One replica, local disk.** Jobs live in the memory of the replica that took them, and written matches live
   on its disk. `infra/deploy.sh` runs at most one replica, so every poll reaches the job. It also scales to zero,
   and a cold start clears the written matches. A shared file share for the data dir would keep them.
-- **The vocabulary is small.** "Parks the bus" becomes settings, never a beat: there is no possession or shape
-  beat. "A late winner" is checked as a win plus a late goal by the winner, which also holds for a late third goal
+- **The vocabulary is small.** "Parks the bus" becomes settings only: there is no possession or shape beat. "A late winner" is checked as a win plus a late goal by the winner, which also holds for a late third goal
   in a 3-0.
 - **The Director varies.** The same story can produce different beats on different calls. The bench saves every
   spec it used so its tables can be checked.
+- **Beats the story never asked for are hard.** An extra beat prunes candidates like any other. In the current
+  bench the Director's own additions ("1 to 2 goals", an away clean sheet) sit on two of the stories it lost:
+  the underdog and the late winner.

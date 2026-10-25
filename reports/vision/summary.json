@@ -1,6 +1,7 @@
 {
  "dev": {
   "clips": 20,
+  "failed_clips": [],
   "matches": [
    "TL-000007",
    "TL-000012"
@@ -13,8 +14,28 @@
    "camera_centre_err_m_median": 0.06
   },
   "tracks": {
+   "frames": 4120,
+   "ball_seen": 0.684,
+   "ball_in_frame": 1.0,
+   "ball_wrong": 0.006,
+   "ball_true_seen": 0.68,
+   "ball_px_median": 0.876,
+   "ball_px_p95": 1.327,
+   "ball_ground_err_m_median": 0.15,
+   "ball_ground_err_m_p90": 0.254,
+   "unseen_at_feet": 0.919,
+   "players_found": 0.823,
+   "player_err_m_median": 0.196,
+   "player_team_correct": 0.976,
+   "wrong_px": 10.0,
+   "at_feet_m": 1.0
+  },
+  "tracks_clip_median": {
    "ball_seen": 0.682,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.0,
+   "ball_true_seen": 0.68,
+   "unseen_at_feet": 0.948,
    "ball_px_median": 0.86,
    "ball_px_p95": 1.13,
    "ball_ground_err_m_median": 0.137,
@@ -469,10 +490,25 @@
     "kick_frame_abs_err": 1.07
    }
   },
-  "match_frames": 4
+  "match_frames": 4,
+  "match_shots": {
+   "TL-000007": {
+    "blocked": 10,
+    "saved": 12,
+    "off_target": 20,
+    "goal": 6
+   },
+   "TL-000012": {
+    "off_target": 18,
+    "saved": 5,
+    "goal": 2,
+    "blocked": 3
+   }
+  }
  },
  "heldout": {
   "clips": 20,
+  "failed_clips": [],
   "matches": [
    "TL-000010",
    "TL-000013"
@@ -485,8 +521,28 @@
    "camera_centre_err_m_median": 0.04
   },
   "tracks": {
+   "frames": 4120,
+   "ball_seen": 0.653,
+   "ball_in_frame": 1.0,
+   "ball_wrong": 0.022,
+   "ball_true_seen": 0.639,
+   "ball_px_median": 0.851,
+   "ball_px_p95": 1.199,
+   "ball_ground_err_m_median": 0.175,
+   "ball_ground_err_m_p90": 0.298,
+   "unseen_at_feet": 0.903,
+   "players_found": 0.904,
+   "player_err_m_median": 0.193,
+   "player_team_correct": 0.995,
+   "wrong_px": 10.0,
+   "at_feet_m": 1.0
+  },
+  "tracks_clip_median": {
    "ball_seen": 0.613,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.003,
+   "ball_true_seen": 0.613,
+   "unseen_at_feet": 0.899,
    "ball_px_median": 0.845,
    "ball_px_p95": 1.085,
    "ball_ground_err_m_median": 0.165,
@@ -532,16 +588,16 @@
     ]
    },
    "pass_length_m": {
-    "mae": 2.04,
-    "median": 0.82,
-    "bias": -1.79,
-    "n": 36
+    "mae": 1.48,
+    "median": 0.78,
+    "bias": -1.2,
+    "n": 33
    },
    "pass_travel_m": {
-    "mae": 1.89,
-    "median": 0.81,
-    "bias": -1.66,
-    "n": 42
+    "mae": 1.41,
+    "median": 0.73,
+    "bias": -1.15,
+    "n": 39
    },
    "ball_speed_kmh": {
     "mae": 6.45,
@@ -606,16 +662,16 @@
     ]
    },
    "pass_length_m": {
-    "mae": 1.41,
-    "median": 0.32,
-    "bias": -0.98,
-    "n": 39
+    "mae": 0.88,
+    "median": 0.22,
+    "bias": -0.42,
+    "n": 36
    },
    "pass_travel_m": {
-    "mae": 1.26,
-    "median": 0.27,
-    "bias": -0.77,
-    "n": 46
+    "mae": 0.8,
+    "median": 0.26,
+    "bias": -0.29,
+    "n": 43
    },
    "ball_speed_kmh": {
     "mae": 2.65,
@@ -680,16 +736,16 @@
     ]
    },
    "pass_length_m": {
-    "mae": 2.65,
-    "median": 0.85,
-    "bias": -0.52,
-    "n": 36
+    "mae": 2.14,
+    "median": 0.82,
+    "bias": 0.18,
+    "n": 33
    },
    "pass_travel_m": {
-    "mae": 2.42,
-    "median": 0.86,
-    "bias": -0.57,
-    "n": 42
+    "mae": 1.97,
+    "median": 0.78,
+    "bias": 0.02,
+    "n": 39
    },
    "ball_speed_kmh": {
     "mae": 12.22,
@@ -754,16 +810,16 @@
     ]
    },
    "pass_length_m": {
-    "mae": 2.56,
-    "median": 1.55,
-    "bias": -2.32,
-    "n": 35
+    "mae": 1.98,
+    "median": 1.45,
+    "bias": -1.72,
+    "n": 32
    },
    "pass_travel_m": {
-    "mae": 2.49,
-    "median": 1.55,
-    "bias": -2.28,
-    "n": 40
+    "mae": 1.98,
+    "median": 1.46,
+    "bias": -1.76,
+    "n": 37
    },
    "ball_speed_kmh": {
     "mae": 6.22,
@@ -829,16 +885,16 @@
      ]
     },
     "pass_length_m": {
-     "mae": 1.97,
+     "mae": 1.39,
      "median": 0.74,
-     "bias": -1.84,
-     "n": 19
+     "bias": -1.26,
+     "n": 18
     },
     "pass_travel_m": {
-     "mae": 1.79,
-     "median": 0.73,
-     "bias": -1.65,
-     "n": 23
+     "mae": 1.31,
+     "median": 0.72,
+     "bias": -1.16,
+     "n": 22
     },
     "ball_speed_kmh": {
      "mae": 5.05,
@@ -903,16 +959,16 @@
      ]
     },
     "pass_length_m": {
-     "mae": 2.12,
-     "median": 1.07,
-     "bias": -1.72,
-     "n": 17
+     "mae": 1.58,
+     "median": 0.83,
+     "bias": -1.13,
+     "n": 15
     },
     "pass_travel_m": {
-     "mae": 2.02,
-     "median": 1.06,
-     "bias": -1.66,
-     "n": 19
+     "mae": 1.53,
+     "median": 0.87,
+     "bias": -1.13,
+     "n": 17
     },
     "ball_speed_kmh": {
      "mae": 8.14,
@@ -941,7 +997,21 @@
     "kick_frame_abs_err": 1.08
    }
   },
-  "match_frames": 4
+  "match_frames": 4,
+  "match_shots": {
+   "TL-000010": {
+    "off_target": 10,
+    "goal": 4,
+    "saved": 4,
+    "blocked": 9
+   },
+   "TL-000013": {
+    "goal": 6,
+    "off_target": 20,
+    "saved": 10,
+    "blocked": 7
+   }
+  }
  },
  "heldout_first": {
   "clips": 20,
@@ -1417,6 +1487,7 @@
  },
  "test": {
   "clips": 20,
+  "failed_clips": [],
   "matches": [
    "TL-000009",
    "TL-000011"
@@ -1429,8 +1500,28 @@
    "camera_centre_err_m_median": 0.06
   },
   "tracks": {
+   "frames": 4120,
+   "ball_seen": 0.673,
+   "ball_in_frame": 1.0,
+   "ball_wrong": 0.097,
+   "ball_true_seen": 0.608,
+   "ball_px_median": 0.832,
+   "ball_px_p95": 241.642,
+   "ball_ground_err_m_median": 0.148,
+   "ball_ground_err_m_p90": 15.085,
+   "unseen_at_feet": 0.941,
+   "players_found": 0.884,
+   "player_err_m_median": 0.175,
+   "player_team_correct": 0.979,
+   "wrong_px": 10.0,
+   "at_feet_m": 1.0
+  },
+  "tracks_clip_median": {
    "ball_seen": 0.665,
    "ball_in_frame": 1.0,
+   "ball_wrong": 0.025,
+   "ball_true_seen": 0.57,
+   "unseen_at_feet": 0.929,
    "ball_px_median": 0.84,
    "ball_px_p95": 1.155,
    "ball_ground_err_m_median": 0.159,
@@ -1885,6 +1976,20 @@
     "kick_frame_abs_err": 1.07
    }
   },
-  "match_frames": 4
+  "match_frames": 4,
+  "match_shots": {
+   "TL-000009": {
+    "blocked": 5,
+    "saved": 7,
+    "off_target": 15,
+    "goal": 1
+   },
+   "TL-000011": {
+    "off_target": 9,
+    "saved": 11,
+    "blocked": 6,
+    "goal": 5
+   }
+  }
  }
 }

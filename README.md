@@ -14,7 +14,7 @@ command that writes it.
 | Stage | State |
 |---|---|
 | Match engine (events, 25 Hz tracking, metadata) | working |
-| Realism against league base rates | 12 of 16 metrics in band ([`reports/realism.json`](reports/realism.json)) |
+| Realism against league base rates | 15 of 16 metrics in band over 96 matches no dial was tuned on ([`reports/realism.json`](reports/realism.json), [REALISM](docs/REALISM.md)) |
 | Azure: Foundry project with gpt-5.4-mini and gpt-5-mini | in use by the crew, keyless |
 | Feed, state service, cue feed (`schema/cue.schema.json`) | working |
 | Pass difficulty from tracking alone | working, graded against the engine's truth on held-out matches |
@@ -25,7 +25,8 @@ command that writes it.
 | Fan app: 3D pitch, personas, player focus, one metric, four languages, voice | working |
 | Broadcast overlay page for a browser source | working |
 | Azure Container Apps with a managed identity, one replica | scripted: `infra/deploy.sh`, CI and CD on demand ([DEPLOY](docs/DEPLOY.md)) |
-| Auto-eventing from rendered video | planned |
+| Write the match: a story in, a match out | measured on the current engine: 9 of 17 hand-written beats met, the same as a keyword baseline; the Director reads 16 of 17 ([SCENARIO](docs/SCENARIO.md)) |
+| Auto-eventing from the rendered feed | measured on 20 test clips filmed after the code froze: 40 of 50 passes found and 40 of 43 right, ball speed off by 3.3 km/h on average ([VISION](docs/VISION.md)) |
 
 ## Documentation
 
@@ -35,6 +36,9 @@ command that writes it.
 | [docs/MCP.md](docs/MCP.md) | The match MCP server, how Copilot, Claude Code and Agent Framework connect, the Crew room, Ask the record and tracing |
 | [docs/VOICE.md](docs/VOICE.md) | Voiced commentary with Azure AI Speech: voices, keyless auth, price, the Voice step, recorded broadcasts and the fan app control |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | CI, the staged build context, local deploy, CD with OpenID Connect and teardown |
+| [docs/SCENARIO.md](docs/SCENARIO.md) | Write the match: the Match Director, the gate, the pruned search, the validator, the bench and its limits |
+| [docs/VISION.md](docs/VISION.md) | Passes and shots read from the rendered feed: camera from the lines, ball and players, flight fits, scores on held-out clips |
+| [docs/REALISM.md](docs/REALISM.md) | The realism bands, the gated Calibrator agent and the trail of every holdout run |
 
 ## How a moment becomes a line
 
@@ -97,6 +101,52 @@ bash infra/deploy.sh        # Azure Container Apps, image built in ACR, keyless 
 
 Deploy, CI and CD are in [docs/DEPLOY.md](docs/DEPLOY.md).
 
+## Write the match
+
+A fan types a story: "an underdog parks the bus and nicks it late". A Match Director (gpt-5.4-mini) turns it
+into engine settings and typed beats. A deterministic gate clamps the settings and refuses beats that cannot
+hold together, and the Director repairs once. Candidate matches play in a process pool; a goal that rules a beat
+out stops a candidate, so the same budget tries more seeds. A validator checks every beat against the event log
+and cites the events. The best match joins the list, ready to watch or to go live with the crew.
+
+- On the current engine, over eight stories, the product met 9 of 17 hand-written beats and told 3 stories
+  completely; a keyword Director with the same search met 9 and told 2 (`reports/scenario_bench_v3.json`).
+- On the engine before the realism calibration, the search met 9 of 17 gold beats while single matches with
+  the same settings met 17 of 68, and pruning tried 55 candidates in 2,574 match minutes against 24 in 2,376
+  (`reports/scenario_bench.json`).
+- The Director read the app's four examples in Spanish, French and Portuguese with no fallback in 60 calls
+  (`reports/scenario_director.json`).
+- No effect of the style dials on goals was detected over eight matches a setting
+  (`reports/scenario_dials.json`). The search does the work.
+
+```bash
+.venv/Scripts/python -m touchline_live.scenario write "a tight, cagey game settled by a single goal"
+.venv/Scripts/python -m touchline_live.scenario replay reports/scenario_TL-923149.json --out data/replay
+```
+
+`POST /api/scenario` starts a job and `GET /api/scenario/{id}` follows it. Details: [docs/SCENARIO.md](docs/SCENARIO.md).
+
+## Reading the feed
+
+A vision pipeline watches the fan app's rendered broadcast and writes every pass and shot with its distance and
+speed. The camera comes from the painted lines alone, the ball from a shortest-path tracker, and each flight
+from a rolling and an aerial fit through that camera. No model is trained. The engine's events, its tracking and
+the renderer's camera grade it (`reports/vision/summary.json`, test set):
+
+- 40 of 50 passes found and 40 of 43 right; 8 of the 10 shots shown found.
+- Pass length off by 1.49 m on average (it reads short), ball speed by 3.27 km/h, shot speed by 1.86 km/h.
+- The pitch lands within 0.08 px of the truth on the median clip.
+- The reported ball sits on the wrong object in 9.7% of the test frames that report one.
+
+The feed is clean: rendered lines, even light, one fixed camera a clip. Real video will score lower.
+
+```bash
+PYTHONPATH=vision .venv/Scripts/python -m touchline_vision.score --name test --clips $TEMP/touchline_vision/test/clips --work $TEMP/touchline_vision/test/run
+.venv/Scripts/python -m pytest vision/tests
+```
+
+Details: [docs/VISION.md](docs/VISION.md).
+
 ## Pass difficulty
 
 At the release frame the state service reads where the passer, the intended target and every
@@ -136,26 +186,30 @@ A match writes:
 
 ## Realism
 
-Sixteen generated matches against aggregate base rates. The event-level bands span the 2023-24 and 2024-25 Premier League seasons (760 matches, totals from football-data.co.uk). Passing and physical bands are literature ranges. No real match rows enter the engine or this repository; only league averages set the targets.
+96 generated matches against aggregate base rates, on seeds no dial was tuned on. 15 of 16 metrics
+land in band; the miss is goals per shot. The event-level bands come from the 2023-24 and 2024-25 Premier League
+seasons and the passing and physical bands from published ranges; each metric's source is in the report. No real
+match rows enter the engine or this repository; only league averages set the targets. A gated Calibrator agent
+set the engine's dials: [docs/REALISM.md](docs/REALISM.md) has the trail.
 
 | Metric | Engine | Band | |
 |---|---|---|---|
-| xG per shot | 0.116 | 0.09-0.13 | in |
-| goals per shot | 0.117 | 0.095-0.13 | in |
-| shots on target share | 0.375 | 0.32-0.39 | in |
-| fouls per team | 11.3 | 9.5-12.5 | in |
-| corners per team | 5.1 | 4.4-6.2 | in |
+| xG per shot | 0.124 | 0.09-0.13 | in |
+| shots on target share | 0.370 | 0.32-0.39 | in |
+| fouls per team | 10.9 | 9.5-12.5 | in |
+| corners per team | 5.0 | 4.4-6.2 | in |
 | yellow cards per match | 4.3 | 3.3-4.9 | in |
-| red cards per match | 0.25 | 0.05-0.3 | in |
-| passes per team | 417 | 380-600 | in |
-| pass completion | 0.774 | 0.76-0.87 | in |
-| match length, minutes | 100.6 | 95-103 | in |
-| distance per outfield player, km | 11.3 | 9-12 | in |
-| top speed, km/h | 30.7 | 30-37 | in |
-| shots per team | 16.8 | 11.5-14.5 | high |
-| shots on target per team | 6.3 | 4.0-5.4 | high |
-| goals per match | 3.9 | 2.6-3.5 | high |
-| ball in play, minutes | 61.8 | 53-61 | high |
+| red cards per match | 0.15 | 0.05-0.3 | in |
+| passes per team | 396 | 380-600 | in |
+| pass completion | 0.791 | 0.76-0.87 | in |
+| match length, minutes | 99.6 | 95-103 | in |
+| distance per outfield player, km | 10.9 | 9-12 | in |
+| top speed, km/h | 30.5 | 30-37 | in |
+| shots per team | 11.7 | 11.5-14.5 | in |
+| shots on target per team | 4.3 | 4-5.4 | in |
+| goals per match | 3.1 | 2.6-3.5 | in |
+| ball in play, minutes | 59.2 | 53-61 | in |
+| goals per shot | 0.137 | 0.095-0.13 | high |
 
 Full output: [`reports/realism.json`](reports/realism.json).
 
