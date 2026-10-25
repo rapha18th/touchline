@@ -9,8 +9,9 @@ validator checks every beat against the event log, and the best match goes to th
 story, the settings, the beat report and the trace.
 
     python -m touchline_live.scenario write "an underdog parks the bus and nicks it late"
+    python -m touchline_live.scenario direct "a wild end-to-end draw with a red card"
     python -m touchline_live.scenario replay TL-912345 --out C:/tmp/check
-    python -m touchline_live.scenario bench --out reports/scenario.json
+    python -m touchline_live.eval.scenario_bench --out reports/scenario_bench.json
 
 The story can move dials only inside the engine's ranges and can only choose beats from a fixed
 vocabulary, so nothing in it reaches the engine or the screen except through typed fields.
@@ -89,6 +90,8 @@ describes the match they want in plain words. You turn the story into engine set
 
 The engine plays a full match between two fictional clubs, home and away, and the story only tilts the odds:
 the engine stays random, so set the dials that make the story likely and list the beats that would prove it.
+The engine gets only a few tries, so every beat must stay likely: when the weaker side has to win, keep the
+strength gap small (0.1 to 0.15) and let the style dials tell the rest of the story.
 
 Settings for each side (null keeps the club's own value):
 - strength: overall quality, {STRENGTH_RANGE[0]} weak to {STRENGTH_RANGE[1]} strong. An underdog sits near 0.3, a favourite near 0.7.
@@ -297,6 +300,8 @@ def rules_director(story: str) -> ScenarioSpec:
     """A keyword reading of the story. It keeps the service working with no model, and it is the baseline."""
     s = story.lower()
     has = lambda *ws: any(w in s for w in ws)
+    named = ("home" if has("home side", "home team", "the hosts", "at home") else
+             "away" if has("away side", "away team", "the visitors", "on the road") else None)
     under = "home" if has("home underdog", "underdogs at home", "home side are underdogs") else "away"
     fav = "away" if under == "home" else "home"
     spec = ScenarioSpec()
@@ -331,8 +336,10 @@ def rules_director(story: str) -> ScenarioSpec:
         beats.append(Beat(kind="winner", side="home", says="home win"))
     elif has("away win", "away side win", "away side wins"):
         beats.append(Beat(kind="winner", side="away", says="away win"))
+    elif named and has("win", "wins", "won", "victory") and not any(b.kind == "winner" for b in beats):
+        beats.append(Beat(kind="winner", side=named, says="win"))
     if has("comeback", "come back", "comes back", "fight back", "fights back", "from behind"):
-        who = under if has("underdog") else None
+        who = under if has("underdog") else named
         beats.append(Beat(kind="comeback", side=who, says="comeback"))
     m = re.search(r"\b(?:after|in) (?:the )?(\d{1,2})(?:th|st|nd|rd)? ?(?:minute|min|')", s)
     if has("late", "last minute", "stoppage", "injury time", "dying minutes") or m:
@@ -409,14 +416,15 @@ async def direct(story: str, *, use_llm: bool = True, timeout: float = 40.0) -> 
 
 def _retune(team: Team, s: SideSettings) -> Team:
     """The fixture's club with the spec's settings. Players move with the club's strength the way
-    squads._player builds them: skills 0.25 and pace 0.3 per unit of strength."""
+    squads._player builds them: skills 0.25 and pace 0.3 per unit of strength, held inside the range
+    squads._player can produce (skills 0 to 1.1, pace 6.8 to 9.9 m/s)."""
     players = list(team.players)
     strength = team.strength
     if s.strength is not None and s.strength != team.strength:
         d = s.strength - team.strength
         skills = ("passing", "finishing", "dribbling", "tackling", "stamina", "heading")
         players = [dataclasses.replace(p, pace=float(min(max(p.pace + 0.3 * d, 6.8), 9.9)),
-                                       **{k: float(min(max(getattr(p, k) + 0.25 * d, 0.15), 1.05)) for k in skills})
+                                       **{k: float(min(max(getattr(p, k) + 0.25 * d, 0.0), 1.1)) for k in skills})
                    for p in players]
         strength = s.strength
     formation = team.formation
@@ -730,18 +738,18 @@ def publish(result: dict, *, story: str, spec: ScenarioSpec, trace: list[dict], 
     best = result["best"]
     mid = best["match_id"]
     src, dst = stage / mid, data_dir / mid
-    if dst.exists():
-        shutil.rmtree(dst)
-    os.replace(src, dst)
-    meta_p = dst / "meta.json"
+    meta_p = src / "meta.json"                 # the note goes in before the move, so a reader never sees half a match
     md = json.loads(meta_p.read_text(encoding="utf-8"))
     md["scenario"] = {
         "story": story, "headline": headline(spec), "spec": spec.model_dump(), "trace": trace,
         "report": {k: best[k] for k in ("met", "total", "all", "partial", "beats")},
         "search": {k: result[k] for k in ("workers", "prune", "budget", "spent", "wall_s", "played_s", "candidates")},
-        "replay": f"python -m touchline_live.scenario replay {mid}",
+        "replay": f"python -m touchline_live.scenario replay {mid} --out <dir>",
     }
     meta_p.write_text(json.dumps(md, indent=1), encoding="utf-8")
+    if dst.exists():
+        shutil.rmtree(dst)
+    os.replace(src, dst)
     return mid
 
 
