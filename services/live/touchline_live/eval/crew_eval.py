@@ -461,7 +461,7 @@ def classify(problems: list[str], text: str, scores_ok: list[list[int]], plant: 
     f = {"unsupported_number": [p for p in problems if p.startswith("number ")],
          "unknown_name": [p for p in problems if p.startswith("name ")],
          "failed_claim": [p for p in problems if p.startswith("claim failed")],
-         "banned_style": [p for p in problems if p.startswith(("banned wording", "too long"))],
+         "banned_style": [p for p in problems if p.startswith(("banned wording", "too long", "format:"))],
          "wrong_score": wrong_scores, "history_claim": history}
     flags = {k: bool(v) for k, v in f.items()}
     flags["false_claim"] = flags["failed_claim"] or flags["wrong_score"] or flags["history_claim"]

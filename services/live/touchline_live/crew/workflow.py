@@ -208,22 +208,53 @@ class Fallback(Executor):
         await ctx.send_message(job)
 
 
+def _n(v) -> str:
+    """A number as it airs: at most two decimals and no trailing zeros. 0.3583 xG airs as 0.36."""
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        return str(v)
+    if isinstance(v, int):
+        return str(v)
+    return f"{round(v, 2):.2f}".rstrip("0").rstrip(".")
+
+
+def _score(job: Job) -> str:
+    """The score as it airs, "Home 2-3 Away": the facts' own score line when they carry one, else the match
+    state's [home, away] pair with the club names. Never a raw list."""
+    f, c = job.facts, job.context or {}
+    sc = f.get("score")
+    if isinstance(sc, str) and sc.strip():
+        return sc.strip()
+    if not isinstance(sc, (list, tuple)):
+        sc = (c.get("state") or {}).get("score")
+    if isinstance(sc, (list, tuple)) and len(sc) == 2:
+        return f"{c.get('home') or 'Home'} {int(sc[0])}-{int(sc[1])} {c.get('away') or 'Away'}"
+    return ""
+
+
+def _with_score(line: str, job: Job) -> str:
+    score = _score(job)
+    return f"{line} {score}." if score else line
+
+
 def template(job: Job, persona: str) -> str:
+    """The Fallback's line: verified facts only, every number as it airs, every score as "Home 2-3 Away"."""
     f = job.facts
     k = job.kind
     if k == "goal":
         return {"studio": f"GOAL {f['scorer'].upper()} {f['minute']}",
-                "casual": f"{f['scorer']} scores for {f['team']}. {f['score']}.",
-                "analyst": f"{f['scorer']} scores from {f['distance_m']} metres, xG {round(f['xg'], 2)}. {f['score']}."}[persona]
+                "casual": _with_score(f"{f['scorer']} scores for {f['team']}.", job),
+                "analyst": _with_score(f"{f['scorer']} scores from {_n(f['distance_m'])} metres, xG {_n(f['xg'])}.", job)}[persona]
     if k == "big_chance":
-        return f"Big chance for {f['shooter']}, xG {f['xg']}, {f['outcome'].replace('_', ' ')}."
+        return f"Big chance for {f['shooter']}, xG {_n(f['xg'])}, {f['outcome'].replace('_', ' ')}."
     if k == "big_save":
-        return f"{f['keeper']} saves from {f['shooter']}, a chance worth {f['xg']} xG."
+        return f"{f['keeper']} saves from {f['shooter']}, a chance worth {_n(f['xg'])} xG."
     if k == "hard_pass":
-        return f"{f['passer']} finds {f['recipient']} with a pass rated {f['difficulty']} difficulty."
+        return f"{f['passer']} finds {f['recipient']} with a pass rated {_n(f['difficulty'])} difficulty."
     if k == "red_card":
-        return f"Red card for {f['player']}."
-    return f"{job.context.get('home', '')} {job.context.get('state', {}).get('score', '')}".strip()
+        return _with_score(f"Red card for {f['player']}.", job)
+    if k == "milestone" and f.get("player") and f.get("goals") is not None:
+        return _with_score(f"{f['player']} has {_n(f['goals'])} goals.", job)
+    return f"{_score(job)}." if _score(job) else ""
 
 
 class Localiser(Executor):

@@ -34,8 +34,11 @@ Every number below comes from `reports/crew_eval.json`. The command that prints 
   mentioned a record, as a refusal, without the Verifier.
 - **The crew costs time and money.** At p50 the crew takes 7.8 s a moment, 6.4 s without the Verifier and 3.1 s
   for one call. It costs $0.0090 a moment, against $0.0073 and $0.0040.
-- **The Fallback has a defect.** 21 of the 42 template lines the crew aired are malformed: 12 milestone lines
-  read like "Fallowmere Albion [2, 3]" and 9 big-save lines quote xG to four places. Neither checker flags them.
+- **The Fallback had a defect.** 21 of the 42 template lines the crew aired are malformed: 12 milestone lines
+  read like "Fallowmere Albion [2, 3]" and 9 big-save lines quote xG to four places. Neither checker flagged
+  them. Fixed after the run: the template now says a score as "Fallowmere Albion 2-3 Elmstead United" and xG to
+  two decimals, and the Verifier fails any line with a raw list or a number with more than two decimals
+  (`services/live/tests/test_fallback.py`). The counts here are from the run, before the fix.
 
 ## How it was run
 

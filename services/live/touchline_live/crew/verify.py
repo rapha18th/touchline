@@ -5,7 +5,8 @@ Three gates, all deterministic:
 2. Coverage: every number and every capitalised name in the text must be backed by a claim,
    the moment's facts, or the roster and club names. A number the record cannot account for
    fails the line.
-3. Style: broadcast length, plain punctuation, no invented superlatives about history.
+3. Style: broadcast length, plain punctuation, no invented superlatives about history, and no raw
+   machine output: a Python list such as [2, 3] or a number with more than two decimals fails the line.
 """
 
 from __future__ import annotations
@@ -23,6 +24,8 @@ from .models import Claim
 NUM = re.compile(r"(?<![\w.])(\d+(?:\.\d+)?)(%?)")
 NAME = re.compile(r"\b([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)\b")
 BANNED = ["—", "–", "ever ", "all-time", "record-breaking", "history", "career-best", "best in the league"]
+RAW_LIST = re.compile(r"\[\s*-?\d+(?:\.\d+)?(?:\s*,\s*-?\d+(?:\.\d+)?)+\s*\]")   # a Python list, such as [2, 3]
+LONG_DECIMAL = re.compile(r"(?<![\w.])\d+\.\d{3,}(?!\d)")                          # 0.3583: more than two decimals
 COMMON = {"The", "A", "An", "He", "His", "They", "Their", "That", "This", "What", "Now", "And", "But", "It", "Its",
           "In", "On", "At", "From", "With", "After", "Before", "Goal", "Save", "Chance", "Half", "Full", "Time", "Big",
           "One", "Two", "Three", "First", "Second", "Home", "Away", "Who", "How", "Why", "So", "Still", "Just", "Off",
@@ -158,6 +161,10 @@ async def verify_text(record: MatchRecord, match_id: str, match_s: float, text: 
         hit = (b in text) if b in ("—", "–") else (b in low)
         if hit:
             problems.append(f"banned wording or punctuation: {b.strip()!r}")
+    for m in RAW_LIST.finditer(text):
+        problems.append(f"format: a raw list on air, {m.group(0)}")
+    for m in LONG_DECIMAL.finditer(text):
+        problems.append(f"format: {m.group(0)} has more than two decimals")
     if len(text.split()) > max_words:
         problems.append(f"too long: {len(text.split())} words, limit {max_words}")
     return {"ok": not problems, "problems": problems, "claims_checked": len(checked or [])}
