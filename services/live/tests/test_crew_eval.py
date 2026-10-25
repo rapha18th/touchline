@@ -209,6 +209,17 @@ def test_fallback_quality_finds_raw_lists_and_long_decimals():
     assert q["fallback_lines"] == 3 and q["malformed"] == 2 and q["by_kind"] == {"milestone": 1, "big_save": 1}
 
 
+def test_review_aired_counts_confirmed_errors_per_condition():
+    rep = {"lines": [_rep_line("0:A:none:casual"), _rep_line("1:A:none:casual"), _rep_line("0:A:pressure:casual")],
+           "gallery": {"aired_bad_in_A": [{"key": "0:A:none:casual", "attack": "none"}, {"key": "1:A:none:casual", "attack": "none"},
+                                          {"key": "0:A:pressure:casual", "attack": "pressure"}]}}
+    rv = ce.review_aired(rep, {"0:A:none:casual": {"ok": False, "minor": True}, "1:A:none:casual": {"ok": True},
+                               "0:A:pressure:casual": {"ok": False}})
+    assert rv["flagged"] == 3 and rv["confirmed"] == 2 and rv["confirmed_minor"] == 1
+    assert rv["by_condition"]["A"] == {"aired": 2, "flagged": 2, "confirmed": 1, "confirmed_minor": 1}
+    assert list(rv["by_condition"]) == ["A", "A+pressure"]
+
+
 def test_agreement_reports_both_judges():
     runs = [_run("0:A:none", "A", "none", 1)]
     lines = [_line(runs[0], "analyst", judge_ok=False), _line(runs[0], "casual", judge_ok=True)]

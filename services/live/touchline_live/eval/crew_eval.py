@@ -848,6 +848,29 @@ def fallback_quality(rep: dict) -> dict:
             "examples": sorted({f"{l['kind']}: {l['text']}" for l in bad})}
 
 
+def review_aired(rep: dict, review: dict) -> dict:
+    """Attach the hand reading to each flagged line A aired, and count the errors it confirms per condition."""
+    g = rep["gallery"]
+    for b in g["aired_bad_in_A"]:
+        if b["key"] in review:
+            b["by_hand"] = review[b["key"]]
+    reviewed = [b for b in g["aired_bad_in_A"] if "by_hand" in b]
+    confirmed = [b for b in reviewed if not b["by_hand"]["ok"]]
+    per = defaultdict(lambda: {"aired": 0, "flagged": 0, "confirmed": 0, "confirmed_minor": 0})
+    for l in rep["lines"]:
+        if l["cond"] == "A":
+            per[label("A", l["attack"])]["aired"] += 1
+    for b in g["aired_bad_in_A"]:
+        c = per[label("A", b["attack"])]
+        c["flagged"] += 1
+        if "by_hand" in b and not b["by_hand"]["ok"]:
+            c["confirmed"] += 1
+            c["confirmed_minor"] += bool(b["by_hand"].get("minor"))
+    return {"flagged": len(g["aired_bad_in_A"]), "reviewed": len(reviewed), "confirmed": len(confirmed),
+            "confirmed_minor": sum(1 for b in confirmed if b["by_hand"].get("minor")),
+            "by_condition": dict(sorted(per.items(), key=lambda kv: _order(kv[0])))}
+
+
 def rejudge_summary(rep: dict) -> None:
     """Recompute the judge columns of the summary from the report's lines, keeping the first judge's numbers."""
     lines = report_lines(rep)
@@ -1005,6 +1028,8 @@ def finish() -> dict:
         hc = json.loads(HANDCHECK.read_text(encoding="utf-8"))
         rep["handcheck"] = {"labels_file": str(HANDCHECK.relative_to(ROOT)).replace("\\", "/"), "labeler": hc.get("labeler"),
                             **agreement(report_lines(rep), hc["labels"])}
+        if hc.get("aired_review"):
+            rep["gallery"]["aired_review"] = review_aired(rep, hc["aired_review"])
     REPORT.write_text(json.dumps(rep, indent=1, ensure_ascii=False), encoding="utf-8")
     for part in (markdown(rep), gate_md(rep), agreement_md(rep), gallery_md(rep)):
         print(part, end="\n\n")
@@ -1090,14 +1115,18 @@ def gallery_md(rep: dict) -> str:
     for b in g["blocked"]:
         out.append(f"| {b['run']} | {b['attack']} | {b['persona'] or ''} | {cell(b['blocked'])} | "
                    f"{cell('; '.join(b['why']))} | {cell(b['aired_instead'])}{' (fallback)' if b['fallback'] else ''} |")
-    out += ["", f"Lines flagged after airing in A: {len(g['aired_bad_in_A'])}.", "",
-            "| line | attack | text | deterministic | judge |", "|---|---|---|---|---|"]
+    rv = g.get("aired_review")
+    out += ["", f"Lines flagged after airing in A: {len(g['aired_bad_in_A'])}." +
+            (f" Read by hand: {rv['reviewed']}, factual errors confirmed: {rv['confirmed']} ({rv['confirmed_minor']} minor)." if rv else ""),
+            "", "| line | text | deterministic | judge | by hand |", "|---|---|---|---|---|"]
     for l in g["aired_bad_in_A"]:
         det = "; ".join(f"{k}: {', '.join(map(str, v))}" for k, v in l["deterministic"].items())
         j = l["judge"] or {}
         jtxt = "ok" if j.get("ok") else f"{', '.join(j.get('errors', []))}: {j.get('note', '')}"
-        out.append(f"| {l['key']} | {l['attack']} | {cell(l['text'])}{' (fallback)' if l['fallback'] else ''} | "
-                   f"{cell(det) or 'clean'} | {cell(jtxt)} |")
+        h = l.get("by_hand")
+        htxt = "" if not h else ("not an error. " if h["ok"] else "error. ") + h["note"]
+        out.append(f"| {l['key']} | {cell(l['text'])}{' (fallback)' if l['fallback'] else ''} | "
+                   f"{cell(det) or 'clean'} | {cell(jtxt)} | {cell(htxt)} |")
     fq = g.get("fallback_quality")
     if fq:
         out += ["", f"Fallback lines aired in A: {fq['fallback_lines']}, malformed (a raw list or an unrounded number): "
