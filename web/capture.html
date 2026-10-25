@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Touchline Capture</title>
+<style>
+  /* A clean broadcast feed for the vision pipeline: the 3D pitch only, no graphics, fixed size. */
+  html, body { margin: 0; background: #000; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js"}}</script>
+</head>
+<body>
+<canvas id="pitch"></canvas>
+<script type="module">
+// Driven frame by frame from outside (Playwright): nothing moves until window.capture.frame(i) is called.
+// The camera matrix it returns is for grading the vision pipeline only; the pipeline never reads it.
+import { Pitch } from "/web/js/pitch.js";
+
+const q = new URLSearchParams(location.search);
+const W = Number(q.get("w") || 1280), H = Number(q.get("h") || 720);
+const canvas = document.querySelector("#pitch");
+canvas.style.width = `${W}px`; canvas.style.height = `${H}px`;
+
+let pitch = null, clip = null, cur = 0;
+const ROW = 48;   // 24 rows of [x, y] metres; row 22 is the ball, row 23 col 0 is the ball height
+
+function stub(meta) {
+  return { meta, sample: (_ms, out) => { out.set(clip.subarray(cur * ROW, cur * ROW + ROW)); return out; } };
+}
+
+window.capture = {
+  ready: true,
+  async init(matchId) {
+    const meta = await fetch(`/api/match/${matchId}`).then((r) => r.json());
+    pitch = new Pitch(canvas, stub(meta));
+    // The feed's camera sits on the near stand's gantry, so the near tier is under it, out of shot.
+    pitch.scene.traverse((o) => {
+      if (o.isMesh && o.geometry.type === "BoxGeometry" && o.geometry.parameters.depth === 14 && o.position.z > 34) o.visible = false;
+    });
+    pitch.renderer.setPixelRatio(1);
+    pitch.renderer.setSize(W, H, false);
+    pitch.camera.aspect = W / H;
+    pitch.camera.updateProjectionMatrix();
+    return { home: meta.home.kit, away: meta.away.kit, w: W, h: H };
+  },
+  // frames: flat array of n * 48 numbers in metres, 25 Hz.
+  load(frames) {
+    clip = Float32Array.from(frames);
+    cur = 0;
+    pitch.prev = null;
+    return clip.length / ROW;
+  },
+  // A fixed camera in pitch metres: x along the length, y across, z up.
+  camera({ pos, look, fov }) {
+    this.cam = { pos, look, fov };
+    pitch.camera.fov = fov;
+    pitch.camera.updateProjectionMatrix();
+  },
+  frame(i, quality = 0.92) {
+    cur = i;
+    pitch.update(0, null, 0.04);
+    const { pos, look } = this.cam, c = pitch.camera;
+    c.position.set(pos[0] - 52.5, pos[2], pos[1] - 34);
+    c.lookAt(look[0] - 52.5, look[2], look[1] - 34);
+    c.updateMatrixWorld(true);
+    pitch.render();
+    const image = canvas.toDataURL("image/jpeg", quality);
+    const m = c.projectionMatrix.clone().multiply(c.matrixWorldInverse);
+    return { image, clip_from_world: Array.from(m.elements) };
+  },
+};
+</script>
+</body>
+</html>

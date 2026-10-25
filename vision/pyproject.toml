@@ -1,0 +1,20 @@
+[project]
+name = "touchline-vision"
+version = "0.1.0"
+description = "Auto-eventing from a rendered broadcast feed: pitch homography, ball and players, passes and shots, scored against engine truth"
+requires-python = ">=3.11"
+dependencies = ["numpy>=2.0", "opencv-python-headless==4.14.0.94"]
+
+[project.optional-dependencies]
+capture = ["playwright==1.63.0"]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["touchline_vision"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

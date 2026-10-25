@@ -1,0 +1,472 @@
+{
+ "clips": 20,
+ "matches": [
+  "TL-000009",
+  "TL-000011"
+ ],
+ "homography": {
+  "px_mean_median": 0.082,
+  "px_mean_max": 0.719,
+  "m_mean_median": 0.011,
+  "m_mean_max": 0.066,
+  "camera_centre_err_m_median": 0.06
+ },
+ "tracks": {
+  "ball_seen": 0.665,
+  "ball_in_frame": 1.0,
+  "ball_px_median": 0.84,
+  "ball_px_p95": 1.155,
+  "ball_ground_err_m_median": 0.159,
+  "ball_ground_err_m_p90": 0.212,
+  "players_found": 0.929,
+  "player_err_m_median": 0.196,
+  "player_team_correct": 0.982
+ },
+ "vision": {
+  "kicks": {
+   "truth": 60,
+   "detected": 56,
+   "matched": 50
+  },
+  "pass": {
+   "truth": 50,
+   "detected": 43,
+   "true_positive": 40,
+   "recall": 0.8,
+   "recall_ci95": [
+    0.67,
+    0.888
+   ],
+   "precision": 0.93,
+   "precision_ci95": [
+    0.814,
+    0.976
+   ]
+  },
+  "shot": {
+   "truth": 10,
+   "detected": 13,
+   "true_positive": 8,
+   "recall": 0.8,
+   "recall_ci95": [
+    0.49,
+    0.943
+   ],
+   "precision": 0.615,
+   "precision_ci95": [
+    0.355,
+    0.823
+   ]
+  },
+  "pass_length_m": {
+   "mae": 1.49,
+   "median": 0.75,
+   "bias": -1.19,
+   "n": 32
+  },
+  "pass_travel_m": {
+   "mae": 1.33,
+   "median": 0.57,
+   "bias": -0.95,
+   "n": 38
+  },
+  "ball_speed_kmh": {
+   "mae": 3.27,
+   "median": 1.15,
+   "bias": 0.64,
+   "n": 40
+  },
+  "ball_speed_kmh_ground": {
+   "mae": 2.64,
+   "median": 1.7,
+   "bias": -0.4,
+   "n": 34
+  },
+  "ball_speed_kmh_lofted": {
+   "mae": 6.83,
+   "median": 0.65,
+   "bias": 6.5,
+   "n": 6
+  },
+  "shot_speed_kmh": {
+   "mae": 1.86,
+   "median": 1.45,
+   "bias": -0.99,
+   "n": 8
+  },
+  "kick_frame_abs_err": 1.18
+ },
+ "oracle": {
+  "kicks": {
+   "truth": 60,
+   "detected": 58,
+   "matched": 55
+  },
+  "pass": {
+   "truth": 50,
+   "detected": 44,
+   "true_positive": 42,
+   "recall": 0.84,
+   "recall_ci95": [
+    0.715,
+    0.917
+   ],
+   "precision": 0.955,
+   "precision_ci95": [
+    0.849,
+    0.987
+   ]
+  },
+  "shot": {
+   "truth": 10,
+   "detected": 14,
+   "true_positive": 9,
+   "recall": 0.9,
+   "recall_ci95": [
+    0.596,
+    0.982
+   ],
+   "precision": 0.643,
+   "precision_ci95": [
+    0.388,
+    0.837
+   ]
+  },
+  "pass_length_m": {
+   "mae": 0.72,
+   "median": 0.39,
+   "bias": -0.37,
+   "n": 34
+  },
+  "pass_travel_m": {
+   "mae": 0.65,
+   "median": 0.29,
+   "bias": -0.27,
+   "n": 40
+  },
+  "ball_speed_kmh": {
+   "mae": 1.5,
+   "median": 0.6,
+   "bias": 0.24,
+   "n": 42
+  },
+  "ball_speed_kmh_ground": {
+   "mae": 1.38,
+   "median": 0.6,
+   "bias": 0.04,
+   "n": 36
+  },
+  "ball_speed_kmh_lofted": {
+   "mae": 2.18,
+   "median": 0.7,
+   "bias": 1.38,
+   "n": 6
+  },
+  "shot_speed_kmh": {
+   "mae": 1.08,
+   "median": 0.9,
+   "bias": -0.43,
+   "n": 9
+  },
+  "kick_frame_abs_err": 0.44
+ },
+ "ablation_ground_only": {
+  "kicks": {
+   "truth": 60,
+   "detected": 56,
+   "matched": 50
+  },
+  "pass": {
+   "truth": 50,
+   "detected": 44,
+   "true_positive": 40,
+   "recall": 0.8,
+   "recall_ci95": [
+    0.67,
+    0.888
+   ],
+   "precision": 0.909,
+   "precision_ci95": [
+    0.788,
+    0.964
+   ]
+  },
+  "shot": {
+   "truth": 10,
+   "detected": 12,
+   "true_positive": 7,
+   "recall": 0.7,
+   "recall_ci95": [
+    0.397,
+    0.892
+   ],
+   "precision": 0.583,
+   "precision_ci95": [
+    0.32,
+    0.807
+   ]
+  },
+  "pass_length_m": {
+   "mae": 1.83,
+   "median": 1.2,
+   "bias": -1.0,
+   "n": 32
+  },
+  "pass_travel_m": {
+   "mae": 1.61,
+   "median": 0.74,
+   "bias": -0.79,
+   "n": 38
+  },
+  "ball_speed_kmh": {
+   "mae": 17.28,
+   "median": 2.1,
+   "bias": 14.69,
+   "n": 40
+  },
+  "ball_speed_kmh_ground": {
+   "mae": 2.64,
+   "median": 1.7,
+   "bias": -0.4,
+   "n": 34
+  },
+  "ball_speed_kmh_lofted": {
+   "mae": 100.23,
+   "median": 99.75,
+   "bias": 100.23,
+   "n": 6
+  },
+  "shot_speed_kmh": {
+   "mae": 21.93,
+   "median": 23.4,
+   "bias": 18.64,
+   "n": 7
+  },
+  "kick_frame_abs_err": 1.18
+ },
+ "ablation_no_kick_timing": {
+  "kicks": {
+   "truth": 60,
+   "detected": 55,
+   "matched": 45
+  },
+  "pass": {
+   "truth": 50,
+   "detected": 42,
+   "true_positive": 36,
+   "recall": 0.72,
+   "recall_ci95": [
+    0.583,
+    0.825
+   ],
+   "precision": 0.857,
+   "precision_ci95": [
+    0.722,
+    0.933
+   ]
+  },
+  "shot": {
+   "truth": 10,
+   "detected": 13,
+   "true_positive": 8,
+   "recall": 0.8,
+   "recall_ci95": [
+    0.49,
+    0.943
+   ],
+   "precision": 0.615,
+   "precision_ci95": [
+    0.355,
+    0.823
+   ]
+  },
+  "pass_length_m": {
+   "mae": 1.84,
+   "median": 1.47,
+   "bias": -1.63,
+   "n": 28
+  },
+  "pass_travel_m": {
+   "mae": 1.65,
+   "median": 1.4,
+   "bias": -1.4,
+   "n": 34
+  },
+  "ball_speed_kmh": {
+   "mae": 3.65,
+   "median": 1.75,
+   "bias": 0.01,
+   "n": 36
+  },
+  "ball_speed_kmh_ground": {
+   "mae": 2.85,
+   "median": 1.9,
+   "bias": -1.31,
+   "n": 31
+  },
+  "ball_speed_kmh_lofted": {
+   "mae": 8.64,
+   "median": 1.1,
+   "bias": 8.24,
+   "n": 5
+  },
+  "shot_speed_kmh": {
+   "mae": 1.86,
+   "median": 1.45,
+   "bias": -0.99,
+   "n": 8
+  },
+  "kick_frame_abs_err": 1.73
+ },
+ "by_match": {
+  "TL-000009": {
+   "kicks": {
+    "truth": 29,
+    "detected": 26,
+    "matched": 23
+   },
+   "pass": {
+    "truth": 24,
+    "detected": 19,
+    "true_positive": 18,
+    "recall": 0.75,
+    "recall_ci95": [
+     0.551,
+     0.88
+    ],
+    "precision": 0.947,
+    "precision_ci95": [
+     0.754,
+     0.991
+    ]
+   },
+   "shot": {
+    "truth": 5,
+    "detected": 7,
+    "true_positive": 4,
+    "recall": 0.8,
+    "recall_ci95": [
+     0.376,
+     0.964
+    ],
+    "precision": 0.571,
+    "precision_ci95": [
+     0.25,
+     0.842
+    ]
+   },
+   "pass_length_m": {
+    "mae": 1.95,
+    "median": 1.2,
+    "bias": -1.38,
+    "n": 14
+   },
+   "pass_travel_m": {
+    "mae": 1.69,
+    "median": 0.86,
+    "bias": -1.06,
+    "n": 17
+   },
+   "ball_speed_kmh": {
+    "mae": 2.39,
+    "median": 1.7,
+    "bias": -0.14,
+    "n": 18
+   },
+   "ball_speed_kmh_ground": {
+    "mae": 2.66,
+    "median": 2.05,
+    "bias": -0.19,
+    "n": 16
+   },
+   "ball_speed_kmh_lofted": {
+    "mae": 0.2,
+    "median": 0.2,
+    "bias": 0.2,
+    "n": 2
+   },
+   "shot_speed_kmh": {
+    "mae": 1.4,
+    "median": 1.35,
+    "bias": 0.05,
+    "n": 4
+   },
+   "kick_frame_abs_err": 1.3
+  },
+  "TL-000011": {
+   "kicks": {
+    "truth": 31,
+    "detected": 30,
+    "matched": 27
+   },
+   "pass": {
+    "truth": 26,
+    "detected": 24,
+    "true_positive": 22,
+    "recall": 0.846,
+    "recall_ci95": [
+     0.665,
+     0.939
+    ],
+    "precision": 0.917,
+    "precision_ci95": [
+     0.742,
+     0.977
+    ]
+   },
+   "shot": {
+    "truth": 5,
+    "detected": 6,
+    "true_positive": 4,
+    "recall": 0.8,
+    "recall_ci95": [
+     0.376,
+     0.964
+    ],
+    "precision": 0.667,
+    "precision_ci95": [
+     0.3,
+     0.903
+    ]
+   },
+   "pass_length_m": {
+    "mae": 1.13,
+    "median": 0.52,
+    "bias": -1.05,
+    "n": 18
+   },
+   "pass_travel_m": {
+    "mae": 1.03,
+    "median": 0.46,
+    "bias": -0.87,
+    "n": 21
+   },
+   "ball_speed_kmh": {
+    "mae": 3.99,
+    "median": 1.0,
+    "bias": 1.27,
+    "n": 22
+   },
+   "ball_speed_kmh_ground": {
+    "mae": 2.62,
+    "median": 1.05,
+    "bias": -0.59,
+    "n": 18
+   },
+   "ball_speed_kmh_lofted": {
+    "mae": 10.15,
+    "median": 0.95,
+    "bias": 9.65,
+    "n": 4
+   },
+   "shot_speed_kmh": {
+    "mae": 2.32,
+    "median": 2.05,
+    "bias": -2.02,
+    "n": 4
+   },
+   "kick_frame_abs_err": 1.07
+  }
+ },
+ "match_frames": 4
+}
