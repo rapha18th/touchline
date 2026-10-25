@@ -3,6 +3,7 @@ import { CrewRoom } from "./crewroom.js";
 import { Graphics } from "./graphics.js";
 import { HALF, airTime, loadBroadcast, loadMatch } from "./match.js";
 import { Pitch } from "./pitch.js";
+import { Commentary } from "./voice.js";
 
 const $ = (s) => document.querySelector(s);
 const qs = new URLSearchParams(location.search);
@@ -20,8 +21,10 @@ const PRESET = { analyst: { camera: "tactical", metric: "pass_difficulty" }, cas
 
 const view = {
   persona: store.get("persona", "casual"), lang: store.get("lang", "en"), club: "", player: "", metric: "",
-  camera: "broadcast", speed: Number(store.get("speed", 2)), source: "recorded",
+  camera: "broadcast", speed: Number(store.get("speed", 2)), source: "recorded", voice: store.get("voice", "off"),
 };
+// Off by default. A stored "on" still waits for the viewer's first gesture on the page.
+const voice = new Commentary();
 let M, pitch, gfx, crew, cues = [], ptr = 0, T = 0, playing = false, last = performance.now(), activeTags = [], ws = null;
 
 async function pickMatch() {
@@ -67,6 +70,18 @@ function applyPersona(p, preset = true) {
     if (!view.player || PRESET[p].metric) setMetric(PRESET[p].metric);
   }
   gfx.set({ persona: p, showSources: true });
+  voice.stop();
+  voiceHint();
+}
+
+function voiceHint() {
+  const el = $("#voice-hint");
+  const voiced = view.source === "live" || cues.some((c) => c.payload?.audio);
+  el.textContent = view.voice !== "on" ? "Hear the analyst and casual fan lines as they air, in your language."
+    : !voiced ? "This broadcast has no voiced lines yet."
+    : view.persona === "studio" ? "Studio captions are not voiced. Watch as Analyst or Casual fan to hear the lines."
+    : !voice.armed ? "Tap anywhere on the page to let it speak."
+    : "On. One line at a time; a line that falls behind the pictures is skipped.";
 }
 
 let markCamera, markSpeed, markSource;
@@ -88,7 +103,14 @@ function buildRail() {
     focusPanel(true);
   };
   $("#metric").onchange = (e) => setMetric(e.target.value);
-  segment("#lang", view.lang, (v) => { view.lang = v; store.set("lang", v); gfx.set({ lang: v }); });
+  segment("#lang", view.lang, (v) => { view.lang = v; store.set("lang", v); gfx.set({ lang: v }); voice.setLang(v); });
+  segment("#voice", view.voice, (v) => {
+    view.voice = v;
+    store.set("voice", v);
+    if (v === "on") voice.arm();          // this click is the gesture that lets the page speak
+    voice.set(v === "on");
+    voiceHint();
+  });
   markCamera = segment("#camera", view.camera, (v) => setCamera(v));
   markSpeed = segment("#speed", view.speed, (v) => { view.speed = Number(v); store.set("speed", v); if (view.source === "live") goLive(); });
   markSource = segment("#source", view.source, (v) => (v === "live" ? goLive() : goRecorded()));
@@ -192,6 +214,7 @@ function spark() {
 function seek(ms, quiet = true) {
   T = Math.max(0, Math.min(ms, M.end));
   gfx.clear();
+  voice.stop();
   activeTags = [];
   lastBig = { match_s: -1, priority: 0 };
   ptr = cues.findIndex((c) => airTime(c) > T);
@@ -229,6 +252,7 @@ function air(cue) {
     if (gfx.wants(cue)) activeTags.push({ cue, until: performance.now() + (cue.ttl_s || 4) * 1000 });
     return;
   }
+  if (cue.kind === "line" && gfx.wants(cue)) voice.air(cue);
   gfx.show(cue);
 }
 
@@ -291,6 +315,7 @@ function goLive() {
   markSource?.("live");
   if (ws) ws.close();
   gfx.clear();
+  voice.stop();
   crew.reset();
   const proto = location.protocol === "https:" ? "wss" : "ws";
   ws = new WebSocket(`${proto}://${location.host}/ws/live/${M.meta.match_id}?speed=${view.speed}&start=${Math.floor(T)}`);
@@ -348,7 +373,18 @@ async function main() {
   $("#seek").max = String(M.end);
   $("#marks").innerHTML = M.goals.map((g) => `<i style="left:${(100 * g.ms) / M.end}%;background:${M.meta[g.team].kit.primary}" title="${M.name(g.player)} ${M.clock(g.ms)}"></i>`).join("");
   $("#seek").oninput = (e) => { if (view.source === "live") goRecorded(); seek(Number(e.target.value)); };
-  $("#play").onclick = () => { playing = !playing; $("#play").textContent = playing ? "❚❚" : "▶"; };
+  $("#play").onclick = () => {
+    playing = !playing;
+    $("#play").textContent = playing ? "❚❚" : "▶";
+    if (playing) voice.resume(); else voice.pause();
+  };
+  // A stored "on" speaks only after the viewer's first click or key on the page.
+  const arm = () => { if (view.voice === "on" && !voice.armed) { voice.arm(); voice.set(true); voiceHint(); } };
+  document.addEventListener("pointerdown", arm, { capture: true });
+  document.addEventListener("keydown", arm, { capture: true });
+  voice.setLang(view.lang);
+  voiceHint();
+  if (qs.get("debug") === "1") window.touchlineVoice = voice;
   document.addEventListener("keydown", (e) => {
     if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
     if (e.code === "KeyC") $("#toggle-crew").click();

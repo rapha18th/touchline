@@ -1,0 +1,120 @@
+{
+ "TL-000007": {
+  "match": "TL-000007",
+  "clips": 160,
+  "to_synthesise": 80,
+  "estimated_chars": 12778,
+  "estimated_usd": 0.1917,
+  "match_chars": 26923,
+  "match_usd": 0.4038,
+  "localised": {
+   "lines": 42,
+   "dropped_other_langs": 42,
+   "added": 84,
+   "refused": [],
+   "failed": []
+  },
+  "retried": 0,
+  "voiced": 160,
+  "failed": [],
+  "synthesised": 80,
+  "cached": 80,
+  "billed_chars": 12778,
+  "usd": 0.1917,
+  "removed_stale_files": 40,
+  "audio_mb": 6.8,
+  "mean_clip_kb": 41.5,
+  "seconds_of_audio": 1700,
+  "by_lang": {
+   "en": {
+    "clips": 40,
+    "seconds": 413.6
+   },
+   "es": {
+    "clips": 40,
+    "seconds": 432.1
+   },
+   "fr": {
+    "clips": 40,
+    "seconds": 399.5
+   },
+   "pt": {
+    "clips": 40,
+    "seconds": 455.5
+   }
+  },
+  "synth_ms_median": 890,
+  "synth_ms_p95": 3564,
+  "wall_s": 21.0,
+  "voices": {
+   "en/caller": "en-GB-RyanNeural",
+   "en/analyst": "en-GB-SoniaNeural",
+   "es/caller": "es-MX-JorgeNeural",
+   "es/analyst": "es-MX-DaliaNeural",
+   "fr/caller": "fr-FR-HenriNeural",
+   "fr/analyst": "fr-FR-DeniseNeural",
+   "pt/caller": "pt-BR-AntonioNeural",
+   "pt/analyst": "pt-BR-FranciscaNeural"
+  },
+  "format": "audio-16khz-32kbitrate-mono-mp3"
+ },
+ "TL-000011": {
+  "match": "TL-000011",
+  "clips": 128,
+  "to_synthesise": 64,
+  "estimated_chars": 10072,
+  "estimated_usd": 0.1511,
+  "match_chars": 21230,
+  "match_usd": 0.3185,
+  "localised": {
+   "lines": 34,
+   "dropped_other_langs": 34,
+   "added": 68,
+   "refused": [],
+   "failed": []
+  },
+  "retried": 0,
+  "voiced": 128,
+  "failed": [],
+  "synthesised": 64,
+  "cached": 64,
+  "billed_chars": 10072,
+  "usd": 0.1511,
+  "removed_stale_files": 32,
+  "audio_mb": 5.26,
+  "mean_clip_kb": 40.1,
+  "seconds_of_audio": 1315,
+  "by_lang": {
+   "en": {
+    "clips": 32,
+    "seconds": 316.4
+   },
+   "es": {
+    "clips": 32,
+    "seconds": 330.2
+   },
+   "fr": {
+    "clips": 32,
+    "seconds": 314.0
+   },
+   "pt": {
+    "clips": 32,
+    "seconds": 354.1
+   }
+  },
+  "synth_ms_median": 831,
+  "synth_ms_p95": 2940,
+  "wall_s": 16.2,
+  "voices": {
+   "en/caller": "en-GB-RyanNeural",
+   "en/analyst": "en-GB-SoniaNeural",
+   "es/caller": "es-MX-JorgeNeural",
+   "es/analyst": "es-MX-DaliaNeural",
+   "fr/caller": "fr-FR-HenriNeural",
+   "fr/analyst": "fr-FR-DeniseNeural",
+   "pt/caller": "pt-BR-AntonioNeural",
+   "pt/analyst": "pt-BR-FranciscaNeural"
+  },
+  "format": "audio-16khz-32kbitrate-mono-mp3"
+ }
+}

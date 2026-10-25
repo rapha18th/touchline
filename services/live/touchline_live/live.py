@@ -14,9 +14,10 @@ from collections import Counter
 from pathlib import Path
 
 from . import feed, telemetry
+from . import voice as tts
 from .crew.models import Job
 from .crew.verify import MatchRecord
-from .crew.workflow import RECAP_KINDS, run_job, template
+from .crew.workflow import RECAP_KINDS, run_job, template, voice_on
 from .match_io import load
 from .state import LiveState, Moment
 
@@ -107,10 +108,15 @@ async def run(match_id: str, *, speed: float, langs: list[str], until: float | N
         await asyncio.gather(*tasks)
         mcp_calls = record.calls
     f.close()
+    voiced = None
+    if voice_on():
+        sp = tts.shared()
+        voiced = {**sp.stats, "usd": sp.cost_usd()}
+        await sp.aclose()
     return {"match": match_id, "score": st.score_line(), "wall_s": round(time.perf_counter() - t0, 1),
             "state_cues": dict(counts), "crew_jobs": len(results), "mcp_calls": mcp_calls,
             "fallbacks": sum(1 for r in results if r.get("fallback")), "repairs": sum(1 for r in results if r.get("attempts")),
-            "errors": [r for r in results if "error" in r], "jobs": results}
+            "voice": voiced, "errors": [r for r in results if "error" in r], "jobs": results}
 
 
 def main():
@@ -121,7 +127,10 @@ def main():
     ap.add_argument("--until", type=float, default=None)
     ap.add_argument("--out", default=None)
     ap.add_argument("--concurrency", type=int, default=3)
+    ap.add_argument("--voice", action="store_true", help="voice analyst and casual lines with Azure AI Speech")
     a = ap.parse_args()
+    if a.voice:
+        os.environ["TOUCHLINE_VOICE"] = "1"
     telemetry.setup("touchline-live")
     out = Path(a.out) if a.out else ROOT / "data" / "runs" / f"{a.match_id}.cues.jsonl"
     rep = asyncio.run(run(a.match_id, speed=a.speed, langs=a.langs, until=a.until, out=out, concurrency=a.concurrency))

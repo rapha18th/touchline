@@ -1,6 +1,6 @@
 """The studio crew as an Agent Framework workflow.
 
-    Producer --> Analyst --> Narrator --> Verifier --ok--> Localiser --> Director --> cues
+    Producer --> Analyst --> Narrator --> Verifier --ok--> Localiser --> [Voice] --> Director --> cues
         |                      ^             | repair (once)
         |                      +-------------+
         |                                    | still failing
@@ -8,12 +8,15 @@
 
 Shared state travels in the Job. The Producer and the Verifier read the match record through
 the match MCP server, so every role works from the same facts as of the same match time.
+The Voice step runs when TOUCHLINE_VOICE=1: it voices the verified analyst and casual lines in
+every language the Localiser carried, with Azure AI Speech, and never holds a line back on failure.
 """
 
 from __future__ import annotations
 
 import asyncio
 import json
+import os
 import re
 import time
 from typing import Never
@@ -22,6 +25,7 @@ from agent_framework import Agent, Case, Default, Executor, WorkflowBuilder, Wor
 from opentelemetry import trace
 
 from .. import telemetry
+from .. import voice as tts
 from . import llm, prompts
 from .models import Insight, Job, Lines, PersonaLine, Recap, Translations
 from .verify import NUM, MatchRecord, verify_text
@@ -253,6 +257,61 @@ class Localiser(Executor):
         await ctx.send_message(job)
 
 
+VOICED = ("analyst", "casual")
+
+
+def voice_on() -> bool:
+    return os.environ.get("TOUCHLINE_VOICE", "0") == "1"
+
+
+class Voicer(Executor):
+    """Voices each verified analyst and casual line in every language the Localiser carried.
+
+    The text is exactly the text that airs: the verified English line or the Localiser's translation
+    that carried every number intact. The step waits at most `budget_s` for its clips: a clip that
+    fails or is late is left out and the line airs without it. A late clip still lands in the cache.
+    """
+
+    def __init__(self, speaker: "tts.Speaker", url=lambda p: f"/api/audio/{p.name}", budget_s: float | None = None):
+        super().__init__(id="voice")
+        self.speaker = speaker
+        self.url = url
+        self.budget_s = budget_s if budget_s is not None else float(os.environ.get("TOUCHLINE_VOICE_BUDGET_S", "6"))
+
+    @handler
+    async def run(self, job: Job, ctx: WorkflowContext[Job]) -> None:
+        t0 = time.perf_counter()
+        work = []
+        if job.kind not in RECAP_KINDS:
+            for l in job.lines:
+                if l.persona not in VOICED:
+                    continue
+                texts = {"en": l.text, **job.translations.get(l.persona, {})}
+                for lang, text in texts.items():
+                    if lang in job.langs and lang in tts.LANGS and text:
+                        work.append((l.persona, lang, text))
+        tasks = [asyncio.create_task(self.speaker.say(text, lang, persona, job.kind)) for persona, lang, text in work]
+        if tasks:
+            await asyncio.wait(tasks, timeout=self.budget_s)
+        clips = failed = late = chars = 0
+        for (persona, lang, text), task in zip(work, tasks):
+            if not task.done():
+                late += 1
+                task.add_done_callback(lambda t: t.cancelled() or t.exception())   # finish quietly, into the cache
+                continue
+            if task.cancelled() or task.exception() is not None:
+                failed += 1
+                continue
+            clips += 1
+            chars += tts.billed_chars(tts.ssml(text, tts.voice_for(lang, persona, job.kind)))
+            job.audio.setdefault(persona, {})[lang] = self.url(task.result())
+        _mark(job, "voice", t0, clips=clips, failed=failed, late=late, chars=chars)
+        span = trace.get_current_span()
+        for k, v in (("clips", clips), ("failed", failed), ("late", late), ("chars", chars)):
+            span.set_attribute(f"touchline.voice.{k}", v)
+        await ctx.send_message(job)
+
+
 class Director(Executor):
     """Turns the verified work into timed cues on the feed."""
 
@@ -285,11 +344,13 @@ class Director(Executor):
                              "sources": sorted(set(job.insight.sources) | set(job.sources)), "author": "crew"})
             for l in job.lines:
                 self.n += 1
+                payload = {"text": l.text, "persona": l.persona, "moment": job.kind,
+                           "translations": job.translations.get(l.persona, {}), "fallback": job.fallback}
+                if job.audio.get(l.persona):
+                    payload["audio"] = job.audio[l.persona]
                 cues.append({**base, "id": f"{job.match_id}-l{self.n:04d}", "kind": "line", "priority": job.priority,
                              "ttl_s": 8, "audience": {**base["audience"], "personas": [l.persona]}, "lang": "en",
-                             "payload": {"text": l.text, "persona": l.persona, "moment": job.kind,
-                                         "translations": job.translations.get(l.persona, {}), "fallback": job.fallback},
-                             "sources": sorted(set(l.sources) | set(job.sources)), "author": "crew"})
+                             "payload": payload, "sources": sorted(set(l.sources) | set(job.sources)), "author": "crew"})
         _mark(job, "director", t0, cues=len(cues))
         crew = {"job": job_id(job), "trace": job.trace, "attempts": job.attempts, "verdicts": job.verdicts}
         for c in cues:
@@ -317,11 +378,14 @@ async def run_job(record: MatchRecord, sink, job: Job):
         return res
 
 
-def build(record: MatchRecord, sink) -> "Workflow":
+def build(record: MatchRecord, sink, speaker: "tts.Speaker | None" = None) -> "Workflow":
+    """The crew graph. With a speaker (or TOUCHLINE_VOICE=1) a Voice step sits between Localiser and Director."""
     producer, analyst, narrator = Producer(record), Analyst(), Narrator()
     recap, verifier, fallback = RecapWriter(record), Verifier(record), Fallback()
     localiser, director = Localiser(), Director(sink)
-    return (
+    if speaker is None and voice_on():
+        speaker = tts.shared()
+    wb = (
         WorkflowBuilder(name="touchline-crew", start_executor=producer, max_iterations=20)
         .add_switch_case_edge_group(producer, [Case(condition=lambda j: j.kind in RECAP_KINDS, target=recap),
                                                Default(target=analyst)])
@@ -334,6 +398,8 @@ def build(record: MatchRecord, sink) -> "Workflow":
             Case(condition=lambda j: route(j) == "repair", target=narrator),
             Default(target=fallback)])
         .add_edge(fallback, localiser)
-        .add_edge(localiser, director)
-        .build()
     )
+    if speaker is not None:
+        voicer = Voicer(speaker)
+        return wb.add_edge(localiser, voicer).add_edge(voicer, director).build()
+    return wb.add_edge(localiser, director).build()

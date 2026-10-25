@@ -9,6 +9,7 @@ GET  /api/match/{id}          meta: clubs, squads, periods
 GET  /api/match/{id}/tracking 12.5 Hz tracking, int16 centimetres, little endian, (F, 24, 2)
 GET  /api/match/{id}/events   public events (the engine's truth block removed)
 GET  /api/broadcast/{id}      a recorded broadcast: every cue a live run put on air
+GET  /api/audio/{name}        a voiced line (mp3): the live crew's cache, or {match}/{name} for a recording
 WS   /ws/live/{id}            join the live channel: cues and the clock, pushed as they happen
 POST /mcp                     the match MCP server over streamable HTTP (read-only tools, stateless)
 POST /api/ask/{id}            Ask the record: an agent answers over /mcp, the Verifier passes it first
@@ -19,6 +20,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import re
 import time
 from collections import Counter
 from contextlib import asynccontextmanager
@@ -93,7 +95,8 @@ def matches():
                     "home_short": md["home"]["short"], "away_short": md["away"]["short"],
                     "kits": {s: md[s]["kit"] for s in ("home", "away")}, "final": md["final_score"],
                     "venue": md["venue"], "kickoff": md["kickoff_local"],
-                    "broadcast": (BROADCASTS / f"{md['match_id']}.cues.jsonl").exists()})
+                    "broadcast": (BROADCASTS / f"{md['match_id']}.cues.jsonl").exists(),
+                    "voiced": (BROADCASTS / "audio" / md["match_id"]).is_dir()})
     return out
 
 
@@ -137,6 +140,23 @@ def broadcast(mid: str):
     for c in cues:
         c.pop("crew", None) if c.get("kind") not in ("line", "insight", "recap") else None
     return JSONResponse(cues, headers={"Cache-Control": "public, max-age=3600"})
+
+
+AUDIO_NAME =re.compile(r"^(?:(TL-\d{6})/)?([0-9a-f]{20})\.mp3$")
+
+
+@app.get("/api/audio/{name:path}")
+def audio(name: str):
+    # Clips are named by a hash of their text and voice, so a name never changes what it plays.
+    m = AUDIO_NAME.match(name)
+    if not m:
+        raise HTTPException(404, "no such clip")
+    from .voice import CACHE
+    match_id, clip = m.groups()
+    p = (BROADCASTS / "audio" / match_id if match_id else CACHE) / f"{clip}.mp3"
+    if not p.is_file():
+        raise HTTPException(404, "no such clip")
+    return FileResponse(p, media_type="audio/mpeg", headers={"Cache-Control": "public, max-age=31536000, immutable"})
 
 
 # ----- ask the record ------------------------------------------------------------------------
