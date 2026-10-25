@@ -59,6 +59,9 @@ BOUNDS = {
 }
 assert set(BOUNDS) == set(sim.DIALS)
 
+# A dial added after a trial was recorded ran at the engine's behaviour before the dial existed.
+NEUTRAL = {"FINISH_LOGIT": 0.0, "BLOCK_SCALE": 1.0, "FOUL_RATE": 1.0, "CORNER_DEFLECT": 1.0}
+
 Z_CAP = 2.0
 EPS = 1e-4
 
@@ -80,7 +83,10 @@ How to work:
   noise alone can push it out, so move it toward the middle of its band when a dial allows.
 - Make your proposals in a round differ from each other so they test different hypotheses, for example one
   careful step and one bolder step, or two different dials for the same goal.
-- Stay inside the bounds. List only the dials you change from the incumbent.
+- Stay inside the bounds. List only the dials you change from your starting vector.
+- A proposal starts from the incumbent by default. Set base_trial to start from any measured trial instead,
+  for example a refused near miss whose only fault you can now fix. The gate still compares the result with
+  the incumbent.
 """
 
 
@@ -145,6 +151,9 @@ class Trace:
         self.records = []
         if self.path.exists():
             self.records = [json.loads(line) for line in self.path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        for r in self.records:
+            if r["kind"] in ("baseline", "trial"):
+                r["dials"] = {**NEUTRAL, **r["dials"]}
 
     def log(self, kind: str, **data) -> dict:
         rec = {"kind": kind, "at": time.strftime("%Y-%m-%dT%H:%M:%S"), **data}
@@ -204,6 +213,8 @@ def _models():
         value: float
 
     class Proposal(BaseModel):
+        base_trial: int | None = Field(default=None, description="measured trial whose dial vector this proposal starts "
+                                       "from; null means the incumbent")
         settings: list[Setting]
         hypothesis: str = Field(description="what this vector should change and why, one or two sentences")
 
@@ -223,11 +234,13 @@ def brief(inc: dict, trials: list[dict], k: int) -> str:
     dials = [{"name": d, "value": inc["dials"][d], "low": BOUNDS[d][0], "high": BOUNDS[d][1], "effect": BOUNDS[d][2]}
              for d in sim.DIALS]
     history = []
+    base = trials[0]["dials"]
     for t in trials:
-        history.append({"trial": t["trial"], "round": t.get("round", 0), "changed_from_its_incumbent": t.get("changed", {}),
+        history.append({"trial": t["trial"], "round": t.get("round", 0),
+                        "dials_different_from_baseline": {d: v for d, v in t["dials"].items() if abs(v - base[d]) > 1e-12},
                         "in_band": t["assess"]["in_band"], "distance": t["assess"]["distance"],
                         "margin": t["assess"]["margin"], "means": compact(t["summary"]),
-                        "verdict": t.get("verdict", "baseline")})
+                        "verdict": t.get("reason", "baseline")})
     return json.dumps({"incumbent_trial": inc["trial"], "matches_per_trial": inc["assess"]["n"],
                        "incumbent_in_band": inc["assess"]["in_band"], "incumbent_distance": inc["assess"]["distance"],
                        "incumbent_margin": inc["assess"]["margin"], "realism": table, "dials": dials,
@@ -260,10 +273,17 @@ def propose(inc: dict, trials: list[dict], k: int, model: str, log) -> tuple[dic
     raise RuntimeError(f"proposer failed: {last}")
 
 
-def materialise(inc_dials: dict, proposal: dict) -> tuple[dict | None, list[str]]:
-    """Apply a proposal to the incumbent. Out-of-bounds values are clipped and noted; unknown dials refuse."""
+def materialise(inc_dials: dict, proposal: dict, trials: list[dict] = ()) -> tuple[dict | None, list[str]]:
+    """Apply a proposal to the incumbent, or to the measured trial it names as its base.
+    Out-of-bounds values are clipped and noted; unknown dials and unknown base trials refuse."""
     vec = dict(inc_dials)
     notes = []
+    bt = proposal.get("base_trial")
+    if bt is not None:
+        found = [t for t in trials if t["trial"] == bt]
+        if not found:
+            return None, [f"unknown base trial {bt}"]
+        vec = dict(found[0]["dials"])
     for s in proposal["settings"]:
         name, val = s["name"], float(s["value"])
         if name not in BOUNDS:
@@ -375,7 +395,7 @@ def main():
         tried = [t["dials"] for t in trials]
         vecs, hyps = [], []
         for p in plan["proposals"][:args.k]:
-            vec, notes = materialise(inc["dials"], p)
+            vec, notes = materialise(inc["dials"], p, trials)
             if vec is None:
                 trace.log("refusal", round=rnd, proposal=p, reason="refused before measuring: " + "; ".join(notes))
                 continue
@@ -390,6 +410,12 @@ def main():
             log(f"round {rnd}: nothing new to measure")
             continue
         results = measure(vecs, args, log)
+        lost = [i for i, r in enumerate(results) if r is None]
+        if lost:
+            # A kernel lost to the network says nothing about the vector: measure it once more.
+            log(f"round {rnd}: {len(lost)} measurement(s) lost, measuring again")
+            for i, r in zip(lost, measure([vecs[i] for i in lost], args, log)):
+                results[i] = r
         next_id = max(t["trial"] for t in trace.trials()) + 1
         best = None
         for res, vec, hyp in zip(results, vecs, hyps):
