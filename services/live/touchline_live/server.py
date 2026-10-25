@@ -26,9 +26,10 @@ import json
 import logging
 import os
 import re
+import threading
 import time
 import uuid
-from collections import Counter
+from collections import Counter, OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -69,15 +70,41 @@ async def lifespan(_app):
 app = FastAPI(title="Touchline", lifespan=lifespan)
 app.add_middleware(GZipMiddleware, minimum_size=2048)
 app.router.routes.append(Route("/mcp", endpoint=MCP_GATE))
-_cache: dict[str, object] = {}
+CACHE_MATCHES = int(os.environ.get("TOUCHLINE_CACHE_MATCHES", "8"))
+_cache: OrderedDict[str, object] = OrderedDict()     # match id -> Match, and "bin:<id>" -> its tracking bytes
+_cache_lock = threading.Lock()
+
+
+def _cached(key: str):
+    with _cache_lock:
+        v = _cache.get(key)
+        if v is not None:
+            _cache.move_to_end(key)
+        return v
+
+
+def _keep(key: str, value):
+    """Hold at most CACHE_MATCHES matches; the oldest leaves together with its tracking bytes."""
+    with _cache_lock:
+        _cache[key] = value
+        _cache.move_to_end(key)
+        mids = [k for k in _cache if not k.startswith("bin:")]
+        for old in mids[: max(0, len(mids) - CACHE_MATCHES)]:
+            _cache.pop(old, None)
+            _cache.pop(f"bin:{old}", None)
+    return value
+
+
+def _forget(mid: str):
+    with _cache_lock:
+        _cache.pop(mid, None)
+        _cache.pop(f"bin:{mid}", None)
 
 
 def match(mid: str):
     if not (DATA / mid).exists():
         raise HTTPException(404, f"no match {mid}")
-    if mid not in _cache:
-        _cache[mid] = load(DATA / mid)
-    return _cache[mid]
+    return _cached(mid) or _keep(mid, load(DATA / mid))
 
 
 @app.get("/")
@@ -137,15 +164,15 @@ def meta(mid: str):
 @app.get("/api/match/{mid}/tracking")
 def tracking(mid: str):
     key = f"bin:{mid}"
-    if key not in _cache:
+    data = _cached(key)
+    if data is None:
         m = match(mid)
         parts, start = [], 0
         for n in m.period_frames:
             parts.append(m.frames[start:start + n:STEP])
             start += n
-        arr = np.round(np.concatenate(parts) * UNIT).astype("<i2")
-        _cache[key] = arr.tobytes()
-    return Response(_cache[key], media_type="application/octet-stream",
+        data = _keep(key, np.round(np.concatenate(parts) * UNIT).astype("<i2").tobytes())
+    return Response(data, media_type="application/octet-stream",
                     headers={"Cache-Control": "public, max-age=86400"})
 
 
@@ -230,9 +257,11 @@ WRITE_LIMIT = int(os.environ.get("TOUCHLINE_SCENARIO_PER_HOUR", "12"))
 WRITE_QUEUE = int(os.environ.get("TOUCHLINE_SCENARIO_QUEUE", "3"))
 WRITE_KEEP = int(os.environ.get("TOUCHLINE_SCENARIO_KEEP", "12"))
 WRITE_SEEDS = int(os.environ.get("TOUCHLINE_SCENARIO_SEEDS", "3"))
+WRITE_PER_CLIENT = int(os.environ.get("TOUCHLINE_SCENARIO_PER_CLIENT", "3"))
+WROTE = Window(WRITE_LIMIT, WRITE_PER_CLIENT, span=3600)
 _writer = ThreadPoolExecutor(max_workers=1, thread_name_prefix="scenario")
 _jobs: dict[str, dict] = {}
-_written: list[float] = []
+_jobs_lock = threading.Lock()          # sync endpoints run on parallel threads
 
 
 class Story(BaseModel):
@@ -246,7 +275,10 @@ def _job_view(job: dict) -> dict:
     if job["state"] in ("queued", "directing", "playing"):
         view["elapsed_s"] = round(time.time() - job["created"], 1)
         if job["state"] == "queued":
-            view["queued_behind"] = sum(1 for j in _jobs.values() if j["state"] == "queued" and j["created"] < job["created"])
+            with _jobs_lock:
+                ahead = list(_jobs.values())
+            view["queued_behind"] = sum(1 for j in ahead if j["state"] in ("queued", "directing", "playing")
+                                        and j["created"] < job["created"])
     return view
 
 
@@ -275,37 +307,46 @@ def _write_job(job: dict) -> None:
     try:
         res = scenario.write_match(job["story"], data_dir=DATA, seeds=WRITE_SEEDS, progress=progress, use_llm=CREW)
         for gone in scenario.prune_old(DATA, WRITE_KEEP):
-            _cache.pop(gone, None)
-            _cache.pop(f"bin:{gone}", None)
+            _forget(gone)
         job.update(state="done", match_id=res["match_id"], playing=[],
                    report={"met": res["report"]["met"], "total": res["report"]["total"],
                            "beats": [{k: b[k] for k in ("beat", "ok", "detail")} for b in res["report"]["beats"]]})
+    except scenario.NoBeats as exc:
+        WROTE.give_back(job["who"], job["stamp"])      # nothing was played: the slot comes back
+        job.update(state="failed", error=str(exc))
     except Exception as exc:
         logging.getLogger("touchline.scenario").exception("scenario job %s failed", job["id"])
+        WROTE.give_back(job["who"], job["stamp"])      # our failure, not the viewer's story
         job.update(state="failed", error=f"{type(exc).__name__}: the match could not be written")
     job["elapsed_s"] = round(time.time() - job["created"], 1)
 
 
 @app.post("/api/scenario", status_code=202)
-def write_scenario(s: Story):
+def write_scenario(s: Story, request: Request):
     now = time.time()
-    _written[:] = [t for t in _written if now - t < 3600]
-    if len(_written) >= WRITE_LIMIT:
-        raise HTTPException(429, "a lot of matches have been written this hour; try again later")
-    if sum(1 for j in _jobs.values() if j["state"] in ("queued", "directing", "playing")) >= WRITE_QUEUE:
-        raise HTTPException(429, "the engine is busy writing other matches; try again in a few minutes")
-    _written.append(now)
-    for old in [k for k, j in _jobs.items() if now - j["created"] > 6 * 3600]:
-        _jobs.pop(old, None)
-    job = {"id": uuid.uuid4().hex[:12], "state": "queued", "story": s.story.strip(), "created": now}
-    _jobs[job["id"]] = job
+    who = client_key(request.headers, request.client)
+    with _jobs_lock:
+        # WRITE_QUEUE counts the job that is playing and the ones waiting behind it.
+        if sum(1 for j in _jobs.values() if j["state"] in ("queued", "directing", "playing")) >= WRITE_QUEUE:
+            raise HTTPException(429, "the engine is busy writing other matches; try again in a few minutes")
+        full, stamp = WROTE.take(who)
+        if full == "global":
+            raise HTTPException(429, "a lot of matches have been written this hour; try again later")
+        if full == "client":
+            raise HTTPException(429, f"you have written {WROTE.per_client} matches this hour; try again later")
+        for old in [k for k, j in _jobs.items() if now - j["created"] > 6 * 3600]:
+            _jobs.pop(old, None)
+        job = {"id": uuid.uuid4().hex[:12], "state": "queued", "story": s.story.strip(), "created": now,
+               "who": who, "stamp": stamp}
+        _jobs[job["id"]] = job
     _writer.submit(_write_job, job)
     return _job_view(job)
 
 
 @app.get("/api/scenario/{jid}")
 def scenario_job(jid: str):
-    job = _jobs.get(jid)
+    with _jobs_lock:
+        job = _jobs.get(jid)
     if job is None:
         raise HTTPException(404, "no such job on this server")
     return _job_view(job)

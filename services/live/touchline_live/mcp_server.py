@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import functools
+import json
 import math
 import os
 import re
@@ -84,8 +85,14 @@ def list_matches() -> list[dict]:
     """Every generated match available, with its clubs and final score."""
     out = []
     for p in sorted(DATA.glob("TL-*")):
-        m = _match(p.name)
-        out.append({"match_id": m.id, "home": m.team_name["home"], "away": m.team_name["away"], "final": m.meta["final_score"]})
+        if not MATCH_ID.match(p.name):
+            continue
+        try:   # the meta alone: loading every match's tracking here cost a fifth of a second per match
+            md = json.loads((p / "meta.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        out.append({"match_id": md["match_id"], "home": md["home"]["name"], "away": md["away"]["name"],
+                    "final": md["final_score"]})
     return out
 
 

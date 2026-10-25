@@ -43,21 +43,31 @@ export function mountWrite(root) {
   const show = (html) => { status.hidden = false; status.innerHTML = html; };
   const busy = (on) => { go.disabled = on; story.disabled = on; go.textContent = on ? "Writing" : "Write it"; };
 
-  async function poll(id) {
+  const forget = () => { try { sessionStorage.removeItem("tl-write-job"); } catch { /* private mode */ } };
+
+  // A job runs for minutes: a dropped request or a 5xx is retried with backoff; a 404 means the job is gone.
+  async function poll(id, misses = 0) {
     let job;
     try {
       const r = await fetch(`/api/scenario/${encodeURIComponent(id)}`);
-      if (!r.ok) throw new Error(r.status === 404 ? "this server no longer has the job" : `status ${r.status}`);
+      if (r.status === 404) {
+        forget();
+        busy(false);
+        show(`<p class="write-err">This server no longer has the job. Write the match again.</p>`);
+        return;
+      }
+      if (!r.ok) throw new Error(`status ${r.status}`);
       job = await r.json();
     } catch (err) {
+      if (misses < 5) { timer = setTimeout(() => poll(id, misses + 1), 1500 * 2 ** misses); return; }
       busy(false);
-      show(`<p class="write-err">${esc(err.message)}</p>`);
+      show(`<p class="write-err">Lost touch with the server (${esc(err.message)}). The match may still be written; reload to check.</p>`);
       return;
     }
     show(render(job));
     if (job.state === "done" || job.state === "failed") {
       busy(false);
-      try { sessionStorage.removeItem("tl-write-job"); } catch { /* private mode */ }
+      forget();
       return;
     }
     timer = setTimeout(() => poll(id), 1500);

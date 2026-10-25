@@ -23,8 +23,10 @@ import argparse
 import asyncio
 import contextlib
 import dataclasses
+import hashlib
 import itertools
 import json
+import math
 import os
 import queue
 import random
@@ -115,9 +117,9 @@ Settings for each side (null keeps the club's own value):
 Built into the engine: a side trailing after the hour presses and goes direct; a side leading late sits deeper.
 A typical engine match has about 3 goals, 11 to 12 shots a side and a red card in about one match in seven.
 Measured on this engine over eight matches each: both sides at tempo and risk 0.85 with press and directness
-0.75 gave 3.4 goals a match, both sides at tempo 0.3 and risk 0.2 gave 2.75, the clubs as drawn 3.25. The dials
-shape how a match looks far more than its result: set them for the style the story describes, push them near
-the ends of their range when the story is about goals, and let the beats carry the result.
+0.75 gave 3.4 goals a match, both sides at tempo 0.3 and risk 0.2 gave 2.75, the clubs as drawn 3.25. Eight
+matches cannot tell those apart, so no effect of the dials on goals has been shown. Set the dials for the style
+the story describes and let the beats carry the result.
 
 Beats are what the finished match must show. Use only these kinds, and only for what the story asks:
 - winner: side "home", "away" or "draw".
@@ -137,6 +139,8 @@ or competitions: the engine generates its own clubs."""
 # ----- the gate ------------------------------------------------------------------------------
 
 def _clamp(v: float, lo: float, hi: float) -> float:
+    if not math.isfinite(v):
+        return float((lo + hi) / 2)          # NaN or infinity becomes the middle of the range, with a note
     return float(min(max(v, lo), hi))
 
 
@@ -278,8 +282,13 @@ def gate(spec: ScenarioSpec) -> tuple[ScenarioSpec, list[dict]]:
             continue
         twin = next((k for k in kept if _same(b, k)), None)
         if twin is not None and b.kind == "total_goals":
-            twin.at_least = b.at_least if twin.at_least is None else twin.at_least
-            twin.at_most = b.at_most if twin.at_most is None else twin.at_most
+            lo = b.at_least if twin.at_least is None else twin.at_least
+            hi = b.at_most if twin.at_most is None else twin.at_most
+            if lo is not None and hi is not None and lo > hi:
+                notes.append({"action": "refuse", "what": describe(b), "says": b.says,
+                              "why": f"it contradicts the goals beat already set ({describe(twin)})"})
+                continue
+            twin.at_least, twin.at_most = lo, hi
             notes.append({"action": "fix", "what": describe(b), "why": "merged into one goals beat"})
             continue
         if twin is not None:
@@ -295,7 +304,8 @@ def gate(spec: ScenarioSpec) -> tuple[ScenarioSpec, list[dict]]:
         drop = next((i for i in range(len(kept) - 1, -1, -1) if satisfiable(kept[:i] + kept[i + 1:])), len(kept) - 1)
         b = kept.pop(drop)
         notes.append({"action": "refuse", "what": describe(b), "says": b.says,
-                      "why": "it cannot hold together with " + ", ".join(describe(k) for k in kept)})
+                      "why": ("it cannot hold together with " + ", ".join(describe(k) for k in kept)) if kept
+                      else "it cannot hold in any match"})
     out.beats = kept
     return out, notes
 
@@ -316,7 +326,7 @@ def _same(a: Beat, b: Beat) -> bool:
 def rules_director(story: str) -> ScenarioSpec:
     """A keyword reading of the story. It keeps the service working with no model, and it is the baseline."""
     s = story.lower()
-    has = lambda *ws: any(w in s for w in ws)
+    has = lambda *ws: any(re.search(rf"(?<!\w){re.escape(w)}(?!\w)", s) for w in ws)   # whole words only
     named = ("home" if has("home side", "home team", "the hosts", "at home") else
              "away" if has("away side", "away team", "the visitors", "on the road") else None)
     under = "home" if has("home underdog", "underdogs at home", "home side are underdogs") else "away"
@@ -324,12 +334,12 @@ def rules_director(story: str) -> ScenarioSpec:
     spec = ScenarioSpec()
     side = lambda k: getattr(spec, k)
     beats: list[Beat] = []
-    if has("underdog", "giant kill", "minnow", "against the odds", "upset"):
+    if has("underdog", "underdogs", "giant kill", "giant killing", "minnow", "minnows", "against the odds", "upset"):
         side(under).strength, side(fav).strength = 0.32, 0.68
         if not has("draw", "lose", "beaten", "hammer"):
             beats.append(Beat(kind="winner", side=under, says="underdog"))
     if has("park the bus", "parks the bus", "parked the bus", "deep block", "low block", "defend deep", "sit deep"):
-        who = under if has("underdog") else "away"
+        who = under if has("underdog", "underdogs") else "away"
         st = side(who).style
         st.press, st.risk, st.tempo, st.directness = 0.15, 0.2, 0.3, 0.8
         side(who).formation = "3-5-2"
@@ -347,32 +357,33 @@ def rules_director(story: str) -> ScenarioSpec:
         beats.append(Beat(kind="total_goals", at_most=2, says="tight"))
     if has("goalless", "0-0", "nil-nil", "no goals"):
         beats.append(Beat(kind="total_goals", at_most=0, says="goalless"))
-    if has("draw", "stalemate", "share the points", "all square"):
+    if has("draw", "drawn", "stalemate", "share the points", "all square"):
         beats.append(Beat(kind="winner", side="draw", says="draw"))
     elif has("home win", "home side win", "home side wins"):
         beats.append(Beat(kind="winner", side="home", says="home win"))
     elif has("away win", "away side win", "away side wins"):
         beats.append(Beat(kind="winner", side="away", says="away win"))
-    elif named and has("win", "wins", "won", "victory") and not any(b.kind == "winner" for b in beats):
+    elif named and has("win", "wins", "won", "winner", "winning", "victory") and not any(b.kind == "winner" for b in beats):
         beats.append(Beat(kind="winner", side=named, says="win"))
     if has("comeback", "come back", "comes back", "fight back", "fights back", "from behind"):
-        who = under if has("underdog") else named
+        who = under if has("underdog", "underdogs") else named
         beats.append(Beat(kind="comeback", side=who, says="comeback"))
     m = re.search(r"\b(?:after|in) (?:the )?(\d{1,2})(?:th|st|nd|rd)? ?(?:minute|min|')", s)
     if has("late", "last minute", "stoppage", "injury time", "dying minutes") or m:
         minute = int(m.group(1)) if m else (88 if has("last minute", "stoppage", "injury time", "dying") else 80)
-        who = under if has("underdog", "nick") else None
+        who = under if has("underdog", "underdogs", "nick", "nicks", "nicked") else None
         beats.append(Beat(kind="late_goal", side=who, minute=minute, says="late"))
     if has("red card", "sent off", "sending off", "ten men", "10 men"):
         beats.append(Beat(kind="red_card", at_least=1, says="red card"))
     if has("clean sheet", "shut out", "shutout", "keep it tight at the back"):
-        who = under if has("underdog", "park") else "home"
+        who = under if has("underdog", "underdogs", "park", "parks", "parked") else "home"
         beats.append(Beat(kind="clean_sheet", side=who, says="clean sheet"))
-    if has("dominate", "dominates", "battered", "laid siege", "outshot", "one-way traffic", "one way traffic"):
+    if has("dominate", "dominates", "dominated", "dominating", "battered", "laid siege", "outshot", "one-way traffic", "one way traffic"):
         if not any(b.kind == "shots_diff" for b in beats):
             beats.append(Beat(kind="shots_diff", side=fav, at_least=8, says="dominate"))
     if has("score first", "scores first", "opens the scoring", "take the lead", "takes the lead"):
-        who = fav if has("comeback", "come back", "fight back") else under if has("underdog") else "home"
+        who = (fav if has("comeback", "come back", "fight back") else under if has("underdog", "underdogs")
+               else named or "home")
         beats.append(Beat(kind="first_goal", side=who, says="score first"))
     spec.beats = beats
     return spec
@@ -487,9 +498,14 @@ def teams_for(seed: int, spec: ScenarioSpec) -> tuple[Team, Team]:
 
 # ----- the validator ------------------------------------------------------------------------------
 
-def match_minute(period: int, t: float) -> float:
-    """Minutes on the match clock; first-half stoppage counts as minute 45."""
-    return min(t / 60.0, 45.0) if period == 1 else 45.0 + t / 60.0
+SOURCES_MAX = 30          # event ids cited for a counted beat such as a shots gap
+
+def match_minute(period: int, t: float) -> int:
+    """The minute the screen shows (63' for t in the 63rd minute); first-half stoppage counts as minute 45,
+    second-half stoppage as 90 plus the added minute. It agrees with match_io.minute, so a goal labelled 89'
+    meets a beat that asks for minute 89."""
+    mins = int(t // 60) + 1
+    return min(mins, 45) if period == 1 else 45 + mins
 
 
 def _goals(events: list[dict]) -> list[dict]:
@@ -567,11 +583,13 @@ def check_beat(b: Beat, events: list[dict]) -> dict:
         return {**res, "ok": not against, "partial": max(0.0, 1 - len(against) / 3),
                 "detail": f"{b.side} conceded {len(against)}", "sources": [g["id"] for g in against]}
     if b.kind == "shots_diff":
-        sh = {s: sum(1 for e in events if e["type"] == "shot" and e["team"] == s) for s in ("home", "away")}
+        shots = [e for e in events if e["type"] == "shot"]
+        sh = {s: sum(1 for e in shots if e["team"] == s) for s in ("home", "away")}
         diff = sh[b.side] - sh[_other(b.side)]
         need = b.at_least or 1
         return {**res, "ok": diff >= need, "partial": float(min(max(diff / need, 0.0), 1.0)),
-                "detail": f"shots {sh['home']}-{sh['away']}", "sources": []}
+                "detail": f"shots {sh['home']}-{sh['away']}",
+                "sources": [e["id"] for e in shots if e["team"] == b.side][:SOURCES_MAX]}
     raise ValueError(b.kind)
 
 
@@ -626,6 +644,14 @@ _PROGRESS = None    # a shared array of match minutes, one cell per candidate, s
 def _init_worker(progress):
     global _PROGRESS
     _PROGRESS = progress
+    # A candidate plays for minutes; it yields the CPU to the server and its live channels.
+    with contextlib.suppress(Exception):
+        if hasattr(os, "nice"):
+            os.nice(10)
+        else:
+            import ctypes
+            k32 = ctypes.windll.kernel32
+            k32.SetPriorityClass(k32.GetCurrentProcess(), 0x00004000)     # BELOW_NORMAL_PRIORITY_CLASS
 
 
 def play_candidate(seed: int, spec_json: str, prune: bool, stage: str | None, slot: int | None = None,
@@ -660,10 +686,10 @@ def play_candidate(seed: int, spec_json: str, prune: bool, stage: str | None, sl
 
 
 def pool_size(n: int) -> int:
-    """Workers for the search: TOUCHLINE_SCENARIO_WORKERS, else 1 in a container, else up to 4 on a laptop."""
+    """Workers for the search: TOUCHLINE_SCENARIO_WORKERS (at most 4), else 1 in a container, else up to 4."""
     env = os.environ.get("TOUCHLINE_SCENARIO_WORKERS")
     if env:
-        return max(1, int(env))
+        return max(1, min(int(env), 4))
     if os.environ.get("CONTAINER_APP_NAME") or os.environ.get("KUBERNETES_SERVICE_HOST"):
         return 1
     return max(1, min(n, 4, (os.cpu_count() or 2) - 1))
@@ -673,36 +699,78 @@ def _rank(c: dict) -> tuple:
     return (c["complete"], c["met"], c["partial"], -c["seed"])
 
 
+def search_wait_s(seeds: int, workers: int) -> float:
+    """How long a search may run: TOUCHLINE_SCENARIO_WAIT_S, else 900 s, stretched for one worker on a
+    small container where a full candidate can take several minutes."""
+    env = os.environ.get("TOUCHLINE_SCENARIO_WAIT_S")
+    if env:
+        return float(env)
+    return max(900.0, (seeds + 1) * 400.0) if workers == 1 else 900.0
+
+
 def search(spec: ScenarioSpec, *, stage: Path, seeds: int = 3, workers: int | None = None, prune: bool = True,
            base_seed: int, period_s: float | None = None, progress: Callable[[dict], None] | None = None,
-           wait_s: float = 900.0) -> dict:
+           wait_s: float | None = None) -> dict:
     """Play candidates until every beat holds or the budget is spent.
 
     The budget is `seeds` full matches of play. Without pruning that is `seeds` candidates. With
     pruning a broken candidate costs only the minutes it played, so the same budget tries more seeds.
     The search always ends with at least one finished match to offer.
+
+    The result does not depend on how many workers play or in what order they finish. Seeds are
+    taken in order and a result counts only once every lower seed has counted: the search is the
+    one a single worker would run, and extra workers only play ahead of it. A seed starts only when
+    the play counted so far, plus one full match for every seed ahead of it, leaves room for it, so
+    the search never spends more than its budget. Play ahead that the single-worker search never
+    reaches is dropped and reported as `ahead`.
     """
     import multiprocessing as mp
 
     w = workers or pool_size(seeds)
+    wait_s = search_wait_s(seeds, w) if wait_s is None else wait_s
     cap = seeds * 4 if prune else seeds
     full = (2 * period_s) if period_s else FULL_MATCH_S
     spec_json = spec.model_dump_json()
     ctx = mp.get_context("spawn")
     minutes = ctx.Array("d", [-1.0] * (cap + 1), lock=False)
-    results: list[dict] = []
-    inflight: dict[int, int] = {}            # slot -> seed
+    results: dict[int, dict] = {}               # seed -> result, counted or not yet
+    counted: list[dict] = []                    # the single-worker search, in seed order
+    inflight: dict[int, int] = {}               # slot -> seed
     q: queue.SimpleQueue = queue.SimpleQueue()
-    spent, slot_next, seed_next = 0.0, 0, base_seed
+    spent, slot_next, seed_next, next_count = 0.0, 0, base_seed, base_seed
+    done = timed_out = False
     t0 = time.perf_counter()
     stage.mkdir(parents=True, exist_ok=True)
 
+    def cost(r: dict) -> float:
+        return min(1.0, r.get("played_s", 0.0) / full) if r.get("played_s") else 1.0
+
+    def count() -> None:
+        nonlocal spent, next_count, done
+        while not done and next_count in results:
+            r = results[next_count]
+            counted.append(r)
+            spent += cost(r)
+            next_count += 1
+            done = bool(r.get("complete") and r.get("all"))
+
+    def room() -> bool:
+        """True when the next seed is inside the budget whatever the seeds ahead of it cost."""
+        ahead = [results.get(sd) for sd in range(next_count, seed_next)]
+        if any(r and r.get("complete") and r.get("all") for r in ahead):
+            return False                        # the search stops at or before that seed
+        bound = spent + sum(cost(r) if r else 1.0 for r in ahead)
+        return bound + 1.0 <= seeds + 1e-9 and seed_next - base_seed < cap
+
+    def row(c: dict) -> dict:
+        return {k: c.get(k) for k in ("seed", "complete", "pruned_at", "met", "total", "score", "played_s", "wall_s", "error")}
+
     def snapshot(state: str) -> dict:
-        best = max(results, key=_rank) if results else None
+        shown = counted if state == "chosen" and not timed_out else sorted(results.values(), key=lambda c: c["seed"])
+        best = max(shown, key=_rank) if shown else None
         return {"state": state, "workers": w, "budget": seeds, "spent": round(spent, 2), "prune": prune,
-                "candidates": [{k: c.get(k) for k in ("seed", "complete", "pruned_at", "met", "total", "score", "played_s", "wall_s", "error")}
-                               for c in results],
-                "playing": [{"seed": s, "minute": round(minutes[i], 1) if minutes[i] >= 0 else None} for i, s in inflight.items()],
+                "candidates": [row(c) for c in shown],
+                "playing": [{"seed": sd, "minute": round(minutes[i], 1) if minutes[i] >= 0 else None} for i, sd in inflight.items()],
                 "best": None if best is None else {k: best[k] for k in ("seed", "met", "total", "complete")},
                 "elapsed_s": round(time.perf_counter() - t0, 1)}
 
@@ -716,13 +784,14 @@ def search(spec: ScenarioSpec, *, stage: Path, seeds: int = 3, workers: int | No
                              callback=lambda r, s=slot: q.put((s, r)),
                              error_callback=lambda e, s=slot, sd=seed: q.put((s, {"seed": sd, "error": f"{type(e).__name__}: {e}"})))
 
-        done = False
         while not done:
-            while (len(inflight) < w and spent + len(inflight) < seeds - 1e-9
-                   and len(results) + len(inflight) < cap):
+            while len(inflight) < w and room():
                 launch(prune)
             if not inflight:
-                if any(c.get("complete") for c in results) or slot_next > cap:
+                count()
+                if done or room():
+                    continue
+                if any(c.get("complete") for c in counted) or slot_next > cap:
                     break
                 launch(False)                        # never end empty handed: one candidate plays to the end
                 continue
@@ -732,26 +801,31 @@ def search(spec: ScenarioSpec, *, stage: Path, seeds: int = 3, workers: int | No
                 slot, r = q.get(timeout=2.0)
             except queue.Empty:
                 if time.perf_counter() - t0 > wait_s:
+                    if any(c.get("complete") for c in results.values()):
+                        timed_out = True             # keep the best finished match rather than fail the job
+                        break
                     raise TimeoutError("the candidate search ran out of time")
                 continue
             inflight.pop(slot, None)
             if "error" in r:
                 r = {**r, "complete": False, "met": 0, "total": len(spec.beats), "partial": 0.0, "played_s": 0.0}
-            results.append(r)
-            spent += min(1.0, r.get("played_s", 0.0) / full) if r.get("played_s") else 1.0
-            done = bool(r.get("complete") and r.get("all"))
+            results[r["seed"]] = r
+            count()
         pool.terminate()
 
-    finished = [c for c in results if c.get("complete")]
+    shown = list(results.values()) if timed_out else counted
+    finished = [c for c in shown if c.get("complete")]
     if not finished:
-        raise RuntimeError("no candidate finished: " + "; ".join(c.get("error", "") for c in results))
+        raise RuntimeError("no candidate finished: " + "; ".join(c.get("error", "") for c in results.values()))
     best = max(finished, key=_rank)
     snap = snapshot("chosen")
     if progress:
         progress(snap)
+    kept = {c["seed"] for c in counted}
     return {"best": best, "candidates": snap["candidates"], "workers": w, "prune": prune, "budget": seeds,
-            "spent": round(spent, 2), "wall_s": round(time.perf_counter() - t0, 1),
-            "played_s": round(sum(c.get("played_s", 0.0) for c in results), 1)}
+            "spent": round(spent, 2), "wall_s": round(time.perf_counter() - t0, 1), "timed_out": timed_out,
+            "ahead": [row(c) for c in sorted(results.values(), key=lambda c: c["seed"]) if c["seed"] not in kept],
+            "played_s": round(sum(c.get("played_s", 0.0) for c in results.values()), 1)}
 
 
 # ----- the whole job ------------------------------------------------------------------------------
@@ -765,6 +839,33 @@ def free_base_seed(data_dir: Path, span: int, rng: random.Random | None = None) 
     raise RuntimeError("no free seed range for a written match")
 
 
+SEARCH_KEYS = ("workers", "prune", "budget", "spent", "wall_s", "played_s", "candidates", "timed_out", "ahead")
+
+
+def prompt_sha256() -> str:
+    """The Director's instructions as shipped, so a report says which prompt made it."""
+    return hashlib.sha256(DIRECTOR.encode("utf-8")).hexdigest()
+
+
+def git_sha() -> str | None:
+    """The commit the code runs from, when there is a checkout (TOUCHLINE_GIT_SHA wins). "+changes" means the
+    engine or the service had uncommitted edits, so the prompt hash is the firmer record."""
+    env = os.environ.get("TOUCHLINE_GIT_SHA")
+    if env:
+        return env
+    with contextlib.suppress(Exception):
+        import subprocess
+        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True, timeout=5)
+        if out.returncode == 0 and out.stdout.strip():
+            dirty = subprocess.run(["git", "diff", "--quiet", "HEAD", "--", "services/live", "engine"], cwd=ROOT, timeout=5)
+            return out.stdout.strip() + ("+changes" if dirty.returncode else "")
+    return None
+
+
+def events_sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def publish(result: dict, *, story: str, spec: ScenarioSpec, trace: list[dict], stage: Path, data_dir: Path) -> str:
     """Move the best candidate into the data dir and add the story, the beats and the trace to its meta."""
     best = result["best"]
@@ -776,7 +877,9 @@ def publish(result: dict, *, story: str, spec: ScenarioSpec, trace: list[dict], 
         "story": story, "headline": headline(spec), "created": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "spec": spec.model_dump(), "trace": trace,
         "report": {k: best[k] for k in ("met", "total", "all", "partial", "beats")},
-        "search": {k: result[k] for k in ("workers", "prune", "budget", "spent", "wall_s", "played_s", "candidates")},
+        "search": {k: result.get(k) for k in SEARCH_KEYS},
+        "events_sha256": events_sha256(src / "events.json"),
+        "prompt_sha256": prompt_sha256(), "git_sha": git_sha(),
         "replay": f"python -m touchline_live.scenario replay {mid} --out <dir>",
     }
     meta_p.write_text(json.dumps(md, indent=1), encoding="utf-8")
@@ -797,6 +900,10 @@ def prune_old(data_dir: Path, keep: int) -> list[str]:
     return gone
 
 
+class NoBeats(ValueError):
+    """The Director and the gate found nothing in the story the validator could check."""
+
+
 def write_match(story: str, *, data_dir: Path, seeds: int = 3, workers: int | None = None, prune: bool = True,
                 use_llm: bool = True, base_seed: int | None = None, period_s: float | None = None,
                 progress: Callable[[dict], None] | None = None, spec: ScenarioSpec | None = None,
@@ -808,6 +915,9 @@ def write_match(story: str, *, data_dir: Path, seeds: int = 3, workers: int | No
             progress({"state": "directing"})
         spec, trace = asyncio.run(direct(story, use_llm=use_llm))
     trace = trace or []
+    if not spec.beats:
+        raise NoBeats("No checkable beat in that story. Try one of the examples: a winner, a score, a late goal, "
+                      "a red card, a comeback, a clean sheet or a side that dominates.")
     if progress:
         progress({"state": "directed", "spec": spec.model_dump(), "headline": headline(spec), "trace": trace})
     data_dir.mkdir(parents=True, exist_ok=True)
@@ -821,21 +931,40 @@ def write_match(story: str, *, data_dir: Path, seeds: int = 3, workers: int | No
         shutil.rmtree(stage, ignore_errors=True)
     return {"match_id": mid, "headline": headline(spec), "spec": spec.model_dump(), "trace": trace,
             "report": {k: result["best"][k] for k in ("met", "total", "all", "beats")},
-            "search": {k: result[k] for k in ("workers", "prune", "budget", "spent", "wall_s", "played_s", "candidates")}}
+            "search": {k: result.get(k) for k in SEARCH_KEYS}}
 
 
 def replay(mid: str, data_dir: Path, out_dir: Path) -> dict:
-    """Play a written match again from its meta alone and compare the event logs."""
-    md = json.loads((data_dir / mid / "meta.json").read_text(encoding="utf-8"))
+    """Play a written match again from its note alone and compare.
+
+    `mid` is a match id in the data dir, or the path of a JSON file holding the note (a meta.json or a
+    committed report such as reports/scenario_TL-*.json). With the original events.json at hand the event
+    logs are compared; without it the replay's sha256 is compared with the one the note recorded.
+    """
+    src = Path(mid)
+    if src.suffix == ".json" and src.exists():
+        md = json.loads(src.read_text(encoding="utf-8"))
+        orig = None
+    else:
+        md = json.loads((data_dir / mid / "meta.json").read_text(encoding="utf-8"))
+        orig = data_dir / mid / "events.json"
     sc = md["scenario"]
+    seed = md["seed"]
+    mid = md.get("match_id") or export.match_id(seed)
     spec = ScenarioSpec.model_validate(sc["spec"])
-    home, away = teams_for(md["seed"], spec)
-    m = EngineMatch(md["seed"], home, away).play()
+    home, away = teams_for(seed, spec)
+    m = EngineMatch(seed, home, away).play()
     export.write(m, out_dir / mid)
-    a = json.loads((data_dir / mid / "events.json").read_text(encoding="utf-8"))
-    b = json.loads((out_dir / mid / "events.json").read_text(encoding="utf-8"))
+    out_p = out_dir / mid / "events.json"
+    b = json.loads(out_p.read_text(encoding="utf-8"))
     rep = validate(b, spec.beats)
-    return {"match_id": mid, "identical_events": a == b, "events": len(b), "met": rep["met"], "total": rep["total"]}
+    digest = events_sha256(out_p)
+    res = {"match_id": mid, "events": len(b), "events_sha256": digest, "met": rep["met"], "total": rep["total"]}
+    if orig is not None and orig.exists():
+        res["identical_events"] = json.loads(orig.read_text(encoding="utf-8")) == b
+    if sc.get("events_sha256"):
+        res["hash_matches"] = digest == sc["events_sha256"]
+    return res
 
 
 # ----- command line --------------------------------------------------------------------------------
@@ -865,8 +994,8 @@ def main() -> None:
     d = sub.add_parser("direct", help="only the Director and the Gate: print the spec")
     d.add_argument("story")
     d.add_argument("--rules", action="store_true")
-    r = sub.add_parser("replay", help="play a written match again from its meta and compare")
-    r.add_argument("match_id")
+    r = sub.add_parser("replay", help="play a written match again from its note and compare")
+    r.add_argument("match_id", help="a match id in --data, or a JSON file with the note (meta.json or a report)")
     r.add_argument("--out", required=True)
     r.add_argument("--data", default=os.environ.get("TOUCHLINE_DATA", str(ROOT / "data" / "matches")))
     a = ap.parse_args()

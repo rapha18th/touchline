@@ -17,7 +17,7 @@ def log(*items):
     return out
 
 
-# A 2-1 home comeback: away score at 10', home level at 50', home win it at 88'. One away red at 60', shots 5-2.
+# A 2-1 home comeback: away score at 10', home level at 50', home win it at 89'. One away red at 60', shots 5-2.
 COMEBACK = log(("shot", "away", 1, 590), ("goal", "away", 1, 600), ("shot", "home", 1, 900), ("shot", "home", 1, 1500),
                ("shot", "home", 2, 290), ("goal", "home", 2, 300), ("card", "away", 2, 900, "red"),
                ("shot", "home", 2, 2500), ("shot", "home", 2, 2570), ("goal", "home", 2, 2580), ("shot", "away", 2, 2600))
@@ -53,9 +53,13 @@ def test_comeback_needs_the_side_behind_to_win():
 
 
 def test_late_goal_reads_the_match_clock():
-    assert met(Beat(kind="late_goal", side="home", minute=85), COMEBACK)       # 45 + 2580/60 = 88'
+    assert met(Beat(kind="late_goal", side="home", minute=85), COMEBACK)       # 2580 s into the second half is 89'
     assert not met(Beat(kind="late_goal", side="away", minute=75), COMEBACK)
-    assert not met(Beat(kind="late_goal", minute=89), COMEBACK)
+    # The beat reads the minute on the screen: a goal labelled 89' meets minute 89 and misses minute 90.
+    assert S.minute_label(2, 2580) == "89'" and S.match_minute(2, 2580) == 89
+    assert met(Beat(kind="late_goal", minute=89), COMEBACK)
+    assert not met(Beat(kind="late_goal", minute=89), log(("goal", "home", 2, 2570)))    # 88'
+    assert S.match_minute(2, 2070) == 80 and met(Beat(kind="late_goal", minute=80), log(("goal", "home", 2, 2070)))
     # First-half stoppage is minute 45, never minute 50.
     stoppage = log(("goal", "home", 1, 3000))
     assert S.match_minute(1, 3000) == 45.0
@@ -348,3 +352,100 @@ def test_a_written_match_reaches_the_list_without_its_story(tmp_path, monkeypatc
     assert md["scenario"]["headline"] == "Away win" and "story" not in md["scenario"]
     assert "nobody else" not in c.get(f"/api/match/{mid}").text
     assert (tmp_path / mid / "events.json").exists() and not any((tmp_path / ".staging").glob("*/TL-*"))
+
+
+# ----- review fixes: the gate, the keyword reader, the search and the service ---------------------
+
+def test_gate_turns_nan_into_the_middle_of_the_range():
+    spec = ScenarioSpec(home=SideSettings(strength=float("nan"), style=StyleDials(risk=float("inf"))))
+    out, notes = S.gate(spec)
+    assert out.home.strength == pytest.approx(sum(S.STRENGTH_RANGE) / 2)
+    assert out.home.style.risk == pytest.approx(sum(S.STYLE_RANGE) / 2)
+    assert sum(n["action"] == "clamp" for n in notes) == 2
+
+
+def test_gate_refuses_a_goals_beat_that_contradicts_the_one_set():
+    spec = ScenarioSpec(beats=[Beat(kind="total_goals", at_least=3), Beat(kind="total_goals", at_most=1)])
+    out, notes = S.gate(spec)
+    assert [S.describe(b) for b in out.beats] == ["at least 3 goals"]
+    assert any(n["action"] == "refuse" and "contradicts" in n["why"] for n in notes)
+    assert not any("with )" in n["why"] for n in notes)
+
+
+def test_keyword_reader_matches_whole_words_and_named_sides():
+    beats = lambda st: [S.describe(b) for b in S.rules_director(st).beats]
+    assert beats("The visitors translate their dominance into a draw") == ["a draw"]
+    assert "away score first" in beats("the visitors score first and win")
+    assert "home win" in beats("a late winner for the home side in a game of few chances")
+
+
+def test_a_story_with_nothing_to_check_is_refused(tmp_path):
+    with pytest.raises(S.NoBeats):
+        S.write_match("a quiet afternoon by the river", data_dir=tmp_path, use_llm=False)
+
+
+def test_search_wait_scales_for_one_worker(monkeypatch):
+    monkeypatch.delenv("TOUCHLINE_SCENARIO_WAIT_S", raising=False)
+    assert S.search_wait_s(3, 1) >= 4 * 400 and S.search_wait_s(3, 3) == 900
+    monkeypatch.setenv("TOUCHLINE_SCENARIO_WAIT_S", "60")
+    assert S.search_wait_s(3, 1) == 60
+    monkeypatch.setenv("TOUCHLINE_SCENARIO_WORKERS", "16")
+    assert S.pool_size(3) == 4
+
+
+def test_search_gives_the_same_match_on_one_worker_or_three(tmp_path):
+    # Seed 910009 is pruned at the away goal while 910010 plays on: with three workers they finish out of order.
+    spec = ScenarioSpec(beats=[Beat(kind="total_goals", at_most=1), Beat(kind="first_goal", side="home"),
+                               Beat(kind="clean_sheet", side="home")])
+    runs = [S.search(spec, stage=tmp_path / f"w{w}", seeds=2, workers=w, base_seed=910009, period_s=SHORT)
+            for w in (1, 3)]
+    one, three = ([(c["seed"], c["complete"]) for c in r["candidates"]] for r in runs)
+    assert one == three == [(910009, False), (910010, True)]
+    assert runs[0]["best"]["seed"] == runs[1]["best"]["seed"] == 910010
+    for r in runs:
+        assert r["spent"] <= 2 + 1 + 1e-9         # the budget, plus the one candidate that never ends empty handed
+        assert sum(c["complete"] for c in r["candidates"]) >= 1
+
+
+def test_writing_is_limited_per_client_and_a_refused_story_gives_its_slot_back(tmp_path, monkeypatch):
+    import time
+
+    from fastapi.testclient import TestClient
+
+    from touchline_live import server
+    from touchline_live.guard import Window
+    real = S.write_match
+    monkeypatch.setattr(S, "write_match", lambda story, **kw: real(story, **{**kw, "use_llm": False}))
+    monkeypatch.setattr(server, "DATA", tmp_path)
+    monkeypatch.setattr(server, "WROTE", Window(12, 1, span=3600))
+    c = TestClient(server.app)
+    for _ in range(2):                              # nothing to check: refused, and the slot comes back
+        jid = c.post("/api/scenario", json={"story": "a quiet afternoon by the river"}).json()["id"]
+        for _ in range(80):
+            job = c.get(f"/api/scenario/{jid}").json()
+            if job["state"] in ("done", "failed"):
+                break
+            time.sleep(0.1)
+        assert job["state"] == "failed" and job["error"].startswith("No checkable beat")
+        assert "who" not in job and "stamp" not in job
+    server.WROTE.take("testclient")
+    r = c.post("/api/scenario", json={"story": "the visitors win it in the end"})
+    assert r.status_code == 429 and "this hour" in r.json()["detail"]
+
+
+def test_server_cache_holds_a_bounded_number_of_matches(monkeypatch):
+    from touchline_live import server
+    monkeypatch.setattr(server, "CACHE_MATCHES", 2)
+    monkeypatch.setattr(server, "_cache", __import__("collections").OrderedDict())
+    for mid in ("A", "B", "C"):
+        server._keep(mid, object())
+        server._keep(f"bin:{mid}", b"x")
+    assert list(server._cache) == ["B", "bin:B", "C", "bin:C"]
+    server._cached("B")
+    server._keep("D", object())
+    assert "C" not in server._cache and "bin:C" not in server._cache and "B" in server._cache
+
+
+def test_validator_cites_the_shots_it_counted():
+    r = S.check_beat(Beat(kind="shots_diff", side="home", at_least=3), COMEBACK)
+    assert r["ok"] and r["sources"] == [2, 3, 4, 7, 8]
