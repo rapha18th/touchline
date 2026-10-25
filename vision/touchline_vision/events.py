@@ -295,10 +295,10 @@ def keeper_sides(players: list) -> dict:
     return {k: float(np.median(v)) for k, v in xs.items() if len(v) >= 5}
 
 
-def classify(start, vel, end, speed: float, kicker: str | None, receiver: str | None, sides: dict,
+def classify(start, vel, end, speed: float, kicker: str | None, receiver: str | None, sides: dict | None = None,
              aerial_apex: float = 0.0) -> str:
-    """Shot if the ball heads at a goal from within 40 m, fast, and the kicker is not playing it back to their
-    own keeper or onto a teammate."""
+    """Shot if the ball heads at a goal from within 40 m, fast, and ends neither with a teammate out in
+    the field nor with the kicker's own keeper. A ball lofted high into the box is a cross."""
     vx, vy = vel
     if abs(vx) < 1e-6:
         return "pass"
@@ -310,16 +310,23 @@ def classify(start, vel, end, speed: float, kicker: str | None, receiver: str | 
     # Headers reach the goal slower: allow them from close in.
     if abs(y_cross - GOAL_Y) > 11 or speed < (9 if abs(dx) < 18 else 14):
         return "pass"
-    team = kicker.replace("_gk", "") if kicker else None
-    own = sides.get(f"{team}_gk") if team else None
-    if own is not None and abs(own - goal_x) < 30:
-        return "pass"
     if aerial_apex > 4.5:
         return "pass"                        # a lofted ball into the box is a cross, not a shot
+    team = kicker.replace("_gk", "") if kicker else None
     rteam = receiver.replace("_gk", "") if receiver else None
-    if rteam is not None and rteam == team and abs(goal_x - end[0]) > 8:
-        return "pass"
+    if rteam is not None and rteam == team and (receiver.endswith("_gk") or abs(goal_x - end[0]) > 8):
+        return "pass"                        # back to their own keeper, or onto a teammate
     return "shot"
+
+
+def track_labels(players: list) -> dict:
+    """The majority kit label of each player track: steadier than one frame's colour."""
+    votes: dict = {}
+    for fr in players:
+        for p in fr:
+            votes.setdefault(p[3], {}).setdefault(p[2], 0)
+            votes[p[3]][p[2]] += 1
+    return {k: max(v, key=v.get) for k, v in votes.items()}
 
 
 def detect_events(obs: dict, P, H=None) -> dict:
@@ -330,6 +337,7 @@ def detect_events(obs: dict, P, H=None) -> dict:
     gf = fill_short(g)
     uvf = fill_short(uv)
     sides = keeper_sides(players)
+    labels = track_labels(players)
     kicks = []
     pos = 0
     while True:
@@ -369,9 +377,17 @@ def detect_events(obs: dict, P, H=None) -> dict:
             height = BALL_Z
         kp, _ = _nearest_player(players, t0, start, 2.5)
         rp, _ = _nearest_player(players, t1, end, 2.0)
-        kicker = kp[2] if kp else None
-        receiver = rp[2] if rp else None
+        kicker = labels.get(kp[3], kp[2]) if kp else None
+        receiver = labels.get(rp[3], rp[2]) if rp else None
         kind = classify(start, vel, end, speed, kicker, receiver, sides, height if aerial else 0.0)
+        # Shots rise: when the in-the-air model explains a shot as well as rolling does, use it.
+        za_max = float(za.max())
+        if kind == "shot" and not aerial and ra <= 1.05 * rg and 0.3 < za_max < 6 and np.hypot(ca[2], ca[3]) < 45:
+            aerial = True
+            start = np.array([ca[0], ca[1]])
+            end = start + np.array([ca[2], ca[3]]) * T1
+            speed = float(np.hypot(ca[2], ca[3]))
+            height = za_max
         kicks.append({"frame": int(t0), "end": int(t1), "type": kind, "aerial": aerial,
                       "length_m": round(float(np.linalg.norm(end - start)), 2), "speed_kmh": round(speed * 3.6, 1),
                       "max_height_m": round(height, 2), "start": [round(float(v), 2) for v in start],
