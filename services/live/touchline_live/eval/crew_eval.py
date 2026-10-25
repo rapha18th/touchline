@@ -15,9 +15,12 @@ the TRUE record (claims through the match MCP server's verify_numbers, numbers a
 true facts and context), plus a score check and a history check. An independent gpt-5-mini judge reads
 the true record and every line, blinded to the condition.
 
-    python -m touchline_live.eval.crew_eval all --n 40 --concurrency 4
+    python -m touchline_live.eval.crew_eval all --n 40 --seed 7 --concurrency 2    the runs, judged, reported
+    python -m touchline_live.eval.crew_eval rejudge                                the saved lines, judged again
+    python -m touchline_live.eval.crew_eval finish                                 every table, from the report
+    python -m touchline_live.eval.crew_eval handcheck                              the hand-check sample
 
-Raw runs go to data/eval/ (resumable); the report goes to reports/crew_eval.json.
+Raw runs go to data/eval/ (resumable); the report goes to reports/crew_eval.json. docs/EVAL.md reads it.
 """
 
 from __future__ import annotations
@@ -1021,6 +1024,8 @@ async def report(a, moments: list[dict]):
 def finish() -> dict:
     """Add the gate table and the hand-check agreement to the saved report, then print every table."""
     rep = json.loads(REPORT.read_text(encoding="utf-8"))
+    rep["about"] = ("Crew ablation, baselines and attacks; see docs/EVAL.md. Tables: python -m touchline_live.eval.crew_eval finish. "
+                    "Full run: crew_eval all --n 40 --seed 7 --concurrency 2, then crew_eval rejudge.")
     rep["gate_vs_judge"] = gate_from_report(rep)
     rep["gallery"]["aired_bad_in_A"] = aired_bad(report_lines(rep))
     rep["gallery"]["fallback_quality"] = fallback_quality(rep)

@@ -1,5 +1,5 @@
 {
- "about": "Crew ablation, baselines and attacks. Reproduce: python -m touchline_live.eval.crew_eval all",
+ "about": "Crew ablation, baselines and attacks; see docs/EVAL.md. Tables: python -m touchline_live.eval.crew_eval finish. Full run: crew_eval all --n 40 --seed 7 --concurrency 2, then crew_eval rejudge.",
  "config": {
   "matches": [
    "TL-000007",
