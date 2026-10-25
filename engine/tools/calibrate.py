@@ -94,6 +94,9 @@ How to work:
   effect on every metric and the noise of that effect. Treat each effect as roughly linear in the step,
   scale it to the step you want, add the effects of the dials you combine, and check the sum lands every
   metric inside its band, near its middle. An effect smaller than its noise is unknown, not zero.
+- holdout_of_incumbent, when present, is the incumbent measured on other seeds that the gate never uses. The
+  run ends only when the incumbent holds all sixteen there too. A metric in band on the tuning seeds but out
+  of band or near an edge on the holdout is fragile: move it toward its band middle.
 - Make your proposals in a round differ from each other so they test different hypotheses, for example one
   careful step and one bolder step, or two different dials for the same goal.
 - Stay inside the bounds. List only the dials you change from your starting vector.
@@ -185,6 +188,10 @@ class Trace:
         tid = inc[-1]["trial"]
         return next(r for r in self.trials() if r["trial"] == tid)
 
+    def holdout(self, trial: int) -> dict | None:
+        found = [r for r in self.records if r["kind"] == "holdout" and r["trial"] == trial]
+        return found[-1] if found else None
+
     def last_round(self) -> int:
         return max([r.get("round", 0) for r in self.records if r["kind"] == "trial"] or [0])
 
@@ -238,7 +245,7 @@ def _models():
     return Plan
 
 
-def brief(inc: dict, trials: list[dict], k: int) -> str:
+def brief(inc: dict, trials: list[dict], k: int, holdout: dict | None = None) -> str:
     s = inc["summary"]
     z = per_metric_z(inc)
     n = max(inc["assess"]["n"], 1)
@@ -261,17 +268,18 @@ def brief(inc: dict, trials: list[dict], k: int) -> str:
                        "incumbent_in_band": inc["assess"]["in_band"], "incumbent_distance": inc["assess"]["distance"],
                        "incumbent_margin": inc["assess"]["margin"], "realism": table, "dials": dials,
                        "history": history, "sensitivity_screen": sensitivity(trials),
+                       "holdout_of_incumbent": holdout_table(holdout) if holdout else None,
                        "ask": f"Propose {k} new dial vectors for the next round."}, indent=0)
 
 
-def propose(inc: dict, trials: list[dict], k: int, model: str, log) -> tuple[dict, dict]:
+def propose(inc: dict, trials: list[dict], k: int, model: str, log, holdout: dict | None = None) -> tuple[dict, dict]:
     from agent_framework import Agent
     from agent_framework.openai import OpenAIChatClient
     from azure.identity import AzureCliCredential
 
     Plan = _models()
     endpoint = os.environ.get("TOUCHLINE_AI_ENDPOINT", "https://touchline-ai-rm.openai.azure.com/")
-    prompt = brief(inc, trials, k)
+    prompt = brief(inc, trials, k, holdout)
     last = None
     for attempt in range(8):
         t0 = time.perf_counter()
@@ -346,6 +354,11 @@ def write_summary(trace: Trace, args):
             "distance": inc["assess"]["distance"], "margin": inc["assess"]["margin"], "means": compact(inc["summary"]),
             "changed_from_defaults": changed(trials[0]["dials"], inc["dials"])},
         "path": path,
+        "probes": len([t for t in trials if "probe" in t]),
+        "holdouts": [{"trial": r["trial"], "seeds": f"{r['seeds'][0]}-{r['seeds'][-1]}", "matches": len(r["seeds"]),
+                      "in_band": r["assess"]["in_band"], "means": compact(r["summary"]),
+                      "out_of_band": [m for m in realism.TARGETS if not r["summary"][m]["pass"]]}
+                     for r in trace.records if r["kind"] == "holdout"],
     }
     (trace.out / "summary.json").write_text(json.dumps(summary, indent=1), encoding="utf-8")
     return summary
@@ -411,6 +424,35 @@ def run_probes(trace: Trace, rnd: int, inc: dict, args, log) -> None:
     play_round(trace, rnd, inc, vecs, hyps, args, log, probes=meta)
 
 
+def record_holdout(trace: Trace, trial: int, rep: dict) -> dict:
+    res = {"summary": rep["summary"], "rows": rep["rows"]}
+    return trace.log("holdout", trial=trial, seeds=[r["seed"] for r in rep["rows"]], summary=rep["summary"],
+                     assess=assess(res))
+
+
+def run_holdout(trace: Trace, inc: dict, args, log) -> dict | None:
+    """Measure an incumbent that has all sixteen in band on seeds the gate never sees."""
+    import kaggle_eval
+    log(f"trial {inc['trial']}: all sixteen in band on the tuning seeds; measuring {len(args.holdout_list)} holdout seeds")
+    try:
+        if args.backend == "local":
+            rep = measure_local([inc["dials"]], args.holdout_list, args.workers, args.smoke)[0]
+        else:
+            rep = kaggle_eval.report(inc["dials"], args.holdout_list, parts=4, log=log)
+    except RuntimeError as e:
+        log(f"holdout failed: {e}")
+        return None
+    rec = record_holdout(trace, inc["trial"], rep)
+    log(f"trial {inc['trial']} on the holdout seeds: {rec['assess']['in_band']}/16 in band")
+    return rec
+
+
+def holdout_table(ho: dict) -> list[dict]:
+    s, n = ho["summary"], max(ho["assess"]["n"], 1)
+    return [{"metric": m, "mean": s[m]["mean"], "standard_error": round(s[m]["sd"] / math.sqrt(n), 4),
+             "band": [s[m]["low"], s[m]["high"]], "in_band": s[m]["pass"]} for m in realism.TARGETS]
+
+
 def sensitivity(trials: list[dict]) -> list[dict]:
     """Probe effects: probe mean minus its base trial's mean, with the noise of that difference."""
     by_id = {t["trial"]: t for t in trials}
@@ -444,12 +486,25 @@ def main():
     ap.add_argument("--baseline-from", default=None, help="kaggle_eval --out JSON holding the baseline result")
     ap.add_argument("--out", default=str(ROOT / "reports" / "calibration"))
     ap.add_argument("--label", default="calibrate")
+    ap.add_argument("--holdout", default=None, help="seeds the gate never sees; an incumbent with all sixteen in "
+                    "band is measured on them, and the run ends only when it holds there too")
+    ap.add_argument("--holdout-from", default=None, help="a realism report JSON (with 'trial') to record as that "
+                    "trial's holdout measurement")
     ap.add_argument("--probe", action="store_true", help="screen the PROBES dials from the incumbent before proposing, "
                     "once per trace")
     args = ap.parse_args()
     import kaggle_eval
     args.seed_list = kaggle_eval.parse_seeds(args.seeds)
+    args.holdout_list = kaggle_eval.parse_seeds(args.holdout) if args.holdout else []
+    if set(args.holdout_list) & set(args.seed_list):
+        raise SystemExit("holdout seeds overlap the tuning seeds")
     trace = Trace(Path(args.out))
+    if args.holdout_from:
+        rep = json.loads(Path(args.holdout_from).read_text(encoding="utf-8"))
+        if [r["seed"] for r in rep["rows"]] != args.holdout_list:
+            raise SystemExit("--holdout-from seeds differ from --holdout")
+        if trace.holdout(rep["trial"]) is None:
+            record_holdout(trace, rep["trial"], rep)
 
     def log(msg):
         print(time.strftime("%H:%M:%S"), msg, flush=True)
@@ -471,7 +526,14 @@ def main():
 
     for rnd in range(trace.last_round() + 1, args.rounds + 1):
         inc = trace.incumbent()
-        if inc["assess"]["in_band"] == len(realism.TARGETS) and all(
+        if args.holdout_list and inc["assess"]["in_band"] == len(realism.TARGETS):
+            ho = trace.holdout(inc["trial"])
+            if ho is None:
+                ho = run_holdout(trace, inc, args, log)
+            if ho is not None and ho["assess"]["in_band"] == len(realism.TARGETS):
+                log(f"trial {inc['trial']}: all sixteen in band on the tuning seeds and on the holdout seeds: done")
+                break
+        elif inc["assess"]["in_band"] == len(realism.TARGETS) and all(
                 v >= 1.0 for v in per_metric_z(inc).values()):
             log("all sixteen in band with at least one standard error of margin each: done")
             break
@@ -480,7 +542,7 @@ def main():
             run_probes(trace, rnd, inc, args, log)
             write_summary(trace, args)
             continue
-        plan, meta = propose(inc, trials, args.k, args.model, log)
+        plan, meta = propose(inc, trials, args.k, args.model, log, holdout=trace.holdout(inc["trial"]))
         trace.log("proposal", round=rnd, incumbent=inc["trial"], diagnosis=plan["diagnosis"],
                   proposals=plan["proposals"], **meta)
         log(f"round {rnd}: {len(plan['proposals'])} proposals in {meta['seconds']} s. {plan['diagnosis'][:200]}")
