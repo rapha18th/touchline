@@ -116,8 +116,9 @@ and cites the events. The best match joins the list, ready to watch or to go liv
   (`reports/scenario_bench.json`).
 - The Director read the app's four examples in Spanish, French and Portuguese with no fallback in 60 calls
   (`reports/scenario_director.json`).
-- No effect of the style dials on goals was detected over eight matches a setting
-  (`reports/scenario_dials.json`). The search does the work.
+- The style dials shape how a match looks and not its goals: over 32 matches a setting, high dials against
+  low gave 4.3 more shots a side (standard error 0.6) and 0.16 more goals (standard error 0.33)
+  (`reports/scenario_dials_v2.json`). The search does the work.
 
 ```bash
 .venv/Scripts/python -m touchline_live.scenario write "a tight, cagey game settled by a single goal"

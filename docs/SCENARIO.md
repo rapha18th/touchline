@@ -158,8 +158,10 @@ engine before its realism calibration (`docs/REALISM.md`, merged here at 19d909f
 **Headline, current engine.** Over eight hand-written stories on the same seeds and budget, the product (Match
 Director, gate, pruned search, validator) met 9 of 17 hand-written beats and told 3 stories completely. A keyword
 Director with the same search also met 9 of 17 and told 2. The Director read 16 of the 17 beats by kind and side
-(13 exactly, bounds and minute too); the keywords read 13 (10 exactly). No effect of the style dials on goals was
-detected over eight matches a setting (a difference of 0.6 goals, standard error 0.7).
+(13 exactly, bounds and minute too); the keywords read 13 (10 exactly). Over 32 matches a setting on paired
+seeds, the style dials move how a match looks and not its goals: high dials against low gave 4.3 more shots a
+side (standard error 0.6) and 0.16 more goals a match (standard error 0.33). Settings shape the style; the search
+shapes the result.
 
 **Search against one match.** On the current engine only the director and keyword arms have run, so the
 closed loop has no current-engine baseline yet. On the engine before the realism calibration it had one: the
@@ -180,9 +182,26 @@ both sides' dials high (tempo and risk 0.85, press and directness 0.75), low (te
 
 High against low is 0.62 goals a match with a standard error of 0.72 (the matches gave 7, 3, 2, 2, 4, 4, 2, 3
 and 5, 1, 2, 2, 3, 3, 3, 3 goals). Eight matches cannot tell "no effect" from an effect of 1.5 goals, so this
-says only that no effect on goals was detected. The probe counted goals and red cards; it did not measure how
-the dials change the look of a match. The Director's prompt quotes these numbers, says no effect on goals has
-been shown, and tells it to set the dials for the style the story describes and let the beats carry the result.
+says only that no effect on goals was detected. The Director's prompt quotes these numbers, says no effect on
+goals has been shown, and tells it to set the dials for the style the story describes and let the beats carry
+the result.
+
+**The larger dial probe** (`reports/scenario_dials_v2.json`, `--dial-probe 32 --dial-out scenario_dials_v2.json`).
+The same three settings on 32 seeds each (the first eight are the seeds above, and they replay the same goals),
+with the look of each match measured too. Means a match, standard errors in brackets; a side's figures are the
+mean of both sides, which play the same dials.
+
+| dials | goals | shots a side | passes a side | pass completion | long balls (30 m or more) | pressures a side | tackles a side | matches with a red |
+|---|---|---|---|---|---|---|---|---|
+| high | 2.91 (0.26) | 15.0 (0.5) | 379 (6) | 75.5% (0.4) | 9.3% (0.3) | 435 (7) | 128 (2) | 6 of 32 |
+| low | 2.75 (0.27) | 10.6 (0.5) | 352 (5) | 78.6% (0.4) | 8.3% (0.2) | 410 (8) | 137 (3) | 1 of 32 |
+| as drawn | 3.22 (0.30) | 12.0 (0.6) | 394 (7) | 79.6% (0.5) | 8.4% (0.3) | 417 (7) | 128 (3) | 3 of 32 |
+
+On the same seeds, high against low: 4.3 more shots a side (SE 0.6), 26 more passes (SE 6), completion 3.1
+points lower (SE 0.4), 25 more pressures (SE 8), 8 fewer tackles (SE 3), and 0.16 more goals (SE 0.33). The
+dials change the match a viewer sees. No change in goals shows up (within about 0.65 either way): the extra
+shots score less often.
+The prompt still quotes the eight-match probe, which this one agrees with on goals.
 
 **The bench** (`reports/scenario_bench_v3.json`, `--out reports/scenario_bench_v3.json --arms director,rules`).
 The same eight stories, gold beats and seeds as the earlier runs, described below. Two arms: the product with the
@@ -325,9 +344,9 @@ comeback, which no arm had written before. Two cautions. The gain in the single 
 settings, is about one standard deviation of a count that size: it points the right way and needs more matches
 to stand as a result. And the
 second run is a new set of Director calls, so the change mixes the prompt with the model's own variation (it
-also read one gold beat fewer: 16 of 17). Then the realism calibration landed. On the new engine the dial probe
-above detected no effect on goals, though its eight matches a setting are too few to compare with the 7 and 2.5
-goals of the old tilt cells. The prompt quotes the probe now, and these two runs describe the engine as it was.
+also read one gold beat fewer: 16 of 17). Then the realism calibration landed. On the new engine the dial probes
+above detect no effect on goals (0.16 goals between high and low over 32 matches, standard error 0.33), where the
+old tilt cells had given about 7 and 2.5. The prompt quotes the probe now, and these two runs describe the engine as it was.
 
 **The Director on the app's examples** (`reports/scenario_director.json`, `--director-check 5`). Five calls
 on each of the four stories the app offers, with the prompt that ships (its sha256 is in the file):
@@ -394,8 +413,8 @@ its own loop; the bench retries once and records any fallback. The affected stor
 
 ## Limits
 
-- **The engine decides.** No effect of the settings on goals has been shown on the current engine, and nothing
-  can script a goal. Rare stories come true on luck: over the seven search runs in the bench reports the
+- **The engine decides.** On the current engine the settings move shots and style but not goals (32 matches a
+  setting), and nothing can script a goal. Rare stories come true on luck: over the seven search runs in the bench reports the
   comeback came true twice and the goalless draw once. When a story misses, the job offers the closest match and
   says which beats it missed.
 - **Waiting.** A full match on the current engine takes 126 to 150 s on this laptop (median 139 s over 96

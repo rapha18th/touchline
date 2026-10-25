@@ -1,0 +1,1467 @@
+{
+ "runs": {
+  "high:990000": {
+   "score": [
+    4,
+    3
+   ],
+   "red": true,
+   "goals": 7,
+   "shots_a_side": 19.0,
+   "passes_a_side": 359.0,
+   "pass_completion": 0.7674,
+   "long_ball_share": 0.11,
+   "pressures_a_side": 400.5,
+   "tackles_a_side": 122.5
+  },
+  "high:990001": {
+   "score": [
+    2,
+    1
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 16.0,
+   "passes_a_side": 339.0,
+   "pass_completion": 0.7463,
+   "long_ball_share": 0.0988,
+   "pressures_a_side": 416.0,
+   "tackles_a_side": 135.5
+  },
+  "high:990002": {
+   "score": [
+    1,
+    1
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 14.0,
+   "passes_a_side": 358.0,
+   "pass_completion": 0.7514,
+   "long_ball_share": 0.0936,
+   "pressures_a_side": 429.0,
+   "tackles_a_side": 122.0
+  },
+  "high:990003": {
+   "score": [
+    1,
+    1
+   ],
+   "red": true,
+   "goals": 2,
+   "shots_a_side": 18.0,
+   "passes_a_side": 392.5,
+   "pass_completion": 0.7605,
+   "long_ball_share": 0.0994,
+   "pressures_a_side": 485.0,
+   "tackles_a_side": 143.5
+  },
+  "high:990004": {
+   "score": [
+    1,
+    3
+   ],
+   "red": false,
+   "goals": 4,
+   "shots_a_side": 12.5,
+   "passes_a_side": 364.5,
+   "pass_completion": 0.7709,
+   "long_ball_share": 0.0905,
+   "pressures_a_side": 443.5,
+   "tackles_a_side": 141.0
+  },
+  "high:990005": {
+   "score": [
+    3,
+    1
+   ],
+   "red": false,
+   "goals": 4,
+   "shots_a_side": 17.5,
+   "passes_a_side": 390.0,
+   "pass_completion": 0.7615,
+   "long_ball_share": 0.1038,
+   "pressures_a_side": 458.5,
+   "tackles_a_side": 125.5
+  },
+  "high:990006": {
+   "score": [
+    1,
+    1
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 16.0,
+   "passes_a_side": 335.5,
+   "pass_completion": 0.7303,
+   "long_ball_share": 0.1177,
+   "pressures_a_side": 359.0,
+   "tackles_a_side": 110.5
+  },
+  "high:990007": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 19.0,
+   "passes_a_side": 404.0,
+   "pass_completion": 0.7438,
+   "long_ball_share": 0.0804,
+   "pressures_a_side": 434.0,
+   "tackles_a_side": 118.0
+  },
+  "high:990008": {
+   "score": [
+    1,
+    0
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 16.5,
+   "passes_a_side": 451.5,
+   "pass_completion": 0.7807,
+   "long_ball_share": 0.0653,
+   "pressures_a_side": 491.5,
+   "tackles_a_side": 140.5
+  },
+  "high:990009": {
+   "score": [
+    1,
+    0
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 11.5,
+   "passes_a_side": 384.0,
+   "pass_completion": 0.7943,
+   "long_ball_share": 0.0898,
+   "pressures_a_side": 462.5,
+   "tackles_a_side": 130.0
+  },
+  "high:990010": {
+   "score": [
+    1,
+    0
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 16.0,
+   "passes_a_side": 463.0,
+   "pass_completion": 0.7484,
+   "long_ball_share": 0.0734,
+   "pressures_a_side": 534.0,
+   "tackles_a_side": 143.0
+  },
+  "high:990011": {
+   "score": [
+    2,
+    1
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 16.0,
+   "passes_a_side": 400.5,
+   "pass_completion": 0.7615,
+   "long_ball_share": 0.0849,
+   "pressures_a_side": 451.0,
+   "tackles_a_side": 128.5
+  },
+  "high:990012": {
+   "score": [
+    1,
+    3
+   ],
+   "red": false,
+   "goals": 4,
+   "shots_a_side": 13.0,
+   "passes_a_side": 414.5,
+   "pass_completion": 0.7648,
+   "long_ball_share": 0.076,
+   "pressures_a_side": 481.5,
+   "tackles_a_side": 144.5
+  },
+  "high:990013": {
+   "score": [
+    0,
+    2
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 11.0,
+   "passes_a_side": 316.5,
+   "pass_completion": 0.7062,
+   "long_ball_share": 0.1264,
+   "pressures_a_side": 358.0,
+   "tackles_a_side": 111.5
+  },
+  "high:990014": {
+   "score": [
+    4,
+    2
+   ],
+   "red": false,
+   "goals": 6,
+   "shots_a_side": 13.0,
+   "passes_a_side": 338.5,
+   "pass_completion": 0.7829,
+   "long_ball_share": 0.0886,
+   "pressures_a_side": 417.5,
+   "tackles_a_side": 122.0
+  },
+  "high:990015": {
+   "score": [
+    0,
+    1
+   ],
+   "red": true,
+   "goals": 1,
+   "shots_a_side": 12.5,
+   "passes_a_side": 417.0,
+   "pass_completion": 0.7686,
+   "long_ball_share": 0.0743,
+   "pressures_a_side": 477.5,
+   "tackles_a_side": 130.5
+  },
+  "high:990016": {
+   "score": [
+    3,
+    0
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 17.0,
+   "passes_a_side": 403.0,
+   "pass_completion": 0.768,
+   "long_ball_share": 0.1055,
+   "pressures_a_side": 453.0,
+   "tackles_a_side": 140.0
+  },
+  "high:990017": {
+   "score": [
+    1,
+    1
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 11.5,
+   "passes_a_side": 399.5,
+   "pass_completion": 0.7372,
+   "long_ball_share": 0.0738,
+   "pressures_a_side": 445.0,
+   "tackles_a_side": 132.5
+  },
+  "high:990018": {
+   "score": [
+    2,
+    1
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 14.5,
+   "passes_a_side": 338.0,
+   "pass_completion": 0.7766,
+   "long_ball_share": 0.1095,
+   "pressures_a_side": 378.0,
+   "tackles_a_side": 121.0
+  },
+  "high:990019": {
+   "score": [
+    2,
+    1
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 14.5,
+   "passes_a_side": 356.0,
+   "pass_completion": 0.7486,
+   "long_ball_share": 0.0955,
+   "pressures_a_side": 381.5,
+   "tackles_a_side": 119.5
+  },
+  "high:990020": {
+   "score": [
+    1,
+    1
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 15.5,
+   "passes_a_side": 375.5,
+   "pass_completion": 0.7337,
+   "long_ball_share": 0.0945,
+   "pressures_a_side": 421.0,
+   "tackles_a_side": 128.0
+  },
+  "high:990021": {
+   "score": [
+    4,
+    0
+   ],
+   "red": false,
+   "goals": 4,
+   "shots_a_side": 18.0,
+   "passes_a_side": 355.5,
+   "pass_completion": 0.7271,
+   "long_ball_share": 0.0999,
+   "pressures_a_side": 414.0,
+   "tackles_a_side": 119.5
+  },
+  "high:990022": {
+   "score": [
+    0,
+    3
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 14.0,
+   "passes_a_side": 344.5,
+   "pass_completion": 0.7823,
+   "long_ball_share": 0.1132,
+   "pressures_a_side": 415.5,
+   "tackles_a_side": 114.5
+  },
+  "high:990023": {
+   "score": [
+    4,
+    0
+   ],
+   "red": false,
+   "goals": 4,
+   "shots_a_side": 18.0,
+   "passes_a_side": 386.0,
+   "pass_completion": 0.7383,
+   "long_ball_share": 0.0972,
+   "pressures_a_side": 447.5,
+   "tackles_a_side": 123.5
+  },
+  "high:990024": {
+   "score": [
+    0,
+    3
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 18.5,
+   "passes_a_side": 351.5,
+   "pass_completion": 0.7169,
+   "long_ball_share": 0.1238,
+   "pressures_a_side": 369.0,
+   "tackles_a_side": 120.0
+  },
+  "high:990025": {
+   "score": [
+    1,
+    0
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 12.0,
+   "passes_a_side": 362.5,
+   "pass_completion": 0.7255,
+   "long_ball_share": 0.0841,
+   "pressures_a_side": 418.0,
+   "tackles_a_side": 115.5
+  },
+  "high:990026": {
+   "score": [
+    2,
+    2
+   ],
+   "red": true,
+   "goals": 4,
+   "shots_a_side": 11.5,
+   "passes_a_side": 369.5,
+   "pass_completion": 0.751,
+   "long_ball_share": 0.0771,
+   "pressures_a_side": 426.0,
+   "tackles_a_side": 124.5
+  },
+  "high:990027": {
+   "score": [
+    0,
+    3
+   ],
+   "red": true,
+   "goals": 3,
+   "shots_a_side": 11.5,
+   "passes_a_side": 404.5,
+   "pass_completion": 0.7676,
+   "long_ball_share": 0.0667,
+   "pressures_a_side": 424.5,
+   "tackles_a_side": 115.0
+  },
+  "high:990028": {
+   "score": [
+    2,
+    2
+   ],
+   "red": false,
+   "goals": 4,
+   "shots_a_side": 15.0,
+   "passes_a_side": 358.0,
+   "pass_completion": 0.736,
+   "long_ball_share": 0.0936,
+   "pressures_a_side": 396.5,
+   "tackles_a_side": 127.0
+  },
+  "high:990029": {
+   "score": [
+    1,
+    0
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 19.0,
+   "passes_a_side": 400.5,
+   "pass_completion": 0.7828,
+   "long_ball_share": 0.0874,
+   "pressures_a_side": 492.0,
+   "tackles_a_side": 138.5
+  },
+  "high:990030": {
+   "score": [
+    1,
+    1
+   ],
+   "red": true,
+   "goals": 2,
+   "shots_a_side": 13.5,
+   "passes_a_side": 395.5,
+   "pass_completion": 0.7421,
+   "long_ball_share": 0.091,
+   "pressures_a_side": 488.0,
+   "tackles_a_side": 157.5
+  },
+  "high:990031": {
+   "score": [
+    2,
+    3
+   ],
+   "red": false,
+   "goals": 5,
+   "shots_a_side": 14.0,
+   "passes_a_side": 386.5,
+   "pass_completion": 0.7878,
+   "long_ball_share": 0.0944,
+   "pressures_a_side": 450.5,
+   "tackles_a_side": 139.5
+  },
+  "low:990000": {
+   "score": [
+    3,
+    2
+   ],
+   "red": false,
+   "goals": 5,
+   "shots_a_side": 12.5,
+   "passes_a_side": 337.0,
+   "pass_completion": 0.7819,
+   "long_ball_share": 0.092,
+   "pressures_a_side": 344.5,
+   "tackles_a_side": 118.5
+  },
+  "low:990001": {
+   "score": [
+    0,
+    1
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 9.5,
+   "passes_a_side": 311.5,
+   "pass_completion": 0.748,
+   "long_ball_share": 0.0995,
+   "pressures_a_side": 402.5,
+   "tackles_a_side": 142.5
+  },
+  "low:990002": {
+   "score": [
+    1,
+    1
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 12.5,
+   "passes_a_side": 382.5,
+   "pass_completion": 0.8,
+   "long_ball_share": 0.085,
+   "pressures_a_side": 509.5,
+   "tackles_a_side": 152.5
+  },
+  "low:990003": {
+   "score": [
+    2,
+    0
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 9.0,
+   "passes_a_side": 356.0,
+   "pass_completion": 0.823,
+   "long_ball_share": 0.0927,
+   "pressures_a_side": 403.5,
+   "tackles_a_side": 142.0
+  },
+  "low:990004": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 8.5,
+   "passes_a_side": 334.5,
+   "pass_completion": 0.7848,
+   "long_ball_share": 0.0747,
+   "pressures_a_side": 385.5,
+   "tackles_a_side": 154.5
+  },
+  "low:990005": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 10.5,
+   "passes_a_side": 385.5,
+   "pass_completion": 0.8158,
+   "long_ball_share": 0.0908,
+   "pressures_a_side": 416.0,
+   "tackles_a_side": 141.5
+  },
+  "low:990006": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 6.5,
+   "passes_a_side": 334.0,
+   "pass_completion": 0.7784,
+   "long_ball_share": 0.0763,
+   "pressures_a_side": 402.5,
+   "tackles_a_side": 134.0
+  },
+  "low:990007": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 7.5,
+   "passes_a_side": 406.5,
+   "pass_completion": 0.8118,
+   "long_ball_share": 0.0615,
+   "pressures_a_side": 393.5,
+   "tackles_a_side": 127.5
+  },
+  "low:990008": {
+   "score": [
+    0,
+    1
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 14.0,
+   "passes_a_side": 349.0,
+   "pass_completion": 0.7894,
+   "long_ball_share": 0.0573,
+   "pressures_a_side": 430.0,
+   "tackles_a_side": 140.5
+  },
+  "low:990009": {
+   "score": [
+    2,
+    0
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 8.5,
+   "passes_a_side": 381.5,
+   "pass_completion": 0.8152,
+   "long_ball_share": 0.0786,
+   "pressures_a_side": 419.5,
+   "tackles_a_side": 139.0
+  },
+  "low:990010": {
+   "score": [
+    0,
+    0
+   ],
+   "red": false,
+   "goals": 0,
+   "shots_a_side": 6.0,
+   "passes_a_side": 402.0,
+   "pass_completion": 0.7973,
+   "long_ball_share": 0.0746,
+   "pressures_a_side": 480.5,
+   "tackles_a_side": 167.5
+  },
+  "low:990011": {
+   "score": [
+    1,
+    0
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 13.0,
+   "passes_a_side": 409.5,
+   "pass_completion": 0.8034,
+   "long_ball_share": 0.0806,
+   "pressures_a_side": 440.5,
+   "tackles_a_side": 150.0
+  },
+  "low:990012": {
+   "score": [
+    2,
+    0
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 7.0,
+   "passes_a_side": 380.5,
+   "pass_completion": 0.8042,
+   "long_ball_share": 0.0604,
+   "pressures_a_side": 482.0,
+   "tackles_a_side": 135.5
+  },
+  "low:990013": {
+   "score": [
+    0,
+    2
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 8.0,
+   "passes_a_side": 371.0,
+   "pass_completion": 0.7803,
+   "long_ball_share": 0.0809,
+   "pressures_a_side": 388.5,
+   "tackles_a_side": 139.0
+  },
+  "low:990014": {
+   "score": [
+    0,
+    1
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 11.0,
+   "passes_a_side": 349.5,
+   "pass_completion": 0.7854,
+   "long_ball_share": 0.0773,
+   "pressures_a_side": 447.5,
+   "tackles_a_side": 146.0
+  },
+  "low:990015": {
+   "score": [
+    2,
+    0
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 8.0,
+   "passes_a_side": 321.0,
+   "pass_completion": 0.7741,
+   "long_ball_share": 0.0841,
+   "pressures_a_side": 415.0,
+   "tackles_a_side": 120.0
+  },
+  "low:990016": {
+   "score": [
+    1,
+    2
+   ],
+   "red": true,
+   "goals": 3,
+   "shots_a_side": 7.0,
+   "passes_a_side": 361.5,
+   "pass_completion": 0.8354,
+   "long_ball_share": 0.083,
+   "pressures_a_side": 363.5,
+   "tackles_a_side": 111.5
+  },
+  "low:990017": {
+   "score": [
+    2,
+    3
+   ],
+   "red": false,
+   "goals": 5,
+   "shots_a_side": 10.5,
+   "passes_a_side": 337.0,
+   "pass_completion": 0.7611,
+   "long_ball_share": 0.0964,
+   "pressures_a_side": 411.5,
+   "tackles_a_side": 140.5
+  },
+  "low:990018": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 8.0,
+   "passes_a_side": 345.0,
+   "pass_completion": 0.8,
+   "long_ball_share": 0.0826,
+   "pressures_a_side": 397.0,
+   "tackles_a_side": 123.5
+  },
+  "low:990019": {
+   "score": [
+    4,
+    1
+   ],
+   "red": false,
+   "goals": 5,
+   "shots_a_side": 14.0,
+   "passes_a_side": 340.5,
+   "pass_completion": 0.8018,
+   "long_ball_share": 0.0881,
+   "pressures_a_side": 367.0,
+   "tackles_a_side": 119.5
+  },
+  "low:990020": {
+   "score": [
+    4,
+    2
+   ],
+   "red": false,
+   "goals": 6,
+   "shots_a_side": 13.5,
+   "passes_a_side": 315.0,
+   "pass_completion": 0.7667,
+   "long_ball_share": 0.1095,
+   "pressures_a_side": 341.0,
+   "tackles_a_side": 115.0
+  },
+  "low:990021": {
+   "score": [
+    3,
+    2
+   ],
+   "red": false,
+   "goals": 5,
+   "shots_a_side": 18.5,
+   "passes_a_side": 348.0,
+   "pass_completion": 0.7888,
+   "long_ball_share": 0.0891,
+   "pressures_a_side": 375.0,
+   "tackles_a_side": 120.0
+  },
+  "low:990022": {
+   "score": [
+    2,
+    1
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 14.5,
+   "passes_a_side": 345.0,
+   "pass_completion": 0.7667,
+   "long_ball_share": 0.0942,
+   "pressures_a_side": 428.5,
+   "tackles_a_side": 133.0
+  },
+  "low:990023": {
+   "score": [
+    2,
+    1
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 11.0,
+   "passes_a_side": 337.0,
+   "pass_completion": 0.7596,
+   "long_ball_share": 0.0712,
+   "pressures_a_side": 383.0,
+   "tackles_a_side": 137.0
+  },
+  "low:990024": {
+   "score": [
+    3,
+    3
+   ],
+   "red": false,
+   "goals": 6,
+   "shots_a_side": 15.0,
+   "passes_a_side": 304.5,
+   "pass_completion": 0.7652,
+   "long_ball_share": 0.1002,
+   "pressures_a_side": 322.0,
+   "tackles_a_side": 125.5
+  },
+  "low:990025": {
+   "score": [
+    3,
+    0
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 10.5,
+   "passes_a_side": 364.5,
+   "pass_completion": 0.7764,
+   "long_ball_share": 0.0521,
+   "pressures_a_side": 439.5,
+   "tackles_a_side": 133.0
+  },
+  "low:990026": {
+   "score": [
+    0,
+    1
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 10.5,
+   "passes_a_side": 348.5,
+   "pass_completion": 0.7819,
+   "long_ball_share": 0.0904,
+   "pressures_a_side": 370.0,
+   "tackles_a_side": 133.5
+  },
+  "low:990027": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 11.0,
+   "passes_a_side": 362.5,
+   "pass_completion": 0.7779,
+   "long_ball_share": 0.0648,
+   "pressures_a_side": 444.5,
+   "tackles_a_side": 152.0
+  },
+  "low:990028": {
+   "score": [
+    0,
+    3
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 12.0,
+   "passes_a_side": 316.5,
+   "pass_completion": 0.7488,
+   "long_ball_share": 0.0948,
+   "pressures_a_side": 422.0,
+   "tackles_a_side": 136.5
+  },
+  "low:990029": {
+   "score": [
+    0,
+    2
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 11.5,
+   "passes_a_side": 368.0,
+   "pass_completion": 0.7908,
+   "long_ball_share": 0.0842,
+   "pressures_a_side": 507.5,
+   "tackles_a_side": 176.0
+  },
+  "low:990030": {
+   "score": [
+    0,
+    2
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 12.0,
+   "passes_a_side": 316.0,
+   "pass_completion": 0.7278,
+   "long_ball_share": 0.0997,
+   "pressures_a_side": 359.5,
+   "tackles_a_side": 118.0
+  },
+  "low:990031": {
+   "score": [
+    2,
+    0
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 9.0,
+   "passes_a_side": 355.5,
+   "pass_completion": 0.8228,
+   "long_ball_share": 0.0788,
+   "pressures_a_side": 435.0,
+   "tackles_a_side": 144.0
+  },
+  "none:990000": {
+   "score": [
+    2,
+    0
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 15.0,
+   "passes_a_side": 377.5,
+   "pass_completion": 0.7682,
+   "long_ball_share": 0.0861,
+   "pressures_a_side": 375.5,
+   "tackles_a_side": 108.0
+  },
+  "none:990001": {
+   "score": [
+    0,
+    1
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 10.5,
+   "passes_a_side": 349.0,
+   "pass_completion": 0.765,
+   "long_ball_share": 0.086,
+   "pressures_a_side": 434.5,
+   "tackles_a_side": 148.5
+  },
+  "none:990002": {
+   "score": [
+    1,
+    3
+   ],
+   "red": false,
+   "goals": 4,
+   "shots_a_side": 15.5,
+   "passes_a_side": 349.0,
+   "pass_completion": 0.8152,
+   "long_ball_share": 0.0974,
+   "pressures_a_side": 391.5,
+   "tackles_a_side": 108.5
+  },
+  "none:990003": {
+   "score": [
+    0,
+    0
+   ],
+   "red": false,
+   "goals": 0,
+   "shots_a_side": 9.0,
+   "passes_a_side": 415.5,
+   "pass_completion": 0.8255,
+   "long_ball_share": 0.0842,
+   "pressures_a_side": 482.0,
+   "tackles_a_side": 150.0
+  },
+  "none:990004": {
+   "score": [
+    2,
+    3
+   ],
+   "red": false,
+   "goals": 5,
+   "shots_a_side": 11.0,
+   "passes_a_side": 404.5,
+   "pass_completion": 0.8467,
+   "long_ball_share": 0.0816,
+   "pressures_a_side": 370.0,
+   "tackles_a_side": 124.0
+  },
+  "none:990005": {
+   "score": [
+    3,
+    4
+   ],
+   "red": false,
+   "goals": 7,
+   "shots_a_side": 15.5,
+   "passes_a_side": 377.0,
+   "pass_completion": 0.8276,
+   "long_ball_share": 0.1048,
+   "pressures_a_side": 354.0,
+   "tackles_a_side": 102.5
+  },
+  "none:990006": {
+   "score": [
+    1,
+    4
+   ],
+   "red": false,
+   "goals": 5,
+   "shots_a_side": 13.5,
+   "passes_a_side": 383.0,
+   "pass_completion": 0.7924,
+   "long_ball_share": 0.0979,
+   "pressures_a_side": 366.5,
+   "tackles_a_side": 124.0
+  },
+  "none:990007": {
+   "score": [
+    2,
+    0
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 10.5,
+   "passes_a_side": 455.5,
+   "pass_completion": 0.82,
+   "long_ball_share": 0.0703,
+   "pressures_a_side": 380.0,
+   "tackles_a_side": 115.5
+  },
+  "none:990008": {
+   "score": [
+    2,
+    3
+   ],
+   "red": true,
+   "goals": 5,
+   "shots_a_side": 17.5,
+   "passes_a_side": 360.5,
+   "pass_completion": 0.7892,
+   "long_ball_share": 0.0763,
+   "pressures_a_side": 437.0,
+   "tackles_a_side": 138.5
+  },
+  "none:990009": {
+   "score": [
+    3,
+    2
+   ],
+   "red": false,
+   "goals": 5,
+   "shots_a_side": 8.5,
+   "passes_a_side": 455.5,
+   "pass_completion": 0.8419,
+   "long_ball_share": 0.0735,
+   "pressures_a_side": 454.0,
+   "tackles_a_side": 140.0
+  },
+  "none:990010": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 7.0,
+   "passes_a_side": 390.5,
+   "pass_completion": 0.7862,
+   "long_ball_share": 0.0691,
+   "pressures_a_side": 434.0,
+   "tackles_a_side": 131.5
+  },
+  "none:990011": {
+   "score": [
+    2,
+    1
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 14.0,
+   "passes_a_side": 470.5,
+   "pass_completion": 0.8087,
+   "long_ball_share": 0.0712,
+   "pressures_a_side": 470.5,
+   "tackles_a_side": 146.5
+  },
+  "none:990012": {
+   "score": [
+    0,
+    0
+   ],
+   "red": false,
+   "goals": 0,
+   "shots_a_side": 7.0,
+   "passes_a_side": 463.0,
+   "pass_completion": 0.8218,
+   "long_ball_share": 0.0594,
+   "pressures_a_side": 522.5,
+   "tackles_a_side": 141.5
+  },
+  "none:990013": {
+   "score": [
+    0,
+    1
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 6.0,
+   "passes_a_side": 438.0,
+   "pass_completion": 0.7877,
+   "long_ball_share": 0.097,
+   "pressures_a_side": 376.0,
+   "tackles_a_side": 117.5
+  },
+  "none:990014": {
+   "score": [
+    2,
+    1
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 11.0,
+   "passes_a_side": 386.0,
+   "pass_completion": 0.794,
+   "long_ball_share": 0.079,
+   "pressures_a_side": 485.0,
+   "tackles_a_side": 155.0
+  },
+  "none:990015": {
+   "score": [
+    1,
+    0
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 9.0,
+   "passes_a_side": 339.5,
+   "pass_completion": 0.7894,
+   "long_ball_share": 0.0707,
+   "pressures_a_side": 410.0,
+   "tackles_a_side": 125.0
+  },
+  "none:990016": {
+   "score": [
+    2,
+    2
+   ],
+   "red": true,
+   "goals": 4,
+   "shots_a_side": 8.0,
+   "passes_a_side": 419.0,
+   "pass_completion": 0.8126,
+   "long_ball_share": 0.0752,
+   "pressures_a_side": 420.5,
+   "tackles_a_side": 118.0
+  },
+  "none:990017": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 10.5,
+   "passes_a_side": 400.5,
+   "pass_completion": 0.7828,
+   "long_ball_share": 0.0587,
+   "pressures_a_side": 433.5,
+   "tackles_a_side": 135.0
+  },
+  "none:990018": {
+   "score": [
+    1,
+    1
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 11.5,
+   "passes_a_side": 386.5,
+   "pass_completion": 0.8098,
+   "long_ball_share": 0.0776,
+   "pressures_a_side": 422.5,
+   "tackles_a_side": 119.5
+  },
+  "none:990019": {
+   "score": [
+    2,
+    2
+   ],
+   "red": false,
+   "goals": 4,
+   "shots_a_side": 6.0,
+   "passes_a_side": 398.0,
+   "pass_completion": 0.8028,
+   "long_ball_share": 0.0942,
+   "pressures_a_side": 392.5,
+   "tackles_a_side": 121.0
+  },
+  "none:990020": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 12.5,
+   "passes_a_side": 426.5,
+   "pass_completion": 0.7714,
+   "long_ball_share": 0.0844,
+   "pressures_a_side": 381.5,
+   "tackles_a_side": 123.5
+  },
+  "none:990021": {
+   "score": [
+    1,
+    0
+   ],
+   "red": false,
+   "goals": 1,
+   "shots_a_side": 14.0,
+   "passes_a_side": 404.5,
+   "pass_completion": 0.7787,
+   "long_ball_share": 0.0964,
+   "pressures_a_side": 390.0,
+   "tackles_a_side": 112.5
+  },
+  "none:990022": {
+   "score": [
+    2,
+    1
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 11.0,
+   "passes_a_side": 386.5,
+   "pass_completion": 0.8331,
+   "long_ball_share": 0.0802,
+   "pressures_a_side": 394.5,
+   "tackles_a_side": 109.0
+  },
+  "none:990023": {
+   "score": [
+    2,
+    3
+   ],
+   "red": false,
+   "goals": 5,
+   "shots_a_side": 9.5,
+   "passes_a_side": 426.0,
+   "pass_completion": 0.7934,
+   "long_ball_share": 0.0692,
+   "pressures_a_side": 421.5,
+   "tackles_a_side": 148.0
+  },
+  "none:990024": {
+   "score": [
+    2,
+    2
+   ],
+   "red": false,
+   "goals": 4,
+   "shots_a_side": 15.5,
+   "passes_a_side": 393.5,
+   "pass_completion": 0.7738,
+   "long_ball_share": 0.1067,
+   "pressures_a_side": 385.5,
+   "tackles_a_side": 130.5
+  },
+  "none:990025": {
+   "score": [
+    3,
+    1
+   ],
+   "red": false,
+   "goals": 4,
+   "shots_a_side": 19.0,
+   "passes_a_side": 412.5,
+   "pass_completion": 0.7988,
+   "long_ball_share": 0.097,
+   "pressures_a_side": 434.5,
+   "tackles_a_side": 138.0
+  },
+  "none:990026": {
+   "score": [
+    2,
+    0
+   ],
+   "red": false,
+   "goals": 2,
+   "shots_a_side": 12.0,
+   "passes_a_side": 386.0,
+   "pass_completion": 0.7811,
+   "long_ball_share": 0.0907,
+   "pressures_a_side": 385.5,
+   "tackles_a_side": 125.5
+  },
+  "none:990027": {
+   "score": [
+    2,
+    1
+   ],
+   "red": false,
+   "goals": 3,
+   "shots_a_side": 15.0,
+   "passes_a_side": 379.0,
+   "pass_completion": 0.7797,
+   "long_ball_share": 0.0792,
+   "pressures_a_side": 449.5,
+   "tackles_a_side": 126.5
+  },
+  "none:990028": {
+   "score": [
+    0,
+    5
+   ],
+   "red": false,
+   "goals": 5,
+   "shots_a_side": 19.0,
+   "passes_a_side": 337.0,
+   "pass_completion": 0.7507,
+   "long_ball_share": 0.1246,
+   "pressures_a_side": 371.0,
+   "tackles_a_side": 111.5
+  },
+  "none:990029": {
+   "score": [
+    0,
+    4
+   ],
+   "red": false,
+   "goals": 4,
+   "shots_a_side": 13.5,
+   "passes_a_side": 352.5,
+   "pass_completion": 0.766,
+   "long_ball_share": 0.0723,
+   "pressures_a_side": 490.0,
+   "tackles_a_side": 159.0
+  },
+  "none:990030": {
+   "score": [
+    4,
+    2
+   ],
+   "red": false,
+   "goals": 6,
+   "shots_a_side": 12.0,
+   "passes_a_side": 329.0,
+   "pass_completion": 0.7432,
+   "long_ball_share": 0.0881,
+   "pressures_a_side": 427.5,
+   "tackles_a_side": 133.0
+  },
+  "none:990031": {
+   "score": [
+    0,
+    3
+   ],
+   "red": true,
+   "goals": 3,
+   "shots_a_side": 15.5,
+   "passes_a_side": 356.5,
+   "pass_completion": 0.805,
+   "long_ball_share": 0.0813,
+   "pressures_a_side": 402.5,
+   "tackles_a_side": 124.0
+  }
+ },
+ "settings": {
+  "high": {
+   "tempo": 0.85,
+   "risk": 0.85,
+   "press": 0.75,
+   "directness": 0.75
+  },
+  "low": {
+   "tempo": 0.3,
+   "risk": 0.2
+  },
+  "none": {}
+ },
+ "matches_per_setting": 32,
+ "long_ball_m": 30.0,
+ "prompt_sha256": "f5731bc634ea9ccf04016c1b647bab646bac4174ac9c9e78d7fc90c827470c82",
+ "git_sha": "ac9fa2c",
+ "command": "python -m touchline_live.eval.scenario_bench --dial-probe 32 --dial-out scenario_dials_v2.json --workers 3",
+ "summary": {
+  "high": {
+   "matches": 32,
+   "goals_per_match": 2.91,
+   "matches_with_a_red": 6,
+   "goals": {
+    "mean": 2.9062,
+    "se": 0.2593
+   },
+   "shots_a_side": {
+    "mean": 14.9844,
+    "se": 0.4538
+   },
+   "passes_a_side": {
+    "mean": 378.5781,
+    "se": 5.8996
+   },
+   "pass_completion": {
+    "mean": 0.755,
+    "se": 0.0039
+   },
+   "long_ball_share": {
+    "mean": 0.0931,
+    "se": 0.0028
+   },
+   "pressures_a_side": {
+    "mean": 434.9688,
+    "se": 7.4476
+   },
+   "tackles_a_side": {
+    "mean": 128.2812,
+    "se": 2.0054
+   }
+  },
+  "low": {
+   "matches": 32,
+   "goals_per_match": 2.75,
+   "matches_with_a_red": 1,
+   "goals": {
+    "mean": 2.75,
+    "se": 0.2656
+   },
+   "shots_a_side": {
+    "mean": 10.6406,
+    "se": 0.5076
+   },
+   "passes_a_side": {
+    "mean": 352.3906,
+    "se": 4.9054
+   },
+   "pass_completion": {
+    "mean": 0.7864,
+    "se": 0.0043
+   },
+   "long_ball_share": {
+    "mean": 0.0827,
+    "se": 0.0024
+   },
+   "pressures_a_side": {
+    "mean": 410.2344,
+    "se": 8.0441
+   },
+   "tackles_a_side": {
+    "mean": 136.5312,
+    "se": 2.6191
+   }
+  },
+  "none": {
+   "matches": 32,
+   "goals_per_match": 3.22,
+   "matches_with_a_red": 3,
+   "goals": {
+    "mean": 3.2188,
+    "se": 0.3037
+   },
+   "shots_a_side": {
+    "mean": 12.0312,
+    "se": 0.629
+   },
+   "passes_a_side": {
+    "mean": 394.0,
+    "se": 6.6454
+   },
+   "pass_completion": {
+    "mean": 0.7957,
+    "se": 0.0045
+   },
+   "long_ball_share": {
+    "mean": 0.0838,
+    "se": 0.0025
+   },
+   "pressures_a_side": {
+    "mean": 417.0469,
+    "se": 7.3745
+   },
+   "tackles_a_side": {
+    "mean": 128.4688,
+    "se": 2.6251
+   }
+  }
+ }
+}
