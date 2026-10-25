@@ -11,8 +11,10 @@ GET  /api/match/{id}/events   public events (the engine's truth block removed)
 GET  /api/broadcast/{id}      a recorded broadcast: every cue a live run put on air
 GET  /api/audio/{name}        a voiced line (mp3): the live crew's cache, or {match}/{name} for a recording
 WS   /ws/live/{id}            join the live channel: cues and the clock, pushed as they happen
-POST /mcp                     the match MCP server over streamable HTTP (read-only tools, stateless)
-POST /api/ask/{id}            Ask the record: an agent answers over /mcp, the Verifier passes it first
+POST /mcp                     the match MCP server over streamable HTTP (read-only tools, stateless):
+                              POST only, one worker, 429 when busy, a token bucket per client
+POST /api/ask/{id}            Ask the record: an agent answers over /mcp, the Verifier passes it first;
+                              six questions per client in ten minutes, beside a cap for the whole page
 """
 
 from __future__ import annotations
@@ -36,6 +38,7 @@ from starlette.routing import Route
 
 from . import feed, telemetry
 from .match_io import FPS, load
+from .guard import McpGate, Window, client_key
 from .mcp_server import HTTPEndpoint
 from .state import LiveState
 
@@ -48,7 +51,8 @@ UNIT = 10                                   # decimetres: small integers compres
 CREW = os.environ.get("TOUCHLINE_CREW", "1") == "1"
 
 telemetry.setup("touchline-web")
-MCP = HTTPEndpoint()
+MCP = HTTPEndpoint(workers=1)
+MCP_GATE = McpGate(MCP, workers=1)
 
 
 @asynccontextmanager
@@ -59,7 +63,7 @@ async def lifespan(_app):
 
 app = FastAPI(title="Touchline", lifespan=lifespan)
 app.add_middleware(GZipMiddleware, minimum_size=2048)
-app.router.routes.append(Route("/mcp", endpoint=MCP))
+app.router.routes.append(Route("/mcp", endpoint=MCP_GATE))
 _cache: dict[str, object] = {}
 
 
@@ -161,7 +165,8 @@ def audio(name: str):
 
 # ----- ask the record ------------------------------------------------------------------------
 ASK_LIMIT = int(os.environ.get("TOUCHLINE_ASK_PER_10MIN", "40"))   # a public page spends real model credit
-_asked: list[float] = []
+ASK_PER_CLIENT = int(os.environ.get("TOUCHLINE_ASK_PER_CLIENT", "6"))
+ASKED = Window(ASK_LIMIT, ASK_PER_CLIENT, span=600)
 _ask_gate = asyncio.Semaphore(2)
 
 
@@ -175,19 +180,26 @@ async def ask_the_record(mid: str, q: Question, request: Request):
     match(mid)
     if not CREW:
         raise HTTPException(503, "the crew is off on this server")
-    now = time.time()
-    _asked[:] = [t for t in _asked if now - t < 600]
-    if len(_asked) >= ASK_LIMIT:
+    who = client_key(request.headers, request.client)
+    full, stamp = ASKED.take(who)
+    if full == "global":
         raise HTTPException(429, "the record has answered a lot of questions; try again in a few minutes")
-    _asked.append(now)
+    if full == "client":
+        raise HTTPException(429, f"you have asked {ASKED.per_client} questions in ten minutes; try again in a few minutes")
     from .crew.ask import ask
     port = (request.scope.get("server") or ("127.0.0.1", 8080))[1]
     url = os.environ.get("TOUCHLINE_MCP_URL", f"http://127.0.0.1:{port}/mcp")
+    progress = {"attempts": 0}
     async with _ask_gate:
         try:
-            return await asyncio.wait_for(ask(q.question, mid, q.match_s, url), 75)
+            return await asyncio.wait_for(ask(q.question, mid, q.match_s, url, progress=progress), 75)
         except Exception as exc:
-            raise HTTPException(502, f"the record agent did not answer: {type(exc).__name__}")
+            # Our failure, not the viewer's question: the slot comes back, and the reply says what broke.
+            ASKED.give_back(who, stamp)
+            err = f"{type(exc).__name__}: {str(exc)[:300]}".rstrip(": ")
+            return JSONResponse(status_code=502, content={
+                "detail": f"the record agent did not answer: {type(exc).__name__}",
+                "error": err, "attempts": progress["attempts"]})
 
 
 # ----- live channels ------------------------------------------------------------------------

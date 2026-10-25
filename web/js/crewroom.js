@@ -166,9 +166,11 @@ export class CrewRoom {
     if (this.follow && ms.length) this.open = new Set([ms[0].key]);
     const n = (o) => ms.filter((m) => m.outcome === o).length;
     const mcp = ms.reduce((a, m) => a + m.mcpCount, 0), claims = ms.reduce((a, m) => a + m.claims, 0);
+    // A recording made before per-call tracing counts only the Producer's calls: the tile says so.
+    const perCall = ms.some((m) => m.mcp.length);
     this.$tally.innerHTML = ms.length ? [
       [ms.length, "moments"], [n("first"), "first draft"], [n("repaired"), "repaired"], [n("fallback"), "fallback"],
-      [claims, "claims checked"], [mcp, "MCP calls"],
+      [claims, "claims checked"], [mcp, perCall ? "MCP calls" : "Producer MCP calls"],
     ].map(([v, k]) => `<div><b class="num">${v}</b><span>${k}</span></div>`).join("") : "";
     const rows = [...ms, ...this.errors].sort((a, b) => b.match_s - a.match_s);
     this.$empty.hidden = !!rows.length;
@@ -217,7 +219,7 @@ export class CrewRoom {
       const last = res.verdicts.at(-1), tries = res.verdicts.length;
       if (res.ok) {
         this.$answer.innerHTML = `<p>${esc(res.answer)}</p>
-          <p class="cr-via"><span class="cr-pill ok">Verified</span> ${last.claims_checked} claims checked${tries > 1 ? ", after one repair" : ""} · as of ${this.M.clock(at)}</p>
+          <p class="cr-via">${last.claims_checked > 0 ? `<span class="cr-pill ok">Verified</span> ${last.claims_checked} claim${last.claims_checked === 1 ? "" : "s"} checked` : "Names checked against the record"}${tries > 1 ? ", after one repair" : ""} · as of ${this.M.clock(at)}</p>
           ${counts ? `<p class="cr-via">MCP ${counts}</p>` : ""}
           ${res.sources.length ? `<div class="cr-cites">${res.sources.map((id) => `<button class="cr-cite" data-id="${id}" aria-expanded="false">#${id}</button>`).join("")}</div><div class="cr-fact" hidden></div>` : ""}`;
       } else {
@@ -239,7 +241,7 @@ export class CrewRoom {
     let v = 0, drafts = 0;
     return m.crew.trace.map((t) => {
       let what = "";
-      if (t.role === "producer") what = t.mcp ? t.mcp.map((c) => `${c.tool}${c.ids ? ` #${c.ids.join(" #")}` : ""}`).join(", ") : `${t.mcp_calls ?? 2} MCP calls to the record`;
+      if (t.role === "producer") what = t.mcp ? t.mcp.map((c) => `${c.tool}${c.ids ? ` #${c.ids.join(" #")}` : ""}`).join(", ") : t.mcp_calls != null ? `${t.mcp_calls} MCP calls to the record` : "reads the record over MCP";
       else if (t.role === "analyst") what = "reads the moment, picks the pattern";
       else if (t.role === "narrator" || t.role === "recap") what = (drafts++ ? "repair: a new draft from the reasons" : "first draft, one line per persona");
       else if (t.role === "verifier") {

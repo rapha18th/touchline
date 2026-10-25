@@ -3,7 +3,10 @@
     python scripts/ask_eval.py http://127.0.0.1:8080 TL-000008 1960 reports/ask_record_TL-000008.json
 
 For each question it records whether the Verifier passed an answer (first try or after one repair) or refused,
-the problems it found, the MCP tools the agent called, and the wall time.
+the problems it found, the MCP tools the agent called, and the wall time. A request that fails records its
+status, the server's detail, the exception text and the number of model calls tried.
+
+The server allows six questions per client in ten minutes; for this run start it with TOUCHLINE_ASK_PER_CLIENT=10.
 """
 
 import json
@@ -36,7 +39,9 @@ def main(base: str, match_id: str, match_s: float):
             ms = round((time.perf_counter() - t0) * 1000)
             body = r.json()
             if r.status_code != 200:
-                rows.append({"question": q, "status": r.status_code, "error": body.get("detail"), "ms": ms})
+                # A 502 carries the exception text and how many model calls were tried; keep both.
+                rows.append({"question": q, "status": r.status_code, "detail": body.get("detail"),
+                             "error": body.get("error"), "attempts": body.get("attempts"), "ms": ms})
                 continue
             v = body["verdicts"]
             rows.append({"question": q, "outcome": "first_pass" if body["ok"] and len(v) == 1 else "repaired" if body["ok"] else "refused",

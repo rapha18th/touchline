@@ -35,9 +35,17 @@ Numbers pass within 2 percent or 0.05, whichever is larger, or when they are the
 | Streamable HTTP, in the web service | `POST /mcp` on the Touchline app | Any client, the Crew room, Ask the record. |
 
 The `/mcp` route lives inside the FastAPI app (`server.py`). It is stateless and replies with plain JSON, so any
-replica can answer any request and a browser can call a tool with one POST. Tools run on a worker thread with a
-capacity of two, so a long replay never stalls the live channels. Data comes from `TOUCHLINE_DATA`.
+replica can answer any request and a browser can call a tool with one POST. Data comes from `TOUCHLINE_DATA`.
 Host checks against DNS rebinding are off: the server is public, read-only, and serves synthetic data only.
+
+A gate in front of it (`touchline_live/guard.py`) keeps a public endpoint from stalling the app:
+
+- POST only. Any other method gets 405 with `Allow: POST`.
+- One worker. Tools run on one worker thread, and one request is in it at a time. A request waits up to two
+  seconds (`TOUCHLINE_MCP_WAIT_S`) for the worker, then gets 429 with `Retry-After: 1`.
+- A token bucket per client, keyed on the first `X-Forwarded-For` hop: 40 requests at once, one more each second
+  (`TOUCHLINE_MCP_BURST`, `TOUCHLINE_MCP_RATE`). Past it, 429 with `Retry-After`. The app's own Ask agent calls
+  `/mcp` on 127.0.0.1 with no forwarded header and is not counted.
 
 The live URL serves `/mcp` once this branch is deployed:
 `https://touchline.mangohill-b9c35cb7.swedencentral.azurecontainerapps.io/mcp`.
@@ -150,7 +158,9 @@ Each card shows:
   `get_events`, and says so ("Event #1236, from MCP get_events, 244 ms"). Without `/mcp` it falls back to the
   event log the page already loaded, and says that instead.
 
-At the top, a tally counts moments, first drafts, repairs, fallbacks, claims checked and MCP calls.
+At the top, a tally counts moments, first drafts, repairs, fallbacks, claims checked and MCP calls. When the
+trace has no per-call entries, as in a recording made before per-call logging, the last tile reads "Producer MCP
+calls", because only the Producer's count was kept.
 
 **Recorded mode** reads `crew.trace`, `crew.attempts` and `crew.verdicts` from the cues in `broadcasts/`.
 The three recordings in the repo predate per-call logging: they show how many MCP calls the Producer made,
@@ -168,13 +178,21 @@ with `{"question": ..., "match_s": ...}` runs `crew/ask.py`:
 1. An Agent Framework agent with `MCPStreamableHTTPTool` on `/mcp` looks the answer up and replies with one or
    two sentences, typed claims and cited event ids.
 2. The crew's Verifier (`verify_text`) checks the claims through `verify_numbers`, every number and name in the
-   text against the tool results, and the house style. Ask adds two gates: no cited event may lie after the
-   viewer's match time, and any ranking word (most, highest, furthest, top) needs a `leader` claim.
+   text against the tool results, and the house style. Ask adds three gates. No tool call may look past the
+   viewer's match time: a call whose `match_s` or `to_s` is more than a second past it is a problem, and its
+   results are dropped before the Verifier reads them, so they back nothing. No cited event may lie after the
+   viewer's match time. Any ranking word (most, highest, furthest, top) needs a `leader` claim.
 3. One repair is allowed. If the second answer fails too, the viewer sees the reasons and no answer.
 
-The answer shows with its claim count, the MCP tools the agent called, and its cited events as buttons.
-The endpoint allows two questions at a time and 40 per ten minutes (`TOUCHLINE_ASK_PER_10MIN`), since every
-question spends model credit.
+The answer shows with the MCP tools the agent called and its cited events as buttons. The Verified pill shows
+only when the Verifier checked at least one claim; an answer that needed none reads "Names checked against the
+record". The agent says a score with the leading club first ("Saltbridge Athletic lead 2-0"), uses no control or
+chaos labels unless the fan asks, and curly quotes in the question and the answer become straight ones.
+
+Every question spends model credit. The endpoint allows two questions at a time, six per client in ten minutes
+(`TOUCHLINE_ASK_PER_CLIENT`, keyed like `/mcp`), and 40 in ten minutes for the whole page
+(`TOUCHLINE_ASK_PER_10MIN`). A question that ends in a 5xx gives its slot back. A 502 carries the server's
+`detail`, the exception text as `error`, and `attempts`, the number of model calls tried.
 
 Measured on TL-000008 at 32:40, ten fixed questions, gpt-5.4-mini, one run
 (`python scripts/ask_eval.py http://127.0.0.1:8080 TL-000008 1960 reports/ask_record_TL-000008.json`):
@@ -184,7 +202,12 @@ Measured on TL-000008 at 32:40, ten fixed questions, gpt-5.4-mini, one run
 | Passed first time | 8 |
 | Passed after one repair | 1 |
 | Refused | 0 |
-| No answer: the model connection dropped three times | 1 |
+| No answer: HTTP 502 | 1 |
+
+The failure was the first question, "Who scored and when?": HTTP 502 after 22.7 seconds, with the detail
+"the record agent did not answer: ChatClientException". That run recorded the exception's type and nothing
+more, so the artifact does not say why the model call failed or how many times it was tried. `scripts/ask_eval.py`
+now records the server's `error` text and `attempts` for any failure.
 
 Median wall time was 4.4 seconds. The ranking gate earned its place in this work. Before it existed, the agent
 answered "who has the most passes for the away side" after checking two players, and its count was correct for
@@ -196,7 +219,9 @@ Limits, plainly:
 - Numbers written as words ("two yellow cards") are not checked. Only digits are.
 - The ranking gate knows a fixed list of words. A ranking phrased another way can pass unchecked.
 - The run above is one sample of ten questions. Expect answers to vary between runs.
-- On this PC the network drops long connections to Azure, which is the one failure above.
+- The one failure above is a `ChatClientException` whose cause the artifact does not record.
+- The `/mcp` bucket trusts the first `X-Forwarded-For` hop. A client that sends its own header picks its own
+  bucket; the one-worker gate and the Ask page cap still hold.
 
 ## 3. Tracing
 
