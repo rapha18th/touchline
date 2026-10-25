@@ -8,26 +8,40 @@ Built for Inside the Game, the Microsoft and Premier League developer hackathon.
 
 ## Status
 
+Every number in this table comes from a file in [`reports/`](reports/), and the page it links names the
+command that writes it.
+
 | Stage | State |
 |---|---|
 | Match engine (events, 25 Hz tracking, metadata) | working |
-| Realism report against league base rates | 12 of 16 metrics in band |
-| Azure: Foundry project with gpt-5.4-mini and gpt-5-mini | live |
+| Realism against league base rates | 12 of 16 metrics in band ([`reports/realism.json`](reports/realism.json)) |
+| Azure: Foundry project with gpt-5.4-mini and gpt-5-mini | in use by the crew, keyless |
 | Feed, state service, cue feed (`schema/cue.schema.json`) | working |
-| Pass difficulty from tracking alone | 0.95 correlation with the engine's truth on held-out matches |
-| Match MCP server | working |
-| Agent crew on Microsoft Agent Framework, with the Verifier | working |
-| Fan app: 3D pitch, personas, player focus, one metric, three languages | working |
+| Pass difficulty from tracking alone | working, graded against the engine's truth on held-out matches |
+| Agent crew on Microsoft Agent Framework, with the Verifier | measured: under attack the judge calls 48 of 360 first drafts wrong and 21 of the 360 lines the crew aired ([EVAL](docs/EVAL.md)) |
+| Match MCP server, stdio and `/mcp` over HTTP | working: POST only, one worker, a token bucket per client ([MCP](docs/MCP.md)) |
+| Crew room and Ask the record | working: Ask answered 9 of 10 fixed questions with a verified answer, and 1 ended in a 502 ([MCP](docs/MCP.md)) |
+| Voiced commentary in four languages | 288 clips for two recorded broadcasts; live voice off unless `TOUCHLINE_VOICE=1` ([VOICE](docs/VOICE.md)) |
+| Fan app: 3D pitch, personas, player focus, one metric, four languages, voice | working |
 | Broadcast overlay page for a browser source | working |
-| Azure Container Apps with a managed identity | deploying |
+| Azure Container Apps with a managed identity, one replica | scripted: `infra/deploy.sh`, CI and CD on demand ([DEPLOY](docs/DEPLOY.md)) |
 | Auto-eventing from rendered video | planned |
+
+## Documentation
+
+| Page | What it covers |
+|---|---|
+| [docs/EVAL.md](docs/EVAL.md) | The crew evaluation: the crew against itself without the Verifier and a one-call writer, three attacks, two judges, a hand check and the failure gallery |
+| [docs/MCP.md](docs/MCP.md) | The match MCP server, how Copilot, Claude Code and Agent Framework connect, the Crew room, Ask the record and tracing |
+| [docs/VOICE.md](docs/VOICE.md) | Voiced commentary with Azure AI Speech: voices, keyless auth, price, the Voice step, recorded broadcasts and the fan app control |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | CI, the staged build context, local deploy, CD with OpenID Connect and teardown |
 
 ## How a moment becomes a line
 
 ```
 engine match --> feed (events at resolve time, tracking at 5 Hz)
              --> state service: stats, pass difficulty, control vs chaos, pressure, rhythm
-                 --> cues: scorebug, shot and pass cards, player tags, momentum, stats   (under 1 ms)
+                 --> cues: scorebug, shot and pass cards, player tags, momentum, stats
                  --> moments: goal, big chance, big save, hard pass, red card, half and full time
                      --> crew workflow (Agent Framework)
                          Producer   reads the record through the match MCP server
@@ -36,7 +50,9 @@ engine match --> feed (events at resolve time, tracking at 5 Hz)
                          Verifier   every claim resolved through MCP; every number and name in the
                                     text must be backed; plain punctuation; repair once, else a
                                     template line built from verified facts
-                         Localiser  translations that must carry every number intact
+                         Localiser  Spanish, French and Portuguese; a translation must carry every
+                                    number intact and really be translated, or it is refused
+                         Voice      with TOUCHLINE_VOICE=1, Azure AI Speech clips of the verified lines
                          Director   timed cues with sources and the crew's trace
 ```
 
@@ -49,8 +65,15 @@ On a goal, a verified caption airs at once from the record; the crew's lines fol
 .venv/Scripts/python -m pytest services/live
 ```
 
-The state service replays a full match in about 5 seconds, under 0.4 ms per item at the 99th percentile.
-A full match sends 22 moments through the crew with 114 MCP calls. The Verifier runs in about 20 ms.
+Every crew cue carries its trace: ms per role, each Verifier verdict with its reasons, and the MCP calls.
+[`reports/crew_trace_TL-000008.txt`](reports/crew_trace_TL-000008.txt) is one real crew moment, exported to the
+console as a tree of 33 spans. The Crew room in the fan app draws the same story for every moment ([MCP](docs/MCP.md)).
+
+The crew evaluation ([EVAL](docs/EVAL.md), [`reports/crew_eval.json`](reports/crew_eval.json)) puts 40 moments
+through the crew, the crew without its Verifier and a one-call writer, then attacks it three ways. With a false
+fact planted, 23 of 120 first drafts repeated it and the crew aired none. Under attack, the judge calls 48 of 360
+first drafts wrong and 21 of the 360 lines the crew aired. On clean moments the one-call writer is as accurate in
+meaning; the crew's gain is in numbers and claims. The page says what the gate misses as plainly.
 
 ## One match, a broadcast for every fan
 
@@ -61,6 +84,8 @@ The fan app plays a match on a floodlit 3D pitch and builds the graphics from th
 - **Follow a player**: the camera rides with them, a ring marks them, and a live line builds from the event log and the tracking: passes and accuracy, shots and xG, distance and top speed.
 - **One number all match**: an xG race, the difficulty of the hardest completed passes, or your player's speed.
 - **Language**: English, Spanish, French and Portuguese, translated by the crew with every number carried intact.
+- **Commentary voice**: the analyst and casual lines spoken as they air, in the viewer's language, one at a time. A big moment cuts a smaller line; a line that waits too long is skipped ([VOICE](docs/VOICE.md)).
+- **Crew room**: every crew moment with its handoffs, verdicts, refusals, repairs and MCP calls, and **Ask the record**, where a viewer's question is answered over MCP and shown only if the Verifier passes it ([MCP](docs/MCP.md)).
 - **Recorded or live**: recorded broadcasts replay every cue a live crew run put on air, at the latency it measured; Go live starts a fresh run on the server with the crew working as the match plays.
 
 `/overlay?match=TL-000007&persona=studio&preview=0` serves the same graphics on a transparent page for a vision mixer or a browser source.
@@ -70,15 +95,17 @@ The fan app plays a match on a floodlit 3D pitch and builds the graphics from th
 bash infra/deploy.sh        # Azure Container Apps, image built in ACR, keyless Foundry access
 ```
 
+Deploy, CI and CD are in [docs/DEPLOY.md](docs/DEPLOY.md).
+
 ## Pass difficulty
 
 At the release frame the state service reads where the passer, the intended target and every
 opponent stand, and estimates the completion chance: length, height, a physics race for the lane
 (can any defender reach a point of the lane before the ball), the space around the receiver and the
 passer, progression, final third and box. Difficulty is one minus that chance. The engine's own
-success probability never enters the model; it grades it. On two held-out matches (1,469 passes) the
-estimate correlates 0.95 with the engine's truth, within 4.8 points on average, Brier 0.124 against
-0.118 for the truth itself and 0.169 for the base rate.
+success probability never enters the model; it grades it. The fitted weights and their scores on two
+held-out matches are in `services/live/touchline_live/pass_difficulty.json`. No command in the repository
+refits it yet, so this page quotes no number from it.
 
 ## The match engine
 
@@ -99,13 +126,13 @@ python -m venv .venv
 .venv/Scripts/python -m pytest engine
 ```
 
-A match takes about 70 seconds on one core and writes:
+A match writes:
 
 | File | Contents |
 |---|---|
 | `meta.json` | clubs, squads, attributes, formations, style dials, venue, referee, weather, periods, final score |
-| `events.json` | about 3,300 events, schema in [`schema/event.schema.json`](schema/event.schema.json) |
-| `tracking.npz` | about 154,000 frames, 22 players and the ball, centimetres as int16 |
+| `events.json` | every event, schema in [`schema/event.schema.json`](schema/event.schema.json) |
+| `tracking.npz` | every frame at 25 Hz, 22 players and the ball, centimetres as int16 |
 
 ## Realism
 
