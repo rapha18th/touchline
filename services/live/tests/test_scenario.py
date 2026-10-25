@@ -242,7 +242,7 @@ def test_rules_director_reads_common_stories():
 # ----- the spec reaches the engine inside its bounds ------------------------------------------
 
 def test_settings_reach_the_clubs_within_the_engines_ranges():
-    seed = 910010
+    seed = 910009
     spec, _ = S.gate(ScenarioSpec(home=SideSettings(strength=0.7, style=StyleDials(press=0.9, risk=0.15)),
                                   away=SideSettings(strength=0.3, formation="3-5-2", style=StyleDials(press=0.15))))
     base_home, base_away = make_fixture(seed)
@@ -266,7 +266,7 @@ def test_settings_reach_the_clubs_within_the_engines_ranges():
 
 # ----- short engine runs ------------------------------------------------------------------------
 
-SHORT = 120.0     # seconds a period: seed 910010 scores (away) before the minute is out
+SHORT = 120.0     # seconds a period: seed 910009 scores (away) in the first period
 
 
 def short(m):
@@ -276,7 +276,7 @@ def short(m):
 
 
 def test_watching_leaves_the_engine_untouched():
-    seed = 910010
+    seed = 910009
     home, away = S.teams_for(seed, ScenarioSpec())
     plain = short(Match(seed, *make_fixture(seed)))
     watched = short(S._Watched(seed, home, away, []))
@@ -284,7 +284,7 @@ def test_watching_leaves_the_engine_untouched():
 
 
 def test_a_candidate_stops_at_the_goal_that_breaks_a_beat():
-    seed = 910010
+    seed = 910009
     spec = ScenarioSpec(beats=[Beat(kind="clean_sheet", side="home"), Beat(kind="winner", side="home")])
     r = S.play_candidate(seed, spec.model_dump_json(), True, None, None, SHORT)
     assert r["complete"] is False and r["pruned_at"] is not None
@@ -328,7 +328,7 @@ def test_a_written_match_reaches_the_list_without_its_story(tmp_path, monkeypatc
     from touchline_live import server
     real = S.write_match
     monkeypatch.setattr(S, "write_match", lambda story, **kw: real(
-        story, **{**kw, "use_llm": False, "seeds": 1, "workers": 1, "period_s": SHORT, "base_seed": 910010}))
+        story, **{**kw, "use_llm": False, "seeds": 1, "workers": 1, "period_s": SHORT, "base_seed": 910009}))
     monkeypatch.setattr(server, "DATA", tmp_path)
     c = TestClient(server.app)
     r = c.post("/api/scenario", json={"story": "the visitors win it, and nobody else should read this sentence"})
@@ -341,7 +341,7 @@ def test_a_written_match_reaches_the_list_without_its_story(tmp_path, monkeypatc
         time.sleep(0.25)
     assert job["state"] == "done", job
     mid = job["match_id"]
-    assert mid == "TL-910010" and job["report"]["total"] == 1 and job["beats"] == ["away win"]
+    assert mid == "TL-910009" and job["report"]["met"] == job["report"]["total"] == 1 and job["beats"] == ["away win"]
     listed = {m["match_id"]: m for m in c.get("/api/matches").json()}
     assert listed[mid]["written"]["headline"] == "Away win"
     md = c.get(f"/api/match/{mid}").json()
