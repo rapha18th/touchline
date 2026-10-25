@@ -132,7 +132,8 @@ def render_sweep(jobs: list[dict], seeds: list[int], label: str):
 def status(slot: str) -> str:
     out = _run(["kernels", "status", f"{USER}/{slot}"], timeout=90)
     m = re.search(r'status "?(?:KernelWorkerStatus\.)?(\w+)', out)
-    return m.group(1).upper() if m else "UNKNOWN:" + out.strip()[-120:]
+    # The CLI spells it CANCEL_ACKNOWLEDGED; strip underscores so the terminal states always match.
+    return m.group(1).upper().replace("_", "") if m else "UNKNOWN:" + out.strip()[-120:]
 
 
 def pull(slot: str, token: str) -> dict | None:
