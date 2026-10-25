@@ -103,6 +103,17 @@ def grade_kicks(dets: list[dict], truth: list[dict]) -> dict:
     return out
 
 
+def wilson(k: int, n: int, z: float = 1.96) -> list | None:
+    """95% Wilson interval of a proportion k / n."""
+    if n == 0:
+        return None
+    p = k / n
+    d = 1 + z * z / n
+    c = (p + z * z / (2 * n)) / d
+    h = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
+    return [round(float(c - h), 3), round(float(c + h), 3)]
+
+
 def summarise(per_clip: list[dict], key: str) -> dict:
     rows = [r for c in per_clip for r in c[key]["rows"]]
     nt = {k: sum(c[key]["n_truth"][k] for c in per_clip) for k in KICKS}
@@ -112,8 +123,8 @@ def summarise(per_clip: list[dict], key: str) -> dict:
     for k in KICKS:
         tp = sum(r["truth_type"] == k and r["det_type"] == k for r in rows)
         out[k] = {"truth": nt[k], "detected": nd[k], "true_positive": tp,
-                  "recall": round(tp / nt[k], 3) if nt[k] else None,
-                  "precision": round(tp / nd[k], 3) if nd[k] else None}
+                  "recall": round(tp / nt[k], 3) if nt[k] else None, "recall_ci95": wilson(tp, nt[k]),
+                  "precision": round(tp / nd[k], 3) if nd[k] else None, "precision_ci95": wilson(tp, nd[k])}
     passes = [r for r in rows if r["truth_type"] == "pass" and r["det_type"] == "pass"]
     comp = [r for r in passes if r["outcome"] == "complete" and r["lands_in_clip"]]
     shots = [r for r in rows if r["truth_type"] == "shot" and r["det_type"] == "shot"]

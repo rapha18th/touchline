@@ -116,3 +116,10 @@ def test_kick_time_runs_a_hidden_kick_back_to_the_ball_at_rest():
     uv = np.where(np.isnan(g), np.nan, 1.0)
     fr = np.arange(17, 30)
     assert kick_time(16, fr, g, uv, None, FPS) == kick
+
+
+def test_wilson_interval():
+    from touchline_vision.score import wilson
+    lo, hi = wilson(43, 46)
+    assert lo < 43 / 46 < hi and 0.8 < lo < 0.85 and hi < 0.98
+    assert wilson(0, 0) is None
