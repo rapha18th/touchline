@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import contextlib
 import dataclasses
 import itertools
 import json
@@ -49,6 +50,14 @@ SEED_FLOOR, SEED_CEIL = 900_000, 999_999   # written matches live at TL-900000 a
 FULL_MATCH_S = 5700.0           # about 95 minutes of play: the unit of the search budget
 MAX_BEATS = 6
 STORY_MAX = 300
+
+# The example stories the fan app offers (web/js/write.js shows the same four; a test keeps them equal).
+EXAMPLES = (
+    "An underdog parks the bus and nicks it late",
+    "A wild end-to-end draw with a red card",
+    "The home side fall behind and come back to win",
+    "A tight, cagey game settled by a single goal",
+)
 
 Side = Literal["home", "away"]
 BeatKind = Literal["winner", "total_goals", "late_goal", "red_card", "comeback", "first_goal", "clean_sheet", "shots_diff"]
@@ -114,7 +123,8 @@ Beats are what the finished match must show. Use only these kinds, and only for 
 - comeback: side was behind at some point and won; side null for either.
 - first_goal: side scored first.
 - clean_sheet: side conceded no goal.
-- shots_diff: side had at least `at_least` more shots than the other.
+- shots_diff: side had at least `at_least` more shots than the other. Only when the story says one side dominates;
+  an open, end-to-end game is a matter of dials and goals, never of a shots gap.
 Put the words of the story each beat checks in `says`. If the story names no side, choose one and stay
 consistent: an underdog is usually the away side. At most {MAX_BEATS} beats. Never name real clubs, players
 or competitions: the engine generates its own clubs."""
@@ -381,13 +391,16 @@ async def direct(story: str, *, use_llm: bool = True, timeout: float = 40.0) -> 
     spec = None
     if use_llm:
         t0 = time.perf_counter()
+        chat = None
         try:
             from agent_framework import Agent
 
             from .crew import llm
             # A fresh client, never the cached one: each job runs its own event loop (asyncio.run in a worker
             # thread), and a client whose connections belong to a closed loop fails with "Event loop is closed".
-            agent = Agent(client=llm.client.__wrapped__(llm.FAST), name="director", instructions=DIRECTOR)
+            # It is closed in this loop when the Director is done.
+            chat = llm.client.__wrapped__(llm.FAST)
+            agent = Agent(client=chat, name="director", instructions=DIRECTOR)
             opts = {"response_format": ScenarioSpec, "reasoning": {"effort": "none"}}
             r = await asyncio.wait_for(agent.run(story, options=opts), timeout)
             spec = r.value
@@ -395,20 +408,30 @@ async def direct(story: str, *, use_llm: bool = True, timeout: float = 40.0) -> 
                           "beats": len(spec.beats)})
             clean, notes = gate(spec)
             trace.append({"role": "gate", "notes": notes, "beats": len(clean.beats)})
-            if any(n["action"] == "refuse" for n in notes):
-                t1 = time.perf_counter()
-                ask = (f"Story: {story}\n\nYour spec: {spec.model_dump_json()}\n\nThe gate refused these beats:\n"
-                       f"{_gate_report(notes)}\n\nReturn a corrected spec whose beats can all hold together and still tell the story.")
+            if not any(n["action"] == "refuse" for n in notes):
+                return clean, trace
+            t1 = time.perf_counter()
+            ask = (f"Story: {story}\n\nYour spec: {spec.model_dump_json()}\n\nThe gate refused these beats:\n"
+                   f"{_gate_report(notes)}\n\nReturn a corrected spec whose beats can all hold together and still tell the story. "
+                   "Fix a refused beat only when the story asks for exactly that beat; otherwise drop it. Never add a beat "
+                   "the story does not ask for.")
+            try:
                 r2 = await asyncio.wait_for(agent.run(ask, options=opts), timeout)
                 trace.append({"role": "director", "model": llm.FAST, "ms": round((time.perf_counter() - t1) * 1000),
                               "repair": True, "beats": len(r2.value.beats)})
                 spec = r2.value
-            else:
+            except Exception as exc:                  # the repair failed: the gated first spec stands
+                trace.append({"role": "director", "repair": True, "error": f"{type(exc).__name__}: {str(exc)[:160]}",
+                              "ms": round((time.perf_counter() - t1) * 1000)})
                 return clean, trace
         except Exception as exc:                      # no login, no network, a malformed reply
             trace.append({"role": "director", "error": f"{type(exc).__name__}: {str(exc)[:160]}",
                           "ms": round((time.perf_counter() - t0) * 1000)})
             spec = None
+        finally:
+            if chat is not None:
+                with contextlib.suppress(Exception):
+                    await chat.client.close()
     if spec is None:
         spec = rules_director(story)
         trace.append({"role": "director", "model": "rules", "fallback": use_llm, "beats": len(spec.beats)})

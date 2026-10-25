@@ -161,6 +161,74 @@ def test_headline_is_built_from_typed_fields_only():
     assert S.describe(Beat(kind="shots_diff", at_least=2)) == "a shots gap of 2"
 
 
+class _FakeAgent:
+    """Stands in for agent_framework.Agent: replies from a script, one entry per run."""
+    script: list = []
+
+    def __init__(self, **kw):
+        pass
+
+    async def run(self, prompt, options=None):
+        step = _FakeAgent.script.pop(0)
+        if isinstance(step, Exception):
+            raise step
+        return type("R", (), {"value": step})()
+
+
+def _fake_model(monkeypatch, script):
+    import types
+
+    import agent_framework
+
+    from touchline_live.crew import llm
+    closed = []
+
+    async def close():
+        closed.append(True)
+    chat = types.SimpleNamespace(client=types.SimpleNamespace(close=close))
+    monkeypatch.setattr(agent_framework, "Agent", _FakeAgent)
+    monkeypatch.setattr(llm, "client", types.SimpleNamespace(__wrapped__=lambda model: chat))
+    _FakeAgent.script = list(script)
+    return closed
+
+
+def test_director_repairs_once_and_keeps_its_first_spec_when_the_repair_fails(monkeypatch):
+    import asyncio
+    first = ScenarioSpec(beats=[Beat(kind="winner", side="draw"), Beat(kind="shots_diff", at_least=3)])
+    closed = _fake_model(monkeypatch, [first, TimeoutError("slow")])
+    spec, trace = asyncio.run(S.direct("a wild draw"))
+    assert [b.kind for b in spec.beats] == ["winner"]                      # the gate's cut of the first spec
+    assert [t["role"] for t in trace] == ["director", "gate", "director"]
+    assert trace[2]["repair"] and "TimeoutError" in trace[2]["error"]
+    assert closed == [True]                                                # the client is closed in its own loop
+
+
+def test_director_repair_is_gated_again(monkeypatch):
+    import asyncio
+    first = ScenarioSpec(beats=[Beat(kind="first_goal")])
+    second = ScenarioSpec(beats=[Beat(kind="first_goal", side="away"), Beat(kind="winner", side="away")])
+    _fake_model(monkeypatch, [first, second])
+    spec, trace = asyncio.run(S.direct("the visitors strike first"))
+    assert [(b.kind, b.side) for b in spec.beats] == [("first_goal", "away"), ("winner", "away")]
+    assert [t["role"] for t in trace] == ["director", "gate", "director", "gate"]
+
+
+def test_director_falls_back_to_the_rules_when_the_model_fails(monkeypatch):
+    import asyncio
+    _fake_model(monkeypatch, [RuntimeError("no login")])
+    spec, trace = asyncio.run(S.direct("an underdog parks the bus and nicks it late"))
+    assert trace[0]["error"].startswith("RuntimeError") and trace[1]["model"] == "rules" and trace[1]["fallback"]
+    assert ("winner", "away") in {(b.kind, b.side) for b in spec.beats}
+
+
+def test_the_apps_example_stories_match_the_bench():
+    from pathlib import Path
+    js = (Path(__file__).resolve().parents[3] / "web" / "js" / "write.js").read_text(encoding="utf-8")
+    assert all(f'"{e}"' in js for e in S.EXAMPLES)
+    names = ("United", "City", "Rovers", "Athletic", "Albion", "Town", "Wanderers", "FC")
+    assert not any(n in e for e in S.EXAMPLES for n in names)                 # generic: no club names
+
+
 def test_rules_director_reads_common_stories():
     spec, _ = S.gate(S.rules_director("an underdog parks the bus and nicks it late"))
     assert spec.away.strength < spec.home.strength
