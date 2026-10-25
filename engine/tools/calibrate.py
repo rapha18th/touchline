@@ -62,6 +62,10 @@ assert set(BOUNDS) == set(sim.DIALS)
 # A dial added after a trial was recorded ran at the engine's behaviour before the dial existed.
 NEUTRAL = {"FINISH_LOGIT": 0.0, "BLOCK_SCALE": 1.0, "FOUL_RATE": 1.0, "CORNER_DEFLECT": 1.0}
 
+# The sensitivity screen (--probe): one bold step per dial, large enough to stand clear of the noise.
+PROBES = {"SHOT_RANGE": 26.0, "LOSS": 0.055, "SHOT_VALUE": 0.6, "FINISH_LOGIT": -0.4, "BLOCK_SCALE": 1.4,
+          "CORNER_DEFLECT": 1.6, "RESTART_PACE": 1.35, "RESIST_SHOOTING_RANGE": 0.2}
+
 Z_CAP = 2.0
 EPS = 1e-4
 
@@ -86,6 +90,10 @@ How to work:
   metric by two or more standard errors cannot be told apart from luck, and a trial accepted by a small step
   was probably lucky. Aim each out-of-band metric and each near-edge metric at the middle of its band, take
   steps large enough to get there, and offset in the same vector the side effects you expect.
+- sensitivity_screen, when present, holds one bold step per dial from a base trial over the same seeds: the
+  effect on every metric and the noise of that effect. Treat each effect as roughly linear in the step,
+  scale it to the step you want, add the effects of the dials you combine, and check the sum lands every
+  metric inside its band, near its middle. An effect smaller than its noise is unknown, not zero.
 - Make your proposals in a round differ from each other so they test different hypotheses, for example one
   careful step and one bolder step, or two different dials for the same goal.
 - Stay inside the bounds. List only the dials you change from your starting vector.
@@ -252,7 +260,7 @@ def brief(inc: dict, trials: list[dict], k: int) -> str:
     return json.dumps({"incumbent_trial": inc["trial"], "matches_per_trial": inc["assess"]["n"],
                        "incumbent_in_band": inc["assess"]["in_band"], "incumbent_distance": inc["assess"]["distance"],
                        "incumbent_margin": inc["assess"]["margin"], "realism": table, "dials": dials,
-                       "history": history,
+                       "history": history, "sensitivity_screen": sensitivity(trials),
                        "ask": f"Propose {k} new dial vectors for the next round."}, indent=0)
 
 
@@ -343,15 +351,84 @@ def write_summary(trace: Trace, args):
     return summary
 
 
-def record_trial(trace: Trace, rnd: int, tid: int, res: dict, inc: dict | None, hypothesis: str, kind="trial") -> dict:
+def record_trial(trace: Trace, rnd: int, tid: int, res: dict, inc: dict | None, hypothesis: str, kind="trial",
+                 probe: dict | None = None) -> dict:
     a = assess(res)
     rec = {"round": rnd, "trial": tid, "dials": res["dials"], "summary": res["summary"], "assess": a,
            "hypothesis": hypothesis, "wall_s": res.get("wall_s"), "kernel": res.get("kernel")}
+    if probe:
+        rec["probe"] = probe
     if inc is not None:
         rec["changed"] = changed(inc["dials"], res["dials"])
         ok, why = gate(rec, inc)
         rec["verdict"], rec["reason"] = ("accepted" if ok else "refused"), why
     return trace.log(kind, **rec)
+
+
+def play_round(trace: Trace, rnd: int, inc: dict, vecs: list[dict], hyps: list[str], args, log,
+               probes: list[dict] | None = None) -> None:
+    """Measure the vectors, put each through the gate, and promote the best accepted one."""
+    results = measure(vecs, args, log)
+    lost = [i for i, r in enumerate(results) if r is None]
+    if lost:
+        # A kernel lost to the network says nothing about the vector: measure it once more.
+        log(f"round {rnd}: {len(lost)} measurement(s) lost, measuring again")
+        for i, r in zip(lost, measure([vecs[i] for i in lost], args, log)):
+            results[i] = r
+    next_id = max(t["trial"] for t in trace.trials()) + 1
+    best = None
+    for i, (res, vec, hyp) in enumerate(zip(results, vecs, hyps)):
+        if res is None:
+            trace.log("refusal", round=rnd, dials=vec, hypothesis=hyp, reason="measurement failed")
+            continue
+        res["dials"] = vec
+        rec = record_trial(trace, rnd, next_id, res, inc, hyp, probe=probes[i] if probes else None)
+        next_id += 1
+        log(f"  trial {rec['trial']}: {rec['assess']['in_band']}/16, distance {rec['assess']['distance']:.3f}, "
+            f"margin {rec['assess']['margin']:.2f}  {rec['reason']}")
+        if rec["verdict"] == "accepted" and (best is None or better(rec, best)):
+            best = rec
+    if best is not None:
+        trace.log("incumbent", round=rnd, trial=best["trial"], reason=best["reason"])
+        log(f"round {rnd}: trial {best['trial']} is the new incumbent")
+    else:
+        trace.log("hold", round=rnd, trial=inc["trial"], reason="every proposal refused")
+        log(f"round {rnd}: every proposal refused; incumbent holds")
+
+
+def run_probes(trace: Trace, rnd: int, inc: dict, args, log) -> None:
+    """A sensitivity screen: one bold step per PROBES dial from the incumbent, measured on the same seeds.
+    Each probe still goes through the gate like any trial; its main use is the effect table in the brief."""
+    vecs, hyps, meta = [], [], []
+    for d, v in PROBES.items():
+        if abs(inc["dials"][d] - v) < 1e-9:
+            continue
+        vecs.append({**inc["dials"], d: v})
+        hyps.append(f"sensitivity probe: {d} {inc['dials'][d]} -> {v}")
+        meta.append({"dial": d, "from": inc["dials"][d], "to": v, "base": inc["trial"]})
+    trace.log("probe_plan", round=rnd, incumbent=inc["trial"], probes=meta)
+    log(f"round {rnd}: sensitivity screen, {len(vecs)} probes from trial {inc['trial']}")
+    play_round(trace, rnd, inc, vecs, hyps, args, log, probes=meta)
+
+
+def sensitivity(trials: list[dict]) -> list[dict]:
+    """Probe effects: probe mean minus its base trial's mean, with the noise of that difference."""
+    by_id = {t["trial"]: t for t in trials}
+    out = []
+    for t in trials:
+        p = t.get("probe")
+        if not p or p["base"] not in by_id:
+            continue
+        b = by_id[p["base"]]
+        nt, nb = max(t["assess"]["n"], 1), max(b["assess"]["n"], 1)
+        eff, noise = {}, {}
+        for m in realism.TARGETS:
+            st, sb = t["summary"][m], b["summary"][m]
+            eff[m] = round(st["mean"] - sb["mean"], 4)
+            noise[m] = round(math.sqrt(st["sd"] ** 2 / nt + sb["sd"] ** 2 / nb), 4)
+        out.append({"dial": p["dial"], "from": p["from"], "to": p["to"], "base_trial": p["base"],
+                    "probe_trial": t["trial"], "effect": eff, "noise_of_effect": noise})
+    return out
 
 
 def main():
@@ -367,6 +444,8 @@ def main():
     ap.add_argument("--baseline-from", default=None, help="kaggle_eval --out JSON holding the baseline result")
     ap.add_argument("--out", default=str(ROOT / "reports" / "calibration"))
     ap.add_argument("--label", default="calibrate")
+    ap.add_argument("--probe", action="store_true", help="screen the PROBES dials from the incumbent before proposing, "
+                    "once per trace")
     args = ap.parse_args()
     import kaggle_eval
     args.seed_list = kaggle_eval.parse_seeds(args.seeds)
@@ -397,6 +476,10 @@ def main():
             log("all sixteen in band with at least one standard error of margin each: done")
             break
         trials = trace.trials()
+        if args.probe and not any("probe" in t for t in trials):
+            run_probes(trace, rnd, inc, args, log)
+            write_summary(trace, args)
+            continue
         plan, meta = propose(inc, trials, args.k, args.model, log)
         trace.log("proposal", round=rnd, incumbent=inc["trial"], diagnosis=plan["diagnosis"],
                   proposals=plan["proposals"], **meta)
@@ -418,32 +501,7 @@ def main():
         if not vecs:
             log(f"round {rnd}: nothing new to measure")
             continue
-        results = measure(vecs, args, log)
-        lost = [i for i, r in enumerate(results) if r is None]
-        if lost:
-            # A kernel lost to the network says nothing about the vector: measure it once more.
-            log(f"round {rnd}: {len(lost)} measurement(s) lost, measuring again")
-            for i, r in zip(lost, measure([vecs[i] for i in lost], args, log)):
-                results[i] = r
-        next_id = max(t["trial"] for t in trace.trials()) + 1
-        best = None
-        for res, vec, hyp in zip(results, vecs, hyps):
-            if res is None:
-                trace.log("refusal", round=rnd, dials=vec, hypothesis=hyp, reason="measurement failed")
-                continue
-            res["dials"] = vec
-            rec = record_trial(trace, rnd, next_id, res, inc, hyp)
-            next_id += 1
-            log(f"  trial {rec['trial']}: {rec['assess']['in_band']}/16, distance {rec['assess']['distance']:.3f}, "
-                f"margin {rec['assess']['margin']:.2f}  {rec['reason']}")
-            if rec["verdict"] == "accepted" and (best is None or better(rec, best)):
-                best = rec
-        if best is not None:
-            trace.log("incumbent", round=rnd, trial=best["trial"], reason=best["reason"])
-            log(f"round {rnd}: trial {best['trial']} is the new incumbent")
-        else:
-            trace.log("hold", round=rnd, trial=inc["trial"], reason="every proposal refused")
-            log(f"round {rnd}: every proposal refused; incumbent holds")
+        play_round(trace, rnd, inc, vecs, hyps, args, log)
         write_summary(trace, args)
     s = write_summary(trace, args)
     log(f"incumbent trial {s['incumbent']['trial']}: {s['incumbent']['in_band']}/16, distance {s['incumbent']['distance']}")
