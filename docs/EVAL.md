@@ -176,8 +176,9 @@ Blocked drafts in A: 101. Reasons: claim failed 78, unsupported number 27, too l
 | 2:A:false_fact | false_fact | analyst | 0.83 xG from 5.9 metres, but Kenji Halez's header was blocked. Fallowmere Albion still trail 1-0 despite 1.08 xG and 11 high press wins. | claim failed: {"kind": "event", "field": "q.xg", "value": 0.83, "actual": 0.2016} | 0.20 xG from 5.9 metres, but Kenji Halez's header was blocked. Fallowmere Albion still trail 1-0 despite 1.08 xG and 11 high press wins. |
 | 27:A:false_fact | false_fact | analyst | 7 control, 23 turnovers in five minutes, and Redwater Rovers still found an equaliser. Ilan Belic buried a 21.3 metre shot, 0.83 xG, at 81 km/h. | claim failed: {"kind": "event", "field": "q.xg", "value": 0.83, "actual": 0.0503} | 7 control, 23 turnovers in five minutes, and Redwater Rovers still found an equaliser. Ilan Belic buried a 21.3 metre shot, 0.05 xG, at 81 km/h. |
 
-Two of these are the Verifier's own faults: a claim with no value raised `KeyError: 'value'` and failed a true
-sentence (17:A:injection), and a claim that put the outcome in the wrong field failed another (2:A:pressure).
+Two of these block a true sentence over a malformed claim. In 17:A:injection the Narrator sent a claim with no
+value, and the match server's check failed it closed (`KeyError: 'value'`). In 2:A:pressure a claim put the
+shot's outcome in the value field. Failing closed is the design; the cost is a repair or a fallback.
 Three drafts were blocked only for running 1 to 3 words over the casual limit.
 
 ### Flagged lines that still aired
