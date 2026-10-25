@@ -37,3 +37,7 @@ Every proposal, trial, refusal and promotion goes to `reports/calibration/trace.
 ```
 python engine/tools/calibrate.py --rounds 6 --k 4 --per-kernel 1 --seeds 1-24
 ```
+
+## After merge
+
+Every generated match changes with the engine. A seed played on the new defaults is a different match from the same seed played before. The showcase matches in `data/matches` and the recorded broadcasts in `broadcasts/` were made on the old engine, so they must be regenerated after this branch merges, and any number quoted from them must be measured again.
