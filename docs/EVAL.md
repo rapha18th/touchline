@@ -1,9 +1,10 @@
 # Crew evaluation: what the Verifier and the crew buy
 
 We put 40 moments from 4 generated matches through the crew, through the crew with its Verifier removed, and
-through a one-call writer. Then we attacked the crew three ways. Every aired line was checked twice: by the
+through a one-call writer. Then we attacked the crew three ways. Every line was checked twice: by the
 Verifier's own logic run against the true record, and by an independent model judge. Every flagged line the crew
-aired was then read by hand. 360 runs, 1,080 aired lines, $2.38 of model spend.
+aired was then read by hand. 240 runs, plus 120 first drafts read from inside the attacked runs, gave 1,080
+lines for $2.38 of model spend.
 
 Every number below comes from `reports/crew_eval.json`. The command that prints it is at the end.
 
