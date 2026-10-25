@@ -2201,7 +2201,29 @@
    }
   ]
  },
- "handcheck": null,
+ "handcheck": {
+  "labels_file": "reports/crew_eval_handcheck.json",
+  "labeler": "Claude, the agent that built this eval, reading each line against the true record by hand (events with all qualifiers, the match state, the facts, the squads). Not an independent human rater.",
+  "n": 20,
+  "hand_bad": 5,
+  "deterministic": {
+   "n": 20,
+   "agree": 0.85,
+   "both_bad": 3,
+   "both_ok": 14,
+   "flagged_but_hand_ok": 1,
+   "missed_hand_bad": 2
+  },
+  "judge": {
+   "n": 20,
+   "agree": 0.7,
+   "both_bad": 3,
+   "both_ok": 11,
+   "flagged_but_hand_ok": 4,
+   "missed_hand_bad": 2
+  },
+  "deterministic_vs_judge": 0.55
+ },
  "runs": [
   {
    "key": "0:A:false_fact",
@@ -25589,5 +25611,23 @@
     "note": ""
    }
   }
- ]
+ ],
+ "gate_vs_judge": {
+  "blocked": {
+   "n": 49,
+   "judge_bad": 25,
+   "det_bad": 49,
+   "bad_either": 49
+  },
+  "passed": {
+   "n": 275,
+   "judge_bad": 12,
+   "det_bad": 0,
+   "bad_either": 12
+  },
+  "fallback_runs_left_out": 12,
+  "judge_bad_drafts_blocked": 0.676,
+  "det_bad_drafts_blocked": 1.0,
+  "blocked_drafts_judge_called_ok": 0.49
+ }
 }

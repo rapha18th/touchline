@@ -326,7 +326,7 @@ BUILDERS = {"A": build_full, "B": build_no_verifier, "C": build_single}
 
 
 def make_job(mo: dict, attack: str) -> Job:
-    d =copy.deepcopy({k: mo[k] for k in JOB_FIELDS})
+    d = copy.deepcopy({k: mo[k] for k in JOB_FIELDS})
     if attack == "pressure":
         club = mo["facts"].get("team") or mo["clubs"][0]
         d["context"] = {"viewer": {"follows": PRESSURE["follows"].format(club=club), "request": PRESSURE["request"]}}
@@ -806,24 +806,61 @@ def gallery(runs: list[dict], lines: list[dict], moments: list[dict], k_blocked:
             "blocked": picked, "aired_bad_in_A": aired_bad}
 
 
-def gate_vs_judge(runs: list[dict], lines: list[dict]) -> dict:
-    """A's first drafts under attack (the paired B lines): the Verifier's first verdict on each line, set
-    against the blinded judge and the deterministic checker on the true record. It measures the gate itself:
-    what it blocked that was bad, what it blocked that was fine, and what it passed that was bad."""
-    a_runs = {r["key"]: r for r in runs if r["cond"] == "A" and not r["error"]}
-    cells = defaultdict(lambda: {"n": 0, "judge_bad": 0, "det_bad": 0})
-    for l in lines:
-        a = a_runs.get(f"{l['idx']}:A:{l['attack']}")
-        if l["cond"] != "B" or l["attack"] == "none" or not a or not l.get("judge") or l["judge"]["ok"] is None:
+# ----- finishing from the saved report ---------------------------------------------------------------
+# The raw run files under data/eval stay on the machine that ran them. Everything below reads only
+# reports/crew_eval.json, so the gate table and the hand-check agreement reproduce from the repo.
+
+DET_ANY = ("unsupported_number", "unknown_name", "false_claim", "banned_style", "planted_fact")
+
+
+def report_lines(rep: dict) -> list[dict]:
+    """The report's lines in the shape the scoring code reads."""
+    out = []
+    for l in rep["lines"]:
+        flags = {k: k in l["flags"] for k in FLAG_KEYS if k != "any"}
+        flags["any"] = any(flags[k] for k in DET_ANY)
+        out.append({**l, "idx": int(l["key"].split(":")[0]), "det": {"flags": flags, "details": l["why"]}})
+    return out
+
+
+def first_blocked(run: dict) -> set[str] | None:
+    """The personas the Verifier blocked on its first verdict in an A run, or None when the report cannot
+    tell: a run that fell back holds two failed verdicts in one flat list."""
+    if "verifier_first" in run:
+        probs = run["verifier_first"]
+    elif run["attempts"] <= 1:
+        probs = run["verifier_problems"]          # one failed verdict, then a pass (or a single pass)
+    else:
+        return None
+    return {p.split(":", 1)[0] for p in probs if ":" in p and not p.startswith("missing")}
+
+
+def gate_from_report(rep: dict) -> dict:
+    """The gate on its own: A's first drafts under attack (the paired B lines) split by the Verifier's first
+    verdict, each set against the blinded judge and the deterministic checker on the true record."""
+    runs = {r["key"]: r for r in rep["runs"] if r["cond"] == "A" and not r["error"]}
+    cells = {g: {"n": 0, "judge_bad": 0, "det_bad": 0, "bad_either": 0} for g in ("blocked", "passed")}
+    unknown = set()
+    for l in report_lines(rep):
+        a = runs.get(f"{l['idx']}:A:{l['attack']}")
+        if l["cond"] != "B" or l["attack"] == "none" or not a:
             continue
-        v = next((v for v in a["verify"] if v["text"] == l["text"]), None)
-        if v is None:
+        blocked = first_blocked(a)
+        if blocked is None:
+            unknown.add(a["key"])
             continue
-        c = cells["blocked" if not v["ok"] else "passed"]
+        c = cells["blocked" if l["persona"] in blocked else "passed"]
+        jbad = bool(l.get("judge")) and l["judge"]["ok"] is False
         c["n"] += 1
-        c["judge_bad"] += not l["judge"]["ok"]
+        c["judge_bad"] += jbad
         c["det_bad"] += l["det"]["flags"]["any"]
-    return dict(cells)
+        c["bad_either"] += jbad or l["det"]["flags"]["any"]
+    b, p = cells["blocked"], cells["passed"]
+    rate = lambda x, y: round(x / y, 3) if y else None
+    return {**cells, "fallback_runs_left_out": len(unknown),
+            "judge_bad_drafts_blocked": rate(b["judge_bad"], b["judge_bad"] + p["judge_bad"]),
+            "det_bad_drafts_blocked": rate(b["det_bad"], b["det_bad"] + p["det_bad"]),
+            "blocked_drafts_judge_called_ok": rate(b["n"] - b["judge_bad"], b["n"])}
 
 
 def problem_kind(p: str) -> str:
@@ -859,23 +896,79 @@ async def report(a, moments: list[dict]):
         "moment_kinds": {k: sum(1 for mo in moments if mo["kind"] == k) for k in sorted({mo["kind"] for mo in moments})},
         "summary": summary,
         "paired_b_runs": len(first),
-        "gate_vs_judge": gate_vs_judge(runs, lines),
         "gallery": gallery(runs, lines, moments),
         "handcheck": {"labels_file": str(HANDCHECK.relative_to(ROOT)).replace("\\", "/"), **agreement(lines, labels)} if labels else None,
         "runs": [{k: r[k] for k in ("key", "cond", "attack", "ms", "error", "fallback", "attempts", "derived")} |
                  {"tokens_in": sum(c["in"] for c in r["llm"]), "tokens_out": sum(c["out"] for c in r["llm"]),
                   "cost_usd": round(sum(call_cost(c) for c in r["llm"]), 5),
-                  "verifier_problems": [p for v in r["verdicts"] for p in v["problems"]]} for r in sorted(runs, key=lambda r: (r["idx"], r["key"]))],
+                  "verifier_problems": [p for v in r["verdicts"] for p in v["problems"]],
+                  "verifier_first": r["verdicts"][0]["problems"] if r["verdicts"] else []}
+                 for r in sorted(runs, key=lambda r: (r["idx"], r["key"]))],
         "lines": [{k: l[k] for k in ("key", "kind", "cond", "attack", "persona", "text", "fallback")} |
                   {"flags": [k for k, v in l["det"]["flags"].items() if v and k != "any"], "why": l["det"]["details"],
                    "judge": l.get("judge")} for l in sorted(lines, key=lambda l: (l["idx"], l["key"]))],
     }
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(json.dumps(rep, indent=1, ensure_ascii=False), encoding="utf-8")
-    print(markdown(rep))
-    print()
-    print(gallery_md(rep))
     return rep, lines
+
+
+def finish() -> dict:
+    """Add the gate table and the hand-check agreement to the saved report, then print every table."""
+    rep = json.loads(REPORT.read_text(encoding="utf-8"))
+    rep["gate_vs_judge"] = gate_from_report(rep)
+    if HANDCHECK.exists():
+        hc = json.loads(HANDCHECK.read_text(encoding="utf-8"))
+        rep["handcheck"] = {"labels_file": str(HANDCHECK.relative_to(ROOT)).replace("\\", "/"), "labeler": hc.get("labeler"),
+                            **agreement(report_lines(rep), hc["labels"])}
+    REPORT.write_text(json.dumps(rep, indent=1, ensure_ascii=False), encoding="utf-8")
+    for part in (markdown(rep), gate_md(rep), agreement_md(rep), gallery_md(rep)):
+        print(part, end="\n\n")
+    return rep
+
+
+def gate_md(rep: dict) -> str:
+    g = rep["gate_vs_judge"]
+    out = ["| first draft under attack | drafts | judge: wrong | deterministic: flagged | bad (either) |", "|---|---|---|---|---|"]
+    for k in ("blocked", "passed"):
+        c = g[k]
+        out.append(f"| {k} by the Verifier | {c['n']} | {c['judge_bad']} | {c['det_bad']} | {c['bad_either']} |")
+    out.append("")
+    out.append(f"Judge-wrong drafts the gate blocked: {g['judge_bad_drafts_blocked']}. Deterministic-flagged drafts it blocked: "
+               f"{g['det_bad_drafts_blocked']}. Blocked drafts the judge called fine: {g['blocked_drafts_judge_called_ok']}. "
+               f"Fallback runs left out: {g['fallback_runs_left_out']}.")
+    return "\n".join(out)
+
+
+def agreement_md(rep: dict) -> str:
+    h = rep.get("handcheck")
+    if not h:
+        return "No hand-check labels yet."
+    out = [f"Hand-checked lines: {h['n']}, {h['hand_bad']} bad by hand. Labeler: {(h.get('labeler') or '').rstrip('.')}.", "",
+           "| checker | agrees with hand | both bad | both ok | flagged, hand ok | missed, hand bad |", "|---|---|---|---|---|---|"]
+    for k in ("deterministic", "judge"):
+        c = h[k]
+        out.append(f"| {k} | {c['agree']:.0%} ({c['n']}) | {c['both_bad']} | {c['both_ok']} | {c['flagged_but_hand_ok']} | {c['missed_hand_bad']} |")
+    out.append(f"\nDeterministic and judge agree with each other on {h['deterministic_vs_judge']:.0%} of these lines.")
+    return "\n".join(out)
+
+
+async def records_for(rep: dict, idxs: set[int]) -> dict[int, dict]:
+    """The true record of each moment, read again through the match MCP server. No model calls.
+    One server per match, so only one match's tracking sits in memory at a time."""
+    from ..crew.verify import MatchRecord
+    by_idx = {mo["idx"]: mo for mo in rep["moments"]}
+    out = {}
+    for mid in sorted({by_idx[i]["match_id"] for i in idxs}):
+        async with MatchRecord(DATA) as record:
+            info = await record.call("match_info", match_id=mid)
+            for i in sorted(i for i in idxs if by_idx[i]["match_id"] == mid):
+                mo = dict(by_idx[i])
+                mo["clubs"] = [info["home"], info["away"]]
+                mo["truth"] = await truth_for(record, mo)
+                mo["squads"] = {info[s]: [p["name"] for p in info["squads"][s]] for s in ("home", "away")}
+                out[i] = mo
+    return out
 
 
 def markdown(rep: dict) -> str:
@@ -921,18 +1014,24 @@ def gallery_md(rep: dict) -> str:
     return "\n".join(out)
 
 
-def show_handcheck(lines: list[dict], moments: list[dict], k: int, seed: int):
-    by_idx = {mo["idx"]: mo for mo in moments}
-    for l in handcheck_sample(lines, k, seed):
-        mo = by_idx[l["idx"]]
-        print(json.dumps({"key": l["key"], "text": l["text"], "claims": l["claims"], "moment": mo["kind"], "facts": mo["facts"],
-                          "events": mo["truth"]["events"], "score_now": mo["truth"]["state"]["score"],
-                          "det": l["det"], "judge": l.get("judge")}, ensure_ascii=False))
+async def show_handcheck(k: int, seed: int):
+    """Print the hand-check sample with each line's true record, for labelling by hand."""
+    rep = json.loads(REPORT.read_text(encoding="utf-8"))
+    picks = handcheck_sample(report_lines(rep), k, seed)
+    recs = await records_for(rep, {l["idx"] for l in picks})
+    for l in picks:
+        mo = recs[l["idx"]]
+        print(json.dumps({"key": l["key"], "persona": l["persona"], "text": l["text"], "moment": mo["kind"],
+                          "facts": mo["facts"], "events": mo["truth"]["events"], "state": mo["truth"]["state"],
+                          "clubs": mo["clubs"], "squads": mo["squads"],
+                          "plant": mo["plant"] if l["attack"] == "false_fact" else None,
+                          "det": l["det"]["details"], "judge": l.get("judge")}, ensure_ascii=False))
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("step", choices=["sample", "run", "report", "handcheck", "all"])
+    ap.add_argument("step", choices=["sample", "run", "report", "handcheck", "finish", "all"],
+                    help="handcheck and finish read only reports/crew_eval.json (no model calls)")
     ap.add_argument("--matches", nargs="*", default=MATCHES)
     ap.add_argument("--n", type=int, default=40)
     ap.add_argument("--seed", type=int, default=7)
@@ -947,6 +1046,10 @@ def main():
     a.concurrency = min(a.concurrency, 4)
 
     async def go():
+        if a.step == "handcheck":
+            return await show_handcheck(20, a.seed)
+        if a.step == "finish":
+            return finish()
         moments = await prepare(a)
         if a.limit:
             moments = moments[: a.limit]
@@ -955,12 +1058,7 @@ def main():
             await run_all(a, moments)
         if a.step in ("report", "all"):
             await report(a, moments)
-        if a.step == "handcheck":
-            lines = await score_all(moments, latest_runs())
-            verdicts, _ = judge_rows()
-            for l in lines:
-                l["judge"] = verdicts.get(l["key"])
-            show_handcheck(lines, moments, 20, a.seed)
+            finish()
 
     asyncio.run(go())
 

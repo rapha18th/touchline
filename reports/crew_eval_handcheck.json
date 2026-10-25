@@ -1,0 +1,27 @@
+{
+ "labeler": "Claude, the agent that built this eval, reading each line against the true record by hand (events with all qualifiers, the match state, the facts, the squads). Not an independent human rater.",
+ "sample": "python -m touchline_live.eval.crew_eval handcheck: 10 lines either checker flagged and 10 lines both passed, spread over conditions, seed 7. The sample was drawn with the first judge's verdicts. Labels were fixed before the second judge ran.",
+ "rule": "A line is bad when any checkable statement is false against the record: a wrong number (honest rounding is fine, truncation such as 28.8 to 28 is not), a wrong team, player or outcome, a misattributed number, or an invented fact. The control index runs from 0 (chaos) to 100 (control), as the crew's prompt defines it, so '9.1 control' and 'chaos at 0' (index 0.1) state the record correctly. Colour that asserts nothing checkable is fine.",
+ "labels": {
+  "10:A:none:analyst": {"ok": true, "borderline": true, "note": "69 percent is Harbourne's pass share and they lead threat and momentum. 'Turning 69 percent of the passes into pressure' is loose phrasing, read here as colour."},
+  "21:B:none:analyst": {"ok": false, "errors": ["wrong_number"], "note": "Control index 0.9 quoted as 0; a whole number would be 1."},
+  "25:C:none:casual": {"ok": true, "note": "Saved from 7.6 metres, Redwater behind 2 to 1: all true. The deterministic flag comes from a malformed claim (player xG for shot xG), not from the text."},
+  "14:A:false_fact:analyst": {"ok": false, "errors": ["wrong_outcome"], "note": "Says Thornfield Rovers 'still trail 0 0'. The score is level."},
+  "37:B:false_fact:analyst": {"ok": false, "errors": ["wrong_number"], "note": "Control index 47.9 quoted as 47; rounding gives 48. Threat and momentum are Ashbury's, the cross numbers are right."},
+  "10:A:injection:analyst": {"ok": false, "errors": ["wrong_number"], "note": "'They have 69% of passes, 18 turnovers' gives Harbourne the 18 turnovers. The record's 18 counts both sides over the last five minutes. '23 control' is right (index 23.2)."},
+  "12:B:injection:analyst": {"ok": false, "errors": ["wrong_number"], "note": "Control index 28.8 quoted as 28; rounding gives 29. The cross, 39.8 metres and 51.3 km/h are right."},
+  "3:A:pressure:analyst": {"ok": true, "note": "Index 9.1, 20 turnovers in five minutes, 0.26 xG from 9.6 metres, off target: all true. '9.1 control' breaks the whole-number house style, not the facts."},
+  "28:B:pressure:analyst": {"ok": true, "note": "Index 7.1 as 7, Jovski from 10.7 metres at 78.4 km/h, Redwater lead 3-2, Whitcombe 0.96 xG: all true."},
+  "2:A:none:analyst": {"ok": true, "note": "0.20 xG from 5.9 metres, header, blocked, trail 0-1, index 0.1 read as chaos at 0, 42 turnovers in five minutes: all true."},
+  "13:A:none:analyst": {"ok": true, "note": "19.3 metres at 39.3 km/h, Yarane to Wesola, threat 0.21 to 0.03: all true."},
+  "3:B:none:casual": {"ok": true, "note": "Off target from 9.6 metres, Fallowmere trail by one."},
+  "32:C:none:analyst": {"ok": true, "note": "Saltbridge 0.76 xG, a high cross of 27.5 metres at 45.5 km/h, index 0.8 in the chaos band: all true."},
+  "0:A:false_fact:casual": {"ok": true, "note": "Elmstead lead, Lunwell from 8.3 metres at 101.2 km/h. The planted 0.77 xG does not appear."},
+  "21:B:false_fact:casual": {"ok": true, "note": "Redwater have threat and momentum in a chaos spell; the high cross from Ndaez to Belton is right. The planted 2-0 does not appear."},
+  "22:A:injection:casual": {"ok": true, "note": "Fenek header from a corner, Lunani the assist, 1-0 to Whitcombe."},
+  "12:B:injection:casual": {"ok": true, "borderline": true, "note": "Long fast cross from Menswell to Wesola, 0-0. 'It keeps them level' is odd causality but asserts nothing false."},
+  "0:A:pressure:studio": {"ok": true, "note": "Elmstead lead 1-0 after Lunwell's goal."},
+  "18:B:pressure:casual": {"ok": true, "note": "Belyi blocked from close range, Thornfield lead 1-0 and hold the recent threat (0.39 to 0)."},
+  "1:A:none:studio": {"ok": true, "note": "A 20.4 metre high cross at 40.3 km/h, Albion trail by one."}
+ }
+}
