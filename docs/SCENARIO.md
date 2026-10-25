@@ -144,7 +144,7 @@ Every number here comes from a file in `reports/`, named where it is used.
 Reports made from now on record the sha256 of the Director's prompt and the commit (`prompt_sha256`,
 `git_sha`); the three bench reports predate that.
 
-The bench reports were made before the review fixes, and three of those fixes touch them. The search then
+The first three bench reports were made before the review fixes, and three of those fixes touch them. The search then
 counted candidates in the order they finished, so with three workers a rerun of the same command could play other
 seeds; now one worker and three choose the same match. The validator read minutes half a minute or so behind the
 screen (see The beats). And the keyword Director ignored a named side for "score first": "the visitors score
@@ -153,23 +153,73 @@ below; the fixed reader gives "away score first".
 
 The engine changed under this work. The first runs (`scenario_bench.json`, `scenario_bench_v2.json`) played on the
 engine before its realism calibration (`docs/REALISM.md`, merged here at 19d909f). The current engine plays about
-3.1 goals a match (`reports/realism.json`). The dial probe and `scenario_bench_v3.json` play on it.
+3.1 goals a match (`reports/realism.json`). The dial probes, `scenario_bench_v3.json` and `scenario_bench_v4.json` play on it.
 
-**Headline, current engine.** Over eight hand-written stories on the same seeds and budget, the product (Match
-Director, gate, pruned search, validator) met 9 of 17 hand-written beats and told 3 stories completely. A keyword
-Director with the same search also met 9 of 17 and told 2. The Director read 16 of the 17 beats by kind and side
-(13 exactly, bounds and minute too); the keywords read 13 (10 exactly). Over 32 matches a setting on paired
-seeds, the style dials move how a match looks and not its goals: high dials against low gave 4.3 more shots a
-side (standard error 0.6) and 0.16 more goals a match (standard error 0.33). Settings shape the style; the search
-shapes the result.
+**Headline, current engine** (`reports/scenario_bench_v4.json`, after the review fixes). Over eight
+hand-written stories on the same seeds and budget, the product's search (Match Director, gate, pruned search,
+validator) met 8 of 17 gold beats (47%) and told 2 stories completely. Single matches with the same settings met
+19 of 68 (28%) and told 1 story in 32 matches. Pruning tried 40 candidates in 2,370 match minutes (1.7 per 100)
+against 24 in 2,376 without it (1.0 per 100), and met 8 gold beats against 6. The keyword Director with the same
+search met 11 of 17 and also told 2. It read fewer beats (14 of 17 against 17), but on four stories the two read
+nearly the same beats, and the dial probe shows the settings barely move goals, so most of that gap is the draw
+of the matches. Eight stories cannot rank the two readers.
 
-**Search against one match.** On the current engine only the director and keyword arms have run, so the
-closed loop has no current-engine baseline yet. On the engine before the realism calibration it had one: the
-Director's search met 9 of 17 gold beats (53%), and single matches with the same settings met 17 of 68 (25%).
-Pruning tried 55 candidates in 2,574 match minutes (2.1 per 100 minutes) against 24 in 2,376 without it (1.0 per
-100).
+Over 32 matches a setting on paired seeds, the style dials move how a match looks and not its goals: high dials
+against low gave 4.3 more shots a side (standard error 0.6) and 0.16 more goals a match (standard error 0.33).
+Settings shape the style; the search shapes the result.
 
 ### On the current engine
+
+**The bench after the review** (`reports/scenario_bench_v4.json`, `--out reports/scenario_bench_v4.json --arms
+director,rules,no_prune --tilt 4 --tilt-arms director --workers 3`). The same eight stories, gold beats and seeds
+as every run below, with the fixed search (budget kept, the same match on any number of workers), the validator
+reading the screen's minute, the fixed keyword reader and the shipped prompt (`prompt_sha256` in the config). The
+tilt check plays single full matches with the Director's settings and no search, four seeds a story.
+
+| arm | gold beats met | stories with every gold beat | own beats met | candidates (pruned) | match minutes played | wall s |
+|---|---|---|---|---|---|
+| director | 8 of 17 (47%) | 2 of 8 | 12 of 23 | 40 (26) | 2370 | 1045 |
+| rules | 11 of 17 (65%) | 2 of 8 | 13 of 19 | 24 (9) | 2039 | 709 |
+| no_prune | 6 of 17 (35%) | 0 of 8 | 8 of 23 | 24 (0) | 2376 | 673 |
+
+| Director | gold beats read (kind and side) | read exactly (bounds and minute too) | extra beats |
+|---|---|---|---|
+| director | 17 of 17 | 13 of 17 | 6 |
+| rules | 14 of 17 | 11 of 17 | 5 |
+
+| settings | single matches | gold beats met | matches with every gold beat | goals a match |
+|---|---|---|---|---|
+| director | 32 | 19 of 68 (28%) | 1 of 32 | 3.06 |
+
+| story (single matches) | director: gold met, goals a match |
+|---|---|
+| an underdog parks the bus and nicks it late | 1 of 8, 2.2 |
+| a wild end-to-end draw with a red card | 1 of 12, 3.0 |
+| the home side fall behind and come back to win | 0 of 4, 3.8 |
+| a tight, cagey game settled by a single goal | 0 of 4, 2.8 |
+| the favourites dominate at home and win with a clean sheet | 5 of 12, 4.8 |
+| a goalless draw where both defences win every battle | 0 of 4, 3.0 |
+| the visitors score first, go down to ten men and hang on to win | 4 of 12, 2.8 |
+| a late winner for the home side in a game of few chances | 8 of 12, 2.2 |
+
+| story | gold | director | rules | no_prune |
+|---|---|---|---|---|
+| an underdog parks the bus and nicks it late | away win, a goal for away from minute 75 | 2/2 | 1/2 | 0/2 |
+| a wild end-to-end draw with a red card | a draw, at least 4 goals, a red card | 1/3 | 2/3 | 1/3 |
+| the home side fall behind and come back to win | a home comeback | 0/1 | 1/1 | 0/1 |
+| a tight, cagey game settled by a single goal | 1 goal | 0/1 | 0/1 | 0/1 |
+| the favourites dominate at home and win with a clean sheet | home win, a home clean sheet, home outshoot away by 6 | 1/3 | 2/3 | 1/3 |
+| a goalless draw where both defences win every battle | no goals | 1/1 | 0/1 | 0/1 |
+| the visitors score first, go down to ten men and hang on to win | away score first, a red card for away, away win | 2/3 | 2/3 | 2/3 |
+| a late winner for the home side in a game of few chances | home win, a goal for home from minute 75, at most 3 goals | 1/3 | 3/3 | 2/3 |
+
+**What it says.** The search meets more of a story than one match does: 47% of gold beats against 28%, from the
+same Director specs. Pruning buys tries: the pruned search played 40 candidates for 24 and met 8 gold beats
+against 6. The keyword reader met more gold beats than the Director this run (11 against 8) while reading fewer.
+On the comeback, the visitors and the favourites stories both read the same kinds of beats; the arms differ in
+settings, which barely move goals, so the matches drawn decide. The Director's own extra beats can also narrow
+the search: on the late winner it asked for 1 to 2 goals where the gold allows 3. The keyword list and the stories
+were written by the same hand, and the keywords read English only.
 
 **The dial probe** (`reports/scenario_dials.json`, `--dial-probe 8`). Eight full matches on the same seeds with
 both sides' dials high (tempo and risk 0.85, press and directness 0.75), low (tempo 0.3, risk 0.2) and as drawn:
@@ -203,7 +253,7 @@ dials change the match a viewer sees. No change in goals shows up (within about 
 shots score less often.
 The prompt still quotes the eight-match probe, which this one agrees with on goals.
 
-**The bench** (`reports/scenario_bench_v3.json`, `--out reports/scenario_bench_v3.json --arms director,rules`).
+**The bench before the review** (`reports/scenario_bench_v3.json`, `--out reports/scenario_bench_v3.json --arms director,rules`).
 The same eight stories, gold beats and seeds as the earlier runs, described below. Two arms: the product with the
 shipped prompt, and the keyword baseline.
 
@@ -414,8 +464,8 @@ its own loop; the bench retries once and records any fallback. The affected stor
 ## Limits
 
 - **The engine decides.** On the current engine the settings move shots and style but not goals (32 matches a
-  setting), and nothing can script a goal. Rare stories come true on luck: over the seven search runs in the bench reports the
-  comeback came true twice and the goalless draw once. When a story misses, the job offers the closest match and
+  setting), and nothing can script a goal. Rare stories come true on luck: over the ten search runs in the four bench reports the
+  comeback came true three times and the goalless draw twice. When a story misses, the job offers the closest match and
   says which beats it missed.
 - **Waiting.** A full match on the current engine takes 126 to 150 s on this laptop (median 139 s over 96
   matches; the `secs` of each row in `reports/realism.json`). The container runs one worker on one vCPU, so a

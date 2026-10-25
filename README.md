@@ -25,7 +25,7 @@ command that writes it.
 | Fan app: 3D pitch, personas, player focus, one metric, four languages, voice | working |
 | Broadcast overlay page for a browser source | working |
 | Azure Container Apps with a managed identity, one replica | scripted: `infra/deploy.sh`, CI and CD on demand ([DEPLOY](docs/DEPLOY.md)) |
-| Write the match: a story in, a match out | measured on the current engine: 9 of 17 hand-written beats met, the same as a keyword baseline; the Director reads 16 of 17 ([SCENARIO](docs/SCENARIO.md)) |
+| Write the match: a story in, a match out | measured on the current engine: the search meets 8 of 17 hand-written beats where single matches meet 19 of 68; a keyword baseline meets 11 of 17 ([SCENARIO](docs/SCENARIO.md)) |
 | Auto-eventing from the rendered feed | measured on 20 test clips filmed after the code froze: 40 of 50 passes found and 40 of 43 right, ball speed off by 3.3 km/h on average ([VISION](docs/VISION.md)) |
 
 ## Documentation
@@ -109,11 +109,11 @@ hold together, and the Director repairs once. Candidate matches play in a proces
 out stops a candidate, so the same budget tries more seeds. A validator checks every beat against the event log
 and cites the events. The best match joins the list, ready to watch or to go live with the crew.
 
-- On the current engine, over eight stories, the product met 9 of 17 hand-written beats and told 3 stories
-  completely; a keyword Director with the same search met 9 and told 2 (`reports/scenario_bench_v3.json`).
-- On the engine before the realism calibration, the search met 9 of 17 gold beats while single matches with
-  the same settings met 17 of 68, and pruning tried 55 candidates in 2,574 match minutes against 24 in 2,376
-  (`reports/scenario_bench.json`).
+- Over eight hand-written stories on the current engine, the search met 8 of 17 beats (47%) where single
+  matches with the same settings met 19 of 68 (28%). Pruning tried 40 candidates in 2,370 match minutes against
+  24 in 2,376 without it, and met 8 beats against 6 (`reports/scenario_bench_v4.json`).
+- A keyword Director with the same search met 11 of 17. It reads fewer beats (14 of 17 against 17); eight
+  stories cannot rank the two readers.
 - The Director read the app's four examples in Spanish, French and Portuguese with no fallback in 60 calls
   (`reports/scenario_director.json`).
 - The style dials shape how a match looks and not its goals: over 32 matches a setting, high dials against
