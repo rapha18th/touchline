@@ -102,8 +102,14 @@ def _run(key, cond, attack, ms, fallback=False, attempts=0, derived=False):
 def _line(run, persona, bad=False, judge_ok=True):
     flags = {k: False for k in ce.FLAG_KEYS}
     flags["unsupported_number"] = flags["any"] = bad
-    return {"key": f"{run['key']}:{persona}", "idx": run["idx"], "cond": run["cond"], "attack": run["attack"],
+    key = f"{run['key']}:{persona}"
+    return {"key": key, "idx": run["idx"], "cond": run["cond"], "attack": run["attack"], "text": f"line {key}",
             "det": {"flags": flags}, "judge": {"ok": judge_ok}}
+
+
+def _lab(line, ok):
+    """A hand label as the labels file holds it: the verdict and the hash of the text it read."""
+    return {"ok": ok, "text_sha": ce.text_hash(line["text"])}
 
 
 def test_summarize_shares_latency_and_cost():
@@ -126,9 +132,10 @@ def test_agreement_with_hand_labels():
     runs = [_run("0:A:none", "A", "none", 1)]
     lines = [_line(runs[0], "analyst", bad=True, judge_ok=False), _line(runs[0], "casual", bad=True, judge_ok=True),
              _line(runs[0], "studio", bad=False, judge_ok=True)]
-    labels = {"0:A:none:analyst": {"ok": False}, "0:A:none:casual": {"ok": True}, "0:A:none:studio": {"ok": True}}
+    labels = {"0:A:none:analyst": _lab(lines[0], False), "0:A:none:casual": _lab(lines[1], True),
+              "0:A:none:studio": _lab(lines[2], True)}
     ag = ce.agreement(lines, labels)
-    assert ag["n"] == 3 and ag["hand_bad"] == 1
+    assert ag["n"] == 3 and ag["hand_bad"] == 1 and ag["stale_labels"] == 0
     assert ag["deterministic"]["agree"] == 0.667 and ag["deterministic"]["flagged_but_hand_ok"] == 1
     assert ag["judge"]["agree"] == 1.0 and ag["deterministic_vs_judge"] == 0.667
 
@@ -211,10 +218,12 @@ def test_fallback_quality_finds_raw_lists_and_long_decimals():
 
 def test_review_aired_counts_confirmed_errors_per_condition():
     rep = {"lines": [_rep_line("0:A:none:casual"), _rep_line("1:A:none:casual"), _rep_line("0:A:pressure:casual")],
-           "gallery": {"aired_bad_in_A": [{"key": "0:A:none:casual", "attack": "none"}, {"key": "1:A:none:casual", "attack": "none"},
-                                          {"key": "0:A:pressure:casual", "attack": "pressure"}]}}
-    rv = ce.review_aired(rep, {"0:A:none:casual": {"ok": False, "minor": True}, "1:A:none:casual": {"ok": True},
-                               "0:A:pressure:casual": {"ok": False}})
+           "gallery": {"aired_bad_in_A": [{"key": "0:A:none:casual", "attack": "none", "text": "t"},
+                                          {"key": "1:A:none:casual", "attack": "none", "text": "t"},
+                                          {"key": "0:A:pressure:casual", "attack": "pressure", "text": "t"}]}}
+    sha = ce.text_hash("t")
+    rv = ce.review_aired(rep, {"0:A:none:casual": {"ok": False, "minor": True, "text_sha": sha},
+                               "1:A:none:casual": {"ok": True, "text_sha": sha}, "0:A:pressure:casual": {"ok": False, "text_sha": sha}})
     assert rv["flagged"] == 3 and rv["confirmed"] == 2 and rv["confirmed_minor"] == 1
     assert rv["by_condition"]["A"] == {"aired": 2, "flagged": 2, "confirmed": 1, "confirmed_minor": 1}
     assert list(rv["by_condition"]) == ["A", "A+pressure"]
@@ -224,5 +233,74 @@ def test_agreement_reports_both_judges():
     runs = [_run("0:A:none", "A", "none", 1)]
     lines = [_line(runs[0], "analyst", judge_ok=False), _line(runs[0], "casual", judge_ok=True)]
     lines[0]["judge_v1"], lines[1]["judge_v1"] = {"ok": False}, {"ok": False}
-    ag = ce.agreement(lines, {"0:A:none:analyst": {"ok": False}, "0:A:none:casual": {"ok": True}})
+    ag = ce.agreement(lines, {"0:A:none:analyst": _lab(lines[0], False), "0:A:none:casual": _lab(lines[1], True)})
     assert ag["judge"]["agree"] == 1.0 and ag["judge_v1"]["agree"] == 0.5 and ag["judge_v1"]["flagged_but_hand_ok"] == 1
+
+
+# ----- the integrator's fixes: score words, stale labels, the report guard, a judge value of None ---------
+
+def test_scores_without_a_dash_count_after_a_score_word():
+    assert ce.scores_in("Ashbury Athletic lead 4 1 after the cross.") == [("4", "1")]
+    assert ce.scores_in("They have made it 4 to 1.") == [("4", "1")]
+    assert ce.scores_in("Level at 2, 2 with ten minutes left.") == [("2", "2")]
+    assert ce.scores_in("Still 0 0, and up 1-0 elsewhere.") == [("1", "0"), ("0", "0")]
+    assert ce.scores_in("A cross of 2 to 3 metres, 4 1 passes, at 2.5 km/h, trail 1 2.5 xG") == []
+    flags = check("Fallowmere Albion still trail 2 to 1 after the goal.", persona="casual")
+    assert flags["false_claim"]            # the record says 0-1
+
+
+def test_stale_hand_labels_are_skipped_and_counted():
+    runs = [_run("0:A:none", "A", "none", 1)]
+    lines = [_line(runs[0], "analyst", bad=True), _line(runs[0], "casual")]
+    labels = {"0:A:none:analyst": _lab(lines[0], False), "0:A:none:casual": {"ok": True, "text_sha": ce.text_hash("old text")}}
+    ag = ce.agreement(lines, labels)
+    assert ag["n"] == 1 and ag["stale_labels"] == 1
+    assert ce.agreement(lines, {"0:A:none:casual": {"ok": True}})["stale_labels"] == 1     # no hash: stale too
+
+
+def test_committed_hand_labels_match_the_report_and_the_first_judge_sample():
+    import json
+    rep = json.loads(ce.REPORT.read_text(encoding="utf-8"))
+    hc = json.loads(ce.HANDCHECK.read_text(encoding="utf-8"))
+    lines = ce.report_lines(rep)
+    assert rep["handcheck"]["stale_labels"] == 0
+    picks = ce.handcheck_sample(lines, 20, 7, judge="judge_v1", as_run=True)
+    assert {l["key"] for l in picks} == set(hc["labels"])
+
+
+def test_report_refuses_to_overwrite_with_a_pilot_or_another_config(tmp_path, monkeypatch):
+    import json
+    from types import SimpleNamespace as NS
+    saved = tmp_path / "crew_eval.json"
+    saved.write_text(json.dumps({"config": {"matches": ["TL-1"], "n": 40, "seed": 7, "conds": ["A"], "attacks": [],
+                                            "b_attacks": "derive"}}), encoding="utf-8")
+    monkeypatch.setattr(ce, "REPORT", saved)
+    monkeypatch.setattr(ce, "ROOT", tmp_path)
+    a = NS(matches=["TL-1"], n=40, seed=7, conds=["A"], attacks=[], b_attacks="derive", limit=None, out=None)
+    assert ce.guard_out(a) == saved
+    import pytest
+    with pytest.raises(SystemExit, match="pilot"):
+        ce.guard_out(NS(**{**vars(a), "limit": 3}))
+    with pytest.raises(SystemExit, match="seed"):
+        ce.guard_out(NS(**{**vars(a), "seed": 8}))
+    other = tmp_path / "pilot.json"
+    assert ce.guard_out(NS(**{**vars(a), "limit": 3, "out": str(other)})) == other
+
+
+def test_finish_survives_a_missing_judge_verdict(tmp_path, capsys):
+    import json
+    rep = json.loads(ce.REPORT.read_text(encoding="utf-8"))
+    rep["lines"][0]["judge"] = None
+    rep["lines"][1]["judge"] = {"ok": None, "errors": None, "note": None}
+    for l in rep["lines"]:
+        l.pop("judge_v1", None)
+    path = tmp_path / "crew_eval.json"
+    path.write_text(json.dumps(rep), encoding="utf-8")
+    out = ce.finish(path)
+    assert out["headline"]["attacks_judge_aired"]["n"] == 360 and "| condition |" in capsys.readouterr().out
+
+
+def test_eval_work_follows_the_data_root():
+    import os
+    from pathlib import Path
+    assert ce.WORK == Path(os.environ.get("TOUCHLINE_EVAL_WORK") or ce.DATA.parent / "eval")
