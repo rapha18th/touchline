@@ -8,18 +8,20 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
 import time
 from collections import Counter
 from pathlib import Path
 
-from . import feed
+from . import feed, telemetry
 from .crew.models import Job
 from .crew.verify import MatchRecord
-from .crew.workflow import RECAP_KINDS, build, template
+from .crew.workflow import RECAP_KINDS, run_job, template
 from .match_io import load
 from .state import LiveState, Moment
 
 ROOT = Path(__file__).resolve().parents[3]
+DATA = Path(os.environ.get("TOUCHLINE_DATA", ROOT / "data" / "matches"))
 
 # Which moments earn words, and how often.
 ALWAYS = {"goal", "red_card", "half_time", "full_time"}
@@ -57,7 +59,7 @@ def job_for(mo: Moment, st: LiveState, langs: list[str], viewer: dict | None) ->
 
 async def run(match_id: str, *, speed: float, langs: list[str], until: float | None, out: Path,
               concurrency: int = 3, viewer: dict | None = None) -> dict:
-    m = load(ROOT / "data" / "matches" / match_id)
+    m = load(DATA / match_id)
     st = LiveState(m)
     producer = Producer()
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -67,13 +69,12 @@ async def run(match_id: str, *, speed: float, langs: list[str], until: float | N
     sem = asyncio.Semaphore(concurrency)
     t0 = time.perf_counter()
 
-    async with MatchRecord(ROOT / "data" / "matches") as record:
+    async with MatchRecord(DATA) as record:
         async def crew(job: Job):
             async with sem:
                 a = time.perf_counter()
                 try:
-                    wf = build(record, write)
-                    res = await wf.run(job)
+                    res = await run_job(record, write, job)
                     outs = res.get_outputs()
                     results.append({"kind": job.kind, "match_s": job.match_s, "ms": round((time.perf_counter() - a) * 1000),
                                     "fallback": job.fallback, "attempts": job.attempts, "trace": job.trace,
@@ -121,6 +122,7 @@ def main():
     ap.add_argument("--out", default=None)
     ap.add_argument("--concurrency", type=int, default=3)
     a = ap.parse_args()
+    telemetry.setup("touchline-live")
     out = Path(a.out) if a.out else ROOT / "data" / "runs" / f"{a.match_id}.cues.jsonl"
     rep = asyncio.run(run(a.match_id, speed=a.speed, langs=a.langs, until=a.until, out=out, concurrency=a.concurrency))
     (out.with_suffix(".report.json")).write_text(json.dumps(rep, indent=1, ensure_ascii=False), encoding="utf-8")

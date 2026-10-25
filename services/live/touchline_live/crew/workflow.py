@@ -19,7 +19,9 @@ import time
 from typing import Never
 
 from agent_framework import Agent, Case, Default, Executor, WorkflowBuilder, WorkflowContext, handler
+from opentelemetry import trace
 
+from .. import telemetry
 from . import llm, prompts
 from .models import Insight, Job, Lines, PersonaLine, Recap, Translations
 from .verify import NUM, MatchRecord, verify_text
@@ -36,6 +38,30 @@ def _mark(job: Job, role: str, t0: float, **extra):
     job.trace.append({"role": role, "ms": round((time.perf_counter() - t0) * 1000), **extra})
 
 
+class Logged:
+    """The match record as one role sees it: every MCP call is timed and noted, so the Crew room can show
+    which tool a role called, with what, and how long the record took to answer."""
+
+    def __init__(self, record: MatchRecord):
+        self.record = record
+        self.log: list[dict] = []
+
+    async def call(self, tool: str, **args):
+        t0 = time.perf_counter()
+        note = {"tool": tool}
+        if "ids" in args:
+            note["ids"] = list(args["ids"])
+        if "claims" in args:
+            note["claims"] = len(args["claims"])
+        if "match_s" in args:
+            note["match_s"] = args["match_s"]
+        try:
+            return await self.record.call(tool, **args)
+        finally:
+            note["ms"] = round((time.perf_counter() - t0) * 1000, 1)
+            self.log.append(note)
+
+
 class Producer(Executor):
     """Gathers the record for the moment through MCP, then routes it."""
 
@@ -46,15 +72,16 @@ class Producer(Executor):
     @handler
     async def run(self, job: Job, ctx: WorkflowContext[Job]) -> None:
         t0 = time.perf_counter()
-        events = await self.record.call("get_events", match_id=job.match_id, ids=job.sources[:6]) if job.sources else []
-        state = await self.record.call("state_at", match_id=job.match_id, match_s=job.match_s)
+        rec = Logged(self.record)
+        events = await rec.call("get_events", match_id=job.match_id, ids=job.sources[:6]) if job.sources else []
+        state = await rec.call("state_at", match_id=job.match_id, match_s=job.match_s)
         slim = lambda e: {k: e.get(k) for k in ("id", "clock", "type", "outcome", "player", "player_name", "team", "team_name", "q", "score")}
         job.context = {"events": [slim(e) for e in events or []],
                        "state": {"score": state["score"], "clock": state["clock"], "explain": state["explain"],
                                  "teams": {s: {k: state["teams"][s][k] for k in ("goals", "shots", "sot", "xg", "passes", "complete", "corners")}
                                            for s in ("home", "away")}},
                        "home": job.clubs[0], "away": job.clubs[1], **job.context}
-        _mark(job, "producer", t0, mcp_calls=2)
+        _mark(job, "producer", t0, mcp_calls=len(rec.log), mcp=rec.log)
         await ctx.send_message(job)
 
 
@@ -129,14 +156,23 @@ class Verifier(Executor):
             items = [(l.persona, l.text, l.claims, limits.get(l.persona, 36)) for l in job.lines]
             missing = set(job.personas) - {l.persona for l in job.lines}
             problems += [f"missing a line for persona {p}" for p in missing]
+        rec = Logged(self.record)
         results = await asyncio.gather(*[
-            verify_text(self.record, job.match_id, job.match_s, text, claims, facts, job.roster, job.clubs, max_words=mw)
+            verify_text(rec, job.match_id, job.match_s, text, claims, facts, job.roster, job.clubs, max_words=mw)
             for _, text, claims, mw in items])
         for (persona, _, _, _), res in zip(items, results):
             problems += [f"{persona}: {p}" for p in res["problems"]]
         ok = not problems
-        job.verdicts.append({"ok": ok, "problems": problems, "claims_checked": sum(r["claims_checked"] for r in results)})
-        _mark(job, "verifier", t0, ok=ok, problems=len(problems))
+        verdict = {"ok": ok, "problems": problems, "claims_checked": sum(r["claims_checked"] for r in results)}
+        if not ok:
+            # Keep what was refused: the Crew room shows the draft next to the reasons it failed.
+            verdict["drafts"] = [{"persona": p, "text": t} for p, t, _, _ in items]
+        job.verdicts.append(verdict)
+        _mark(job, "verifier", t0, ok=ok, problems=len(problems), mcp=rec.log)
+        span = trace.get_current_span()
+        span.set_attribute("touchline.verdict.ok", ok)
+        span.set_attribute("touchline.verdict.claims_checked", verdict["claims_checked"])
+        span.add_event("touchline.verdict", {"ok": ok, "attempt": job.attempts, "problems": problems[:10]})
         if not ok:
             job.attempts += 1
         await ctx.send_message(job)
@@ -227,6 +263,7 @@ class Director(Executor):
 
     @handler
     async def run(self, job: Job, ctx: WorkflowContext[Never, dict]) -> None:
+        t0 = time.perf_counter()
         cues = []
         base = {"schema": "touchline.cue/1", "match_id": job.match_id, "period": job.period, "match_s": job.match_s,
                 "frame": job.frame, "verified": not job.fallback or True, "anchor": None,
@@ -253,11 +290,31 @@ class Director(Executor):
                              "payload": {"text": l.text, "persona": l.persona, "moment": job.kind,
                                          "translations": job.translations.get(l.persona, {}), "fallback": job.fallback},
                              "sources": sorted(set(l.sources) | set(job.sources)), "author": "crew"})
+        _mark(job, "director", t0, cues=len(cues))
+        crew = {"job": job_id(job), "trace": job.trace, "attempts": job.attempts, "verdicts": job.verdicts}
         for c in cues:
             c["verified"] = True
-            c["crew"] = {"trace": job.trace, "attempts": job.attempts, "verdicts": job.verdicts}
+            c["crew"] = crew
             self.sink(c)
         await ctx.yield_output({"kind": job.kind, "cues": len(cues), "fallback": job.fallback, "trace": job.trace})
+
+
+def job_id(job: Job) -> str:
+    """One id for every cue a crew run produced, so the Crew room can group them into one moment."""
+    return f"{job.match_id}-{job.kind}-{round(job.match_s * 10)}"
+
+
+async def run_job(record: MatchRecord, sink, job: Job):
+    """Run one moment through the crew inside a span that says how it ended: first pass, repaired or fallback.
+    Agent Framework's own workflow, executor, agent and model spans nest under it."""
+    with telemetry.span(f"crew.moment {job.kind}", **{"touchline.match_id": job.match_id, "touchline.moment": job.kind,
+                                                      "touchline.match_s": job.match_s, "touchline.job": job_id(job)}) as span:
+        res = await build(record, sink).run(job)
+        outcome = "fallback" if job.fallback else "repaired" if job.attempts else "first_pass"
+        span.set_attribute("touchline.outcome", outcome)
+        span.set_attribute("touchline.attempts", job.attempts)
+        span.set_attribute("touchline.claims_checked", sum(v.get("claims_checked", 0) for v in job.verdicts))
+        return res
 
 
 def build(record: MatchRecord, sink) -> "Workflow":
