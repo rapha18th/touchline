@@ -77,7 +77,7 @@ retry az containerapp env show -n "$ENV_NAME" -g "$RG" --output none 2>/dev/null
 if ! retry az containerapp show -n "$APP" -g "$RG" --output none 2>/dev/null; then
   az containerapp create -n "$APP" -g "$RG" --environment "$ENV_NAME" \
     --image mcr.microsoft.com/k8se/quickstart:latest --system-assigned \
-    --ingress external --target-port 8080 --cpu 1 --memory 2Gi --min-replicas 0 --max-replicas 2 --output none
+    --ingress external --target-port 8080 --cpu 1 --memory 2Gi --min-replicas 0 --max-replicas 1 --output none
 fi
 PRINCIPAL=$(retry az containerapp show -n "$APP" -g "$RG" --query identity.principalId -o tsv)
 ACR_ID=$(retry az acr show -n "$ACR" -g "$RG" --query id -o tsv)
@@ -85,7 +85,9 @@ AI_ID=$(retry az cognitiveservices account show -n "$AI" -g "$RG" --query id -o 
 retry az role assignment create --assignee-object-id "$PRINCIPAL" --assignee-principal-type ServicePrincipal --role AcrPull --scope "$ACR_ID" --output none
 retry az role assignment create --assignee-object-id "$PRINCIPAL" --assignee-principal-type ServicePrincipal --role "Cognitive Services OpenAI User" --scope "$AI_ID" --output none
 retry az containerapp registry set -n "$APP" -g "$RG" --server "$ACR.azurecr.io" --identity system --output none
-retry az containerapp update -n "$APP" -g "$RG" --image "$IMAGE" --revision-suffix "$SUFFIX" --no-wait \
+# One replica: a live channel's socket and the clips its crew voices share one process and one cache.
+# Live voice stays off unless TOUCHLINE_VOICE=1 is set on the app.
+retry az containerapp update -n "$APP" -g "$RG" --image "$IMAGE" --revision-suffix "$SUFFIX" --max-replicas 1 --no-wait \
   --set-env-vars TOUCHLINE_AI_ENDPOINT="https://$AI.openai.azure.com/" TOUCHLINE_CREW=1 --output none
 # Wait for the new revision itself: right after the update the app can still report the old
 # revision's Succeeded state.

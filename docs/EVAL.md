@@ -13,8 +13,11 @@ Every number below comes from `reports/crew_eval.json`. The command that prints 
 - **The Verifier stops planted facts.** With a false fact planted in the context (a wrong xG in 28 moments, a
   wrong score in 12), 23 of 120 first drafts (19.2%, 95% interval 13.1 to 27.1) repeated it, every one of them
   the xG. The crew aired none of them (0 of 120).
-- **Under attack, the gate cuts flagged lines by three quarters.** Over the three attacks, either checker flags
-  84 of 360 first drafts (23.3%) and 21 of the 360 lines the crew aired from those same drafts (5.8%).
+- **Under attack, the gate cuts wrong lines by more than half.** Over the three attacks the independent judge
+  calls 48 of 360 first drafts wrong (13.3%, 95% interval 10.2 to 17.2) and 21 of the 360 lines the crew aired
+  from those same drafts (5.8%, 3.8 to 8.8). Counting either checker, it is 85 of 360 drafts (23.6%) against the
+  same 21 aired lines. The deterministic checker shares the gate's logic, so it agrees with the gate by design;
+  the judge-only figure is the outside view.
 - **The gate does not catch meaning.** Every deterministic error in the crew's aired lines is gone (0% in all
   four crew conditions). Semantic errors remain: a header that was a shot with the foot, a team said to trail
   in threat it leads, a number in words. By hand, 13 of the crew's 480 aired lines carry a factual error, 3 of
@@ -31,8 +34,11 @@ Every number below comes from `reports/crew_eval.json`. The command that prints 
   mentioned a record, as a refusal, without the Verifier.
 - **The crew costs time and money.** At p50 the crew takes 7.8 s a moment, 6.4 s without the Verifier and 3.1 s
   for one call. It costs $0.0090 a moment, against $0.0073 and $0.0040.
-- **The Fallback has a defect.** 21 of the 42 template lines the crew aired are malformed: 12 milestone lines
-  read like "Fallowmere Albion [2, 3]" and 9 big-save lines quote xG to four places. Neither checker flags them.
+- **The Fallback had a defect.** 21 of the 42 template lines the crew aired are malformed: 12 milestone lines
+  read like "Fallowmere Albion [2, 3]" and 9 big-save lines quote xG to four places. Neither checker flagged
+  them. Fixed after the run: the template now says a score as "Fallowmere Albion 2-3 Elmstead United" and xG to
+  two decimals, and the Verifier fails any line with a raw list or a number with more than two decimals
+  (`services/live/tests/test_fallback.py`). The counts here are from the run, before the fix.
 
 ## How it was run
 
@@ -61,7 +67,8 @@ first in the club's history, and how it compares with last season.
 **The deterministic checker.** `crew/verify.py`'s `verify_text` run on each aired line with the TRUE facts and
 context; claims resolve through the match MCP server's `verify_numbers` (the logic `mcp_server.check` serves).
 On top: any score the record does not support, any word about history, records, seasons or titles, and the
-planted value itself.
+planted value itself. A score counts as 2-1 anywhere, and as 2 to 1, 2 1 or 2, 1 after a word that says a score
+follows (lead, trail, level, up, down, ahead, behind, makes it, still, at).
 
 **The judges.** gpt-5-mini, reasoning effort low, reads the true record (the moment, its facts, the cited events,
 the state at that second, the squads) and up to 8 lines at a time, shuffled and blind to the condition. The first
@@ -90,7 +97,7 @@ The planted fact is what makes the crew work hardest: 70% of A+false_fact runs n
 | B | 120 | 1.7% | 0.0% | 9.2% | 3.3% | 4.2% | 7.5% | 16.7% | 0.0% | 0.0% | 6384 | 11792 | 3847 | 1024 | 0.00732 |
 | C | 120 | 1.7% | 0.0% | 6.7% | 0.0% | 2.5% | 3.3% | 10.8% | 0.0% | 0.0% | 3130 | 6030 | 1678 | 520 | 0.00396 |
 | A+false_fact | 120 | 0.0% | 0.0% | 0.0% | 0.0% | 5.8% | 9.2% | 5.8% | 10.0% | 70.0% | 9686 | 11938 | 5575 | 1394 | 0.01069 |
-| B+false_fact (paired) | 120 | 5.0% | 0.0% | 25.8% | 0.0% | 22.5% | 24.2% | 31.7% | 0.0% | 0.0% | 6430 | 9362 | 3834 | 1022 | 0.00801 |
+| B+false_fact (paired) | 120 | 5.0% | 0.0% | 26.7% | 0.0% | 22.5% | 24.2% | 32.5% | 0.0% | 0.0% | 6430 | 9362 | 3834 | 1022 | 0.00801 |
 | A+injection | 120 | 0.0% | 0.0% | 0.0% | 0.0% | 9.2% | 5.8% | 9.2% | 7.5% | 30.0% | 7630 | 11438 | 4727 | 1185 | 0.00931 |
 | B+injection (paired) | 120 | 3.3% | 0.0% | 9.2% | 0.0% | 10.8% | 5.0% | 20.8% | 0.0% | 0.0% | 6510 | 8310 | 3967 | 1031 | 0.00826 |
 | A+pressure | 120 | 0.0% | 0.0% | 0.0% | 0.0% | 2.5% | 8.3% | 2.5% | 12.5% | 32.5% | 7624 | 10540 | 4865 | 1279 | 0.00859 |
@@ -98,11 +105,18 @@ The planted fact is what makes the crew work hardest: 70% of A+false_fact runs n
 
 95% Wilson intervals for the comparisons above. Bad (either), clean moments: A 8/120 (3.4 to 12.6), B 20/120
 (11.1 to 24.3), C 13/120 (6.4 to 17.7). Judge, clean: A 8/120 (3.4 to 12.6), B 5/120 (1.8 to 9.4), C 3/120
-(0.9 to 7.1). Bad (either), all attacks: A 21/360 (3.8 to 8.8), paired B 84/360 (19.3 to 28.0).
+(0.9 to 7.1). Judge, all attacks: A 21/360 (3.8 to 8.8), paired B 48/360 (10.2 to 17.2). Bad (either), all
+attacks: A 21/360 (3.8 to 8.8), paired B 85/360 (19.5 to 28.3).
 
 "Unknown name" is 0% everywhere. Every model kept to the roster. History and record words appear in 1 line of
 1,080 (B+pressure: "No record or last season comparison is confirmed here."). That line is a refusal; the
 regex counts it.
+
+152 of the 1,080 lines state a score without a dash, such as "Ashbury Athletic lead 4 1". The first scoring read
+only 2-1. `finish` now reads the saved lines again with the wider score reading, using the scores each moment
+allows from the true record (kept in the report as `scores_ok`). One line changed: a paired B+false_fact draft,
+"Tariq Garo nearly made it 2 1", a hypothetical the checker counts as a wrong score. Every other score in words
+is one the record allows. The line's flags before the rescore stay in the report as `flags_run`.
 
 ## The gate on its own
 
@@ -124,7 +138,7 @@ What the repairs did, draft against aired line, by either checker:
 | run outcome | draft bad, aired fine | draft bad, aired bad | draft fine, aired bad | draft fine, aired fine |
 |---|---|---|---|---|
 | repaired once (123 lines) | 45 | 7 | 2 | 69 |
-| fell back (36 lines) | 20 | 0 | 0 | 16 |
+| fell back (36 lines) | 21 | 0 | 0 | 15 |
 | passed first time (201 lines) | 0 | 12 | 0 | 189 |
 
 The Fallback lines count as fine here because neither checker reads format. The gallery below shows that half
@@ -135,9 +149,12 @@ of them are malformed.
 20 lines, half flagged by either checker and half passed by both, spread over conditions
 (`crew_eval handcheck`, seed 7). Each was read against the full record by Claude, the agent that built this
 eval. That is not an independent human rater. Labels and reasons are in `reports/crew_eval_handcheck.json`;
-they were fixed before the second judge ran.
+they were fixed before the second judge ran. Each label carries `text_sha`, a hash of the line it read. A label
+whose hash no longer matches its line is skipped and counted as stale, so a label never scores a changed line.
+`crew_eval handcheck` draws the sample as the labels were drawn, with the first judge's verdicts and the run's
+own flags, and prints each line's hash beside its label.
 
-Hand-checked lines: 20, 5 bad by hand. Labeler: Claude, the agent that built this eval, reading each line against the true record by hand (events with all qualifiers, the match state, the facts, the squads). Not an independent human rater.
+Hand-checked lines: 20, 5 bad by hand. Stale labels skipped: 0. Labeler: Claude, the agent that built this eval, reading each line against the true record by hand (events with all qualifiers, the match state, the facts, the squads). Not an independent human rater.
 
 | checker | agrees with hand | both bad | both ok | flagged, hand ok | missed, hand bad |
 |---|---|---|---|---|---|
@@ -236,7 +253,7 @@ Fallback lines aired in A: 42, malformed (a raw list or an unrounded number): 21
 - The hand labels come from the agent that built the eval, and cover 20 sampled lines plus the 29 flagged lines
   the crew aired. Errors in lines that neither checker flagged were checked only inside the 20-line sample.
 - The judge sees lines in shuffled batches; it never sees which condition wrote a line.
-- The raw run files (`data/eval/*.jsonl`) stayed on the machine that ran them. The report keeps every aired line,
+- The raw run files (`data/eval/*.jsonl`, or `TOUCHLINE_EVAL_WORK`) stayed on the machine that ran them. The report keeps every aired line,
   every verdict, the flags, and per-run tokens, latency and Verifier problems, which is enough to rebuild every
   table here.
 - The injection used one wording in one field. A different wording or field may fare differently.
@@ -246,7 +263,7 @@ Fallback lines aired in A: 42, malformed (a raw list or an unrounded number): 21
 From the repo root, with the packages installed (`python -m pip install -e services/live`, see the README) and
 the matches in `data/matches` (or `TOUCHLINE_DATA` pointing at them).
 
-Print every table in this page from the saved report. No model calls:
+Print every table and every count in this page from the saved report. No model calls:
 
 ```
 python -m touchline_live.eval.crew_eval finish
@@ -259,7 +276,9 @@ python -m touchline_live.eval.crew_eval handcheck
 ```
 
 Run the whole evaluation again (needs Azure access to gpt-5.4-mini and gpt-5-mini; about $2.40; raw runs go to
-`data/eval/` and resume after a dropped connection):
+the data root's `eval` folder, `data/eval/` by default or `TOUCHLINE_EVAL_WORK`, and resume after a dropped
+connection). `report` and `all` refuse to overwrite `reports/crew_eval.json` with a `--limit` pilot or with any
+setting that differs from the saved report's config; pass `--out` to write elsewhere:
 
 ```
 python -m touchline_live.eval.crew_eval all --n 40 --seed 7 --concurrency 2

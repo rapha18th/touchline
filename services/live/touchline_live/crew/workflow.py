@@ -1,6 +1,6 @@
 """The studio crew as an Agent Framework workflow.
 
-    Producer --> Analyst --> Narrator --> Verifier --ok--> Localiser --> Director --> cues
+    Producer --> Analyst --> Narrator --> Verifier --ok--> Localiser --> [Voice] --> Director --> cues
         |                      ^             | repair (once)
         |                      +-------------+
         |                                    | still failing
@@ -8,12 +8,15 @@
 
 Shared state travels in the Job. The Producer and the Verifier read the match record through
 the match MCP server, so every role works from the same facts as of the same match time.
+The Voice step runs when TOUCHLINE_VOICE=1: it voices the verified analyst and casual lines in
+every language the Localiser carried, with Azure AI Speech, and never holds a line back on failure.
 """
 
 from __future__ import annotations
 
 import asyncio
 import json
+import os
 import re
 import time
 from typing import Never
@@ -22,9 +25,10 @@ from agent_framework import Agent, Case, Default, Executor, WorkflowBuilder, Wor
 from opentelemetry import trace
 
 from .. import telemetry
+from .. import voice as tts
 from . import llm, prompts
 from .models import Insight, Job, Lines, PersonaLine, Recap, Translations
-from .verify import NUM, MatchRecord, verify_text
+from .verify import MatchRecord, translation_problem, verify_text
 
 RECAP_KINDS = {"half_time", "full_time"}
 
@@ -204,22 +208,53 @@ class Fallback(Executor):
         await ctx.send_message(job)
 
 
+def _n(v) -> str:
+    """A number as it airs: at most two decimals and no trailing zeros. 0.3583 xG airs as 0.36."""
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        return str(v)
+    if isinstance(v, int):
+        return str(v)
+    return f"{round(v, 2):.2f}".rstrip("0").rstrip(".")
+
+
+def _score(job: Job) -> str:
+    """The score as it airs, "Home 2-3 Away": the facts' own score line when they carry one, else the match
+    state's [home, away] pair with the club names. Never a raw list."""
+    f, c = job.facts, job.context or {}
+    sc = f.get("score")
+    if isinstance(sc, str) and sc.strip():
+        return sc.strip()
+    if not isinstance(sc, (list, tuple)):
+        sc = (c.get("state") or {}).get("score")
+    if isinstance(sc, (list, tuple)) and len(sc) == 2:
+        return f"{c.get('home') or 'Home'} {int(sc[0])}-{int(sc[1])} {c.get('away') or 'Away'}"
+    return ""
+
+
+def _with_score(line: str, job: Job) -> str:
+    score = _score(job)
+    return f"{line} {score}." if score else line
+
+
 def template(job: Job, persona: str) -> str:
+    """The Fallback's line: verified facts only, every number as it airs, every score as "Home 2-3 Away"."""
     f = job.facts
     k = job.kind
     if k == "goal":
         return {"studio": f"GOAL {f['scorer'].upper()} {f['minute']}",
-                "casual": f"{f['scorer']} scores for {f['team']}. {f['score']}.",
-                "analyst": f"{f['scorer']} scores from {f['distance_m']} metres, xG {round(f['xg'], 2)}. {f['score']}."}[persona]
+                "casual": _with_score(f"{f['scorer']} scores for {f['team']}.", job),
+                "analyst": _with_score(f"{f['scorer']} scores from {_n(f['distance_m'])} metres, xG {_n(f['xg'])}.", job)}[persona]
     if k == "big_chance":
-        return f"Big chance for {f['shooter']}, xG {f['xg']}, {f['outcome'].replace('_', ' ')}."
+        return f"Big chance for {f['shooter']}, xG {_n(f['xg'])}, {f['outcome'].replace('_', ' ')}."
     if k == "big_save":
-        return f"{f['keeper']} saves from {f['shooter']}, a chance worth {f['xg']} xG."
+        return f"{f['keeper']} saves from {f['shooter']}, a chance worth {_n(f['xg'])} xG."
     if k == "hard_pass":
-        return f"{f['passer']} finds {f['recipient']} with a pass rated {f['difficulty']} difficulty."
+        return f"{f['passer']} finds {f['recipient']} with a pass rated {_n(f['difficulty'])} difficulty."
     if k == "red_card":
-        return f"Red card for {f['player']}."
-    return f"{job.context.get('home', '')} {job.context.get('state', {}).get('score', '')}".strip()
+        return _with_score(f"Red card for {f['player']}.", job)
+    if k == "milestone" and f.get("player") and f.get("goals") is not None:
+        return _with_score(f"{f['player']} has {_n(f['goals'])} goals.", job)
+    return f"{_score(job)}." if _score(job) else ""
 
 
 class Localiser(Executor):
@@ -239,17 +274,79 @@ class Localiser(Executor):
         async def one(persona: str, text: str):
             r = await self.agent.run(json.dumps({"text": text, "languages": langs}, ensure_ascii=False),
                                      options={"response_format": Translations, "reasoning": {"effort": "none"}})
-            out = {}
-            src_nums = sorted(NUM.findall(text))
+            out, refused = {}, []
             for it in r.value.items:
-                # The Verifier's rule carries across languages: the numbers must survive translation intact.
-                if sorted(NUM.findall(it.text)) == src_nums and "—" not in it.text:
+                if it.lang not in langs:
+                    continue
+                # The Verifier's rule carries across languages: the numbers survive intact, and the line
+                # is really translated. A refused translation is left out and the caption stays English.
+                why = translation_problem(text, it.text)
+                if why:
+                    refused.append({"persona": persona, "lang": it.lang, "reason": why})
+                else:
                     out[it.lang] = it.text
-            return persona, out
+            return persona, out, refused
 
-        for persona, out in await asyncio.gather(*[one(p, t) for p, t in texts.items() if p != "studio"]):
+        refused = []
+        for persona, out, ref in await asyncio.gather(*[one(p, t) for p, t in texts.items() if p != "studio"]):
             job.translations[persona] = out
-        _mark(job, "localiser", t0, langs=len(langs))
+            refused += ref
+        _mark(job, "localiser", t0, langs=len(langs), **({"refused": refused} if refused else {}))
+        await ctx.send_message(job)
+
+
+VOICED = ("analyst", "casual")
+
+
+def voice_on() -> bool:
+    return os.environ.get("TOUCHLINE_VOICE", "0") == "1"
+
+
+class Voicer(Executor):
+    """Voices each verified analyst and casual line in every language the Localiser carried.
+
+    The text is exactly the text that airs: the verified English line or the Localiser's translation
+    that carried every number intact. The step waits at most `budget_s` for its clips: a clip that
+    fails or is late is left out and the line airs without it. A late clip still lands in the cache.
+    """
+
+    def __init__(self, speaker: "tts.Speaker", url=lambda p: f"/api/audio/{p.name}", budget_s: float | None = None):
+        super().__init__(id="voice")
+        self.speaker = speaker
+        self.url = url
+        self.budget_s = budget_s if budget_s is not None else float(os.environ.get("TOUCHLINE_VOICE_BUDGET_S", "6"))
+
+    @handler
+    async def run(self, job: Job, ctx: WorkflowContext[Job]) -> None:
+        t0 = time.perf_counter()
+        work = []
+        if job.kind not in RECAP_KINDS:
+            for l in job.lines:
+                if l.persona not in VOICED:
+                    continue
+                texts = {"en": l.text, **job.translations.get(l.persona, {})}
+                for lang, text in texts.items():
+                    if lang in job.langs and lang in tts.LANGS and text:
+                        work.append((l.persona, lang, text))
+        tasks = [asyncio.create_task(self.speaker.say(text, lang, persona, job.kind)) for persona, lang, text in work]
+        if tasks:
+            await asyncio.wait(tasks, timeout=self.budget_s)
+        clips = failed = late = chars = 0
+        for (persona, lang, text), task in zip(work, tasks):
+            if not task.done():
+                late += 1
+                task.add_done_callback(lambda t: t.cancelled() or t.exception())   # finish quietly, into the cache
+                continue
+            if task.cancelled() or task.exception() is not None:
+                failed += 1
+                continue
+            clips += 1
+            chars += tts.billed_chars(tts.ssml(text, tts.voice_for(lang, persona, job.kind)))
+            job.audio.setdefault(persona, {})[lang] = self.url(task.result())
+        _mark(job, "voice", t0, clips=clips, failed=failed, late=late, chars=chars)
+        span = trace.get_current_span()
+        for k, v in (("clips", clips), ("failed", failed), ("late", late), ("chars", chars)):
+            span.set_attribute(f"touchline.voice.{k}", v)
         await ctx.send_message(job)
 
 
@@ -285,11 +382,13 @@ class Director(Executor):
                              "sources": sorted(set(job.insight.sources) | set(job.sources)), "author": "crew"})
             for l in job.lines:
                 self.n += 1
+                payload = {"text": l.text, "persona": l.persona, "moment": job.kind,
+                           "translations": job.translations.get(l.persona, {}), "fallback": job.fallback}
+                if job.audio.get(l.persona):
+                    payload["audio"] = job.audio[l.persona]
                 cues.append({**base, "id": f"{job.match_id}-l{self.n:04d}", "kind": "line", "priority": job.priority,
                              "ttl_s": 8, "audience": {**base["audience"], "personas": [l.persona]}, "lang": "en",
-                             "payload": {"text": l.text, "persona": l.persona, "moment": job.kind,
-                                         "translations": job.translations.get(l.persona, {}), "fallback": job.fallback},
-                             "sources": sorted(set(l.sources) | set(job.sources)), "author": "crew"})
+                             "payload": payload, "sources": sorted(set(l.sources) | set(job.sources)), "author": "crew"})
         _mark(job, "director", t0, cues=len(cues))
         crew = {"job": job_id(job), "trace": job.trace, "attempts": job.attempts, "verdicts": job.verdicts}
         for c in cues:
@@ -317,11 +416,14 @@ async def run_job(record: MatchRecord, sink, job: Job):
         return res
 
 
-def build(record: MatchRecord, sink) -> "Workflow":
+def build(record: MatchRecord, sink, speaker: "tts.Speaker | None" = None) -> "Workflow":
+    """The crew graph. With a speaker (or TOUCHLINE_VOICE=1) a Voice step sits between Localiser and Director."""
     producer, analyst, narrator = Producer(record), Analyst(), Narrator()
     recap, verifier, fallback = RecapWriter(record), Verifier(record), Fallback()
     localiser, director = Localiser(), Director(sink)
-    return (
+    if speaker is None and voice_on():
+        speaker = tts.shared()
+    wb = (
         WorkflowBuilder(name="touchline-crew", start_executor=producer, max_iterations=20)
         .add_switch_case_edge_group(producer, [Case(condition=lambda j: j.kind in RECAP_KINDS, target=recap),
                                                Default(target=analyst)])
@@ -334,6 +436,8 @@ def build(record: MatchRecord, sink) -> "Workflow":
             Case(condition=lambda j: route(j) == "repair", target=narrator),
             Default(target=fallback)])
         .add_edge(fallback, localiser)
-        .add_edge(localiser, director)
-        .build()
     )
+    if speaker is not None:
+        voicer = Voicer(speaker)
+        return wb.add_edge(localiser, voicer).add_edge(voicer, director).build()
+    return wb.add_edge(localiser, director).build()

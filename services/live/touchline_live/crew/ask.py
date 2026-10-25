@@ -44,11 +44,23 @@ Answer in one or two short sentences, {MAX_WORDS - 5} words at most, plain and f
 exactly as the event clock gives them, like 22:48, and cite that event.
 `sources` holds event ids from tool results (their `id` field), never times. Leave it empty when the answer
 rests on state_at alone.
+Say a score with the club that leads first, like "Saltbridge Athletic lead 2-0", or "level at 1-1".
+Do not call either side's play control or chaos, and do not quote the control index, unless the fan asks about it.
 Never rank players (most, highest, furthest, top) without a leader claim from the leaders tool.
 Claims are for numbers and rankings only; names and words need none.
 If the tools cannot answer the question, say so in one sentence and make no claims.
 
 {prompts.RULES}"""
+
+
+# Curly quotes and apostrophes become straight ones, in the question and the answer, so the fan sees one style
+# and the Verifier reads "Garo's" and "Garo’s" as the same name.
+QUOTES = str.maketrans({"‘": "'", "’": "'", "‚": "'", "‛": "'",
+                        "“": '"', "”": '"', "„": '"', "‟": '"'})
+
+
+def plain(text: str) -> str:
+    return text.translate(QUOTES)
 
 
 class Answer(BaseModel):
@@ -57,9 +69,9 @@ class Answer(BaseModel):
     sources: list[int] = Field(default_factory=list)
 
 
-def _tool_traffic(messages) -> tuple[list[dict], list]:
-    """The tool calls the agent made and the results it read, from the run's messages."""
-    calls, results = [], []
+def _tool_traffic(messages) -> tuple[list[dict], list[tuple[int | None, object]]]:
+    """The tool calls the agent made, and each result it read with the index of the call that made it."""
+    calls, results, by_id = [], [], {}
     for m in messages or []:
         for c in getattr(m, "contents", None) or []:
             kind = getattr(c, "type", "")
@@ -71,6 +83,8 @@ def _tool_traffic(messages) -> tuple[list[dict], list]:
                     except ValueError:
                         args = {}
                 calls.append({"tool": c.name, **{k: v for k, v in (args or {}).items() if k in ("match_s", "from_s", "to_s", "ids", "player")}})
+                if getattr(c, "call_id", None):
+                    by_id[c.call_id] = len(calls) - 1
             elif kind == "function_result":
                 r = c.result
                 if isinstance(r, str):
@@ -78,13 +92,45 @@ def _tool_traffic(messages) -> tuple[list[dict], list]:
                         r = json.loads(r)
                     except ValueError:
                         pass
-                results.append(r if not isinstance(r, list) else [getattr(x, "text", x) for x in r])
+                cid = getattr(c, "call_id", None)
+                idx = by_id.get(cid) if cid else (len(results) if len(results) < len(calls) else None)
+                results.append((idx, r if not isinstance(r, list) else [getattr(x, "text", x) for x in r]))
     return calls, results
 
 
-async def _run(agent: Agent, prompt: str, tries: int = 3):
-    """One agent run. A dropped connection to the model is retried after a short pause; nothing else is."""
+def _past(call: dict, match_s: float) -> list[str]:
+    """The arguments of a tool call that reach past the viewer's match time: the fan has not seen that yet."""
+    out = []
+    for k in ("match_s", "to_s"):
+        try:
+            v = float(call.get(k))
+        except (TypeError, ValueError):
+            continue
+        if v > match_s + 1:
+            out.append(f"{call['tool']} asked for {k} {v:g}, past the viewer's match time {match_s:g}")
+    return out
+
+
+def _in_time(calls: list[dict], results: list[tuple[int | None, object]], match_s: float) -> tuple[list, list[str]]:
+    """Results of calls that stayed within the viewer's match time, and a problem for each call that did not.
+    A result from a call that looked ahead is dropped before the Verifier reads it, so it can back nothing."""
+    problems, late = [], set()
+    for i, c in enumerate(calls):
+        why = _past(c, match_s)
+        if why:
+            c["past"] = True
+            late.add(i)
+            problems += why
+    kept = [r for idx, r in results if idx is None or idx not in late]
+    return kept, problems
+
+
+async def _run(agent: Agent, prompt: str, tries: int = 3, progress: dict | None = None):
+    """One agent run. A dropped connection to the model is retried after a short pause; nothing else is.
+    `progress["attempts"]` counts every model call made, so a failure can say how many were tried."""
     for i in range(tries):
+        if progress is not None:
+            progress["attempts"] = progress.get("attempts", 0) + 1
         try:
             return await agent.run(prompt, options={"response_format": Answer, "reasoning": {"effort": "none"}})
         except Exception as exc:
@@ -93,9 +139,10 @@ async def _run(agent: Agent, prompt: str, tries: int = 3):
             await asyncio.sleep(1.5 * (i + 1))
 
 
-async def ask(question: str, match_id: str, match_s: float, mcp_url: str, *, http_client: httpx.AsyncClient | None = None) -> dict:
+async def ask(question: str, match_id: str, match_s: float, mcp_url: str, *, http_client: httpx.AsyncClient | None = None,
+              progress: dict | None = None) -> dict:
     """Answer one question. Returns the answer (or None), its claims and sources, and the whole trace."""
-    question = " ".join(question.split())[:300]
+    question = plain(" ".join(question.split())[:300])
     trace, verdicts = [], []
     with telemetry.span("crew.ask", **{"touchline.match_id": match_id, "touchline.match_s": match_s}) as span:
         async with MCPStreamableHTTPTool(name="match", url=mcp_url, allowed_tools=TOOLS, load_prompts=False,
@@ -112,14 +159,16 @@ async def ask(question: str, match_id: str, match_s: float, mcp_url: str, *, htt
             ans = None
             for attempt in range(2):
                 t0 = time.perf_counter()
-                run = await _run(agent, prompt)
+                run = await _run(agent, prompt, progress=progress)
                 ans = run.value
-                calls, results = _tool_traffic(run.messages)
+                ans.answer = plain(ans.answer)
+                calls, traffic = _tool_traffic(run.messages)
+                results, late = _in_time(calls, traffic, match_s)
                 trace.append({"role": "record", "ms": round((time.perf_counter() - t0) * 1000), "attempt": attempt, "mcp": calls})
                 t0 = time.perf_counter()
                 v = await verify_text(record, match_id, match_s, ans.answer, ans.claims, {"tool_results": results},
                                       roster, clubs, max_words=MAX_WORDS)
-                problems = list(v["problems"])
+                problems = late + list(v["problems"])
                 if RANKING.search(ans.answer) and not any(c.kind == "leader" for c in ans.claims):
                     problems.append("a ranking needs a leader claim from the leaders tool")
                 if ans.sources:

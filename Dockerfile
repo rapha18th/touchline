@@ -21,5 +21,7 @@ RUN for s in $SEEDS; do d=data/matches/TL-$(printf %06d $s); \
       [ -f "$d/tracking.npz" ] || python -m touchline_engine generate --seed $s --out data/matches; done
 
 ENV TOUCHLINE_DATA=/app/data/matches TOUCHLINE_BROADCASTS=/app/broadcasts TOUCHLINE_WEB=/app/web
+# Live voice stays off unless TOUCHLINE_VOICE=1 is set on the app. Its clips are cached here.
+ENV TOUCHLINE_VOICE_CACHE=/app/data/voice
 EXPOSE 8080
 CMD ["uvicorn", "touchline_live.server:app", "--host", "0.0.0.0", "--port", "8080", "--proxy-headers"]

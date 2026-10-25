@@ -83,4 +83,5 @@ class Job:
     attempts: int = 0
     fallback: bool = False
     translations: dict = field(default_factory=dict)
+    audio: dict = field(default_factory=dict)          # persona -> {lang: url}, from the Voice step
     trace: list[dict] = field(default_factory=list)
