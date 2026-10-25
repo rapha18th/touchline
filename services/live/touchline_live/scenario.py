@@ -741,7 +741,8 @@ def publish(result: dict, *, story: str, spec: ScenarioSpec, trace: list[dict], 
     meta_p = src / "meta.json"                 # the note goes in before the move, so a reader never sees half a match
     md = json.loads(meta_p.read_text(encoding="utf-8"))
     md["scenario"] = {
-        "story": story, "headline": headline(spec), "spec": spec.model_dump(), "trace": trace,
+        "story": story, "headline": headline(spec), "created": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "spec": spec.model_dump(), "trace": trace,
         "report": {k: best[k] for k in ("met", "total", "all", "partial", "beats")},
         "search": {k: result[k] for k in ("workers", "prune", "budget", "spent", "wall_s", "played_s", "candidates")},
         "replay": f"python -m touchline_live.scenario replay {mid} --out <dir>",

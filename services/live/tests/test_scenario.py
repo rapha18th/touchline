@@ -235,3 +235,45 @@ def test_pool_size_is_one_in_a_container(monkeypatch):
 @pytest.mark.parametrize("story", ["", "x" * 1000])
 def test_story_is_bounded(story):
     assert len(story.strip()[: S.STORY_MAX]) <= S.STORY_MAX
+
+
+# ----- the service ------------------------------------------------------------------------------
+
+def test_scenario_endpoint_refuses_bad_stories():
+    from fastapi.testclient import TestClient
+
+    from touchline_live import server
+    c = TestClient(server.app)
+    assert c.post("/api/scenario", json={"story": "hi"}).status_code == 422
+    assert c.post("/api/scenario", json={"story": "x" * 301}).status_code == 422
+    assert c.get("/api/scenario/nope").status_code == 404
+
+
+def test_a_written_match_reaches_the_list_without_its_story(tmp_path, monkeypatch):
+    import time
+
+    from fastapi.testclient import TestClient
+
+    from touchline_live import server
+    real = S.write_match
+    monkeypatch.setattr(S, "write_match", lambda story, **kw: real(
+        story, **{**kw, "use_llm": False, "seeds": 1, "workers": 1, "period_s": SHORT, "base_seed": 910010}))
+    monkeypatch.setattr(server, "DATA", tmp_path)
+    c = TestClient(server.app)
+    r = c.post("/api/scenario", json={"story": "the visitors win it, and nobody else should read this sentence"})
+    assert r.status_code == 202
+    jid = r.json()["id"]
+    for _ in range(240):
+        job = c.get(f"/api/scenario/{jid}").json()
+        if job["state"] in ("done", "failed"):
+            break
+        time.sleep(0.25)
+    assert job["state"] == "done", job
+    mid = job["match_id"]
+    assert mid == "TL-910010" and job["report"]["total"] == 1 and job["beats"] == ["away win"]
+    listed = {m["match_id"]: m for m in c.get("/api/matches").json()}
+    assert listed[mid]["written"]["headline"] == "Away win"
+    md = c.get(f"/api/match/{mid}").json()
+    assert md["scenario"]["headline"] == "Away win" and "story" not in md["scenario"]
+    assert "nobody else" not in c.get(f"/api/match/{mid}").text
+    assert (tmp_path / mid / "events.json").exists() and not any((tmp_path / ".staging").glob("*/TL-*"))
