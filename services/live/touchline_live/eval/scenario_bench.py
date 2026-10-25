@@ -12,7 +12,11 @@ Each arm offers its best match by its own beats; the bench then checks that matc
 beats with the same validator. It also scores how well each Director read the story: a gold beat
 counts as read when the spec has a beat of the same kind for the same side.
 
-    python -m touchline_live.eval.scenario_bench --out reports/scenario_bench.json --workers 3
+With --tilt N it also plays N single full matches per story with no search, on the same seeds for three
+settings (the Director's, the keyword Director's, none) and checks the gold beats on each. That isolates
+what the settings alone do to the odds.
+
+    python -m touchline_live.eval.scenario_bench --out reports/scenario_bench.json --workers 3 --tilt 4
 
 The run is resumable: the Director specs and every finished arm are saved to the report as they land,
 and a rerun skips them. With one worker the search is deterministic; with more, which candidate ends
@@ -109,6 +113,61 @@ def summarise(rep: dict) -> dict:
     return out
 
 
+TILT_ARMS = ("director", "rules", "untouched")
+
+
+def tilt(rep: dict, *, seeds: int, workers: int, base_seed: int, period_s: float | None, save) -> None:
+    """Do the settings make the story more likely? Single matches, no search, the same seeds for every arm.
+
+    Each story's gold beats are checked on `seeds` full matches played with the Director's settings, the
+    keyword Director's settings and no settings at all. Paired by seed, so the clubs are the same clubs.
+    """
+    import multiprocessing as mp
+
+    rep.setdefault("tilt", {})
+    jobs = []
+    for i, row in enumerate(rep["stories"]):
+        if "spec" not in row:
+            continue
+        gold = STORIES[i][1]
+        settings = {"director": ScenarioSpec.model_validate(row["spec"]), "rules": ScenarioSpec.model_validate(row["rules"]),
+                    "untouched": ScenarioSpec()}
+        for arm in TILT_ARMS:
+            key = f"{i}:{arm}"
+            if key in rep["tilt"]:
+                continue
+            spec = ScenarioSpec(home=settings[arm].home, away=settings[arm].away, beats=gold)
+            jobs.append((key, [(base_seed + 1000 * i + k, spec.model_dump_json()) for k in range(seeds)]))
+    if not jobs:
+        return
+    with mp.get_context("spawn").Pool(workers) as pool:
+        for key, runs in jobs:
+            t0 = time.perf_counter()
+            res = pool.starmap(S.play_candidate, [(seed, sj, False, None, None, period_s) for seed, sj in runs])
+            rep["tilt"][key] = {
+                "seeds": [r["seed"] for r in res], "scores": [r["score"] for r in res],
+                "met": [r["met"] for r in res], "total": res[0]["total"], "all": sum(r["all"] for r in res),
+                "beats": [[b["ok"] for b in r["beats"]] for r in res],
+                "goals": sum(sum(r["score"]) for r in res) / len(res),
+            }
+            save()
+            print(f"tilt {key:12s} all {rep['tilt'][key]['all']}/{len(res)} met {rep['tilt'][key]['met']} "
+                  f"{time.perf_counter() - t0:.0f} s", flush=True)
+
+
+def tilt_summary(rep: dict) -> dict:
+    out = {}
+    for arm in TILT_ARMS:
+        rows = [v for k, v in rep.get("tilt", {}).items() if k.endswith(f":{arm}")]
+        if rows:
+            out[arm] = {"stories": len(rows), "matches": sum(len(r["met"]) for r in rows),
+                        "beats_met": sum(sum(r["met"]) for r in rows),
+                        "beats_checked": sum(r["total"] * len(r["met"]) for r in rows),
+                        "matches_all_gold": sum(r["all"] for r in rows),
+                        "goals_per_match": round(sum(r["goals"] for r in rows) / len(rows), 2)}
+    return out
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(prog="touchline_live.eval.scenario_bench")
     ap.add_argument("--out", default=str(ROOT / "reports" / "scenario_bench.json"))
@@ -119,16 +178,19 @@ def main() -> None:
     ap.add_argument("--stories", type=int, default=len(STORIES))
     ap.add_argument("--arms", default=",".join(ARMS))
     ap.add_argument("--period-s", type=float, default=None, help="short periods for a quick check; the report uses full matches")
+    ap.add_argument("--tilt", type=int, default=0, help="also play this many single matches per story and arm (no search)")
     a = ap.parse_args()
     out, work = Path(a.out), Path(a.work)
     work.mkdir(parents=True, exist_ok=True)
     rep = json.loads(out.read_text(encoding="utf-8")) if out.exists() else {}
     rep.setdefault("stories", [])
     rep["config"] = {"seeds": a.seeds, "workers": a.workers, "base_seed": a.base_seed, "period_s": a.period_s,
-                     "command": "python -m touchline_live.eval.scenario_bench --out reports/scenario_bench.json --workers 3"}
+                     "command": "python -m touchline_live.eval.scenario_bench --out reports/scenario_bench.json --workers 3 --tilt 4"}
 
     def save():
         rep["summary"] = summarise(rep)
+        if rep.get("tilt"):
+            rep["tilt_summary"] = tilt_summary(rep)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(rep, indent=1, ensure_ascii=False), encoding="utf-8")
 
@@ -146,7 +208,7 @@ def main() -> None:
         rules = ScenarioSpec.model_validate(row["rules"])
         row["read"] = {"director": read_score(spec.beats, gold), "rules": read_score(rules.beats, gold)}
         base = a.base_seed + 100 * i
-        for arm in a.arms.split(","):
+        for arm in [x for x in a.arms.split(",") if x]:
             if arm in row["arms"]:
                 continue
             arm_spec = {"director": spec, "rules": rules, "untouched": untouched(spec), "no_prune": spec}[arm]
@@ -156,8 +218,11 @@ def main() -> None:
             save()
             print(f"{i} {arm:9s} gold {r['gold']['met']}/{r['gold']['total']} own {r['own']['met']}/{r['own']['total']} "
                   f"{r['candidates']} cand {r['played_min']} min {time.perf_counter() - t0:.0f} s  {story}", flush=True)
+    if a.tilt:
+        rep["config"]["tilt"] = a.tilt
+        tilt(rep, seeds=a.tilt, workers=a.workers, base_seed=a.base_seed + 20_000, period_s=a.period_s, save=save)
     save()
-    print(json.dumps(rep["summary"], indent=1))
+    print(json.dumps({"summary": rep["summary"], "tilt": rep.get("tilt_summary")}, indent=1))
 
 
 if __name__ == "__main__":
