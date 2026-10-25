@@ -190,6 +190,53 @@ def tilt_summary(rep: dict) -> dict:
     return out
 
 
+DIAL_SETTINGS = {
+    "high": {"tempo": 0.85, "risk": 0.85, "press": 0.75, "directness": 0.75},
+    "low": {"tempo": 0.3, "risk": 0.2},
+    "none": {},
+}
+
+
+def dial_probe(path: Path, n: int, workers: int, base_seed: int = 990_000) -> None:
+    """How far the dials move the engine: n full matches on the same seeds with both sides' dials high, low and
+    as drawn. Goals and red cards a match. The Director's prompt quotes this file."""
+    import multiprocessing as mp
+
+    out = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    runs = out.setdefault("runs", {})
+    out.update(settings=DIAL_SETTINGS, matches_per_setting=n,
+               command=f"python -m touchline_live.eval.scenario_bench --dial-probe {n} --workers {workers}")
+    todo = []
+    for name, dials in DIAL_SETTINGS.items():
+        side = SideSettings(style=dials)
+        spec = ScenarioSpec(home=side, away=side, beats=[B(kind="red_card", at_least=1)]).model_dump_json()
+        for k in range(n):
+            if f"{name}:{base_seed + k}" not in runs:
+                todo.append((f"{name}:{base_seed + k}", (base_seed + k, spec, False, None, None, None)))
+
+    def save():
+        summary = {}
+        for name in DIAL_SETTINGS:
+            rs = [v for k, v in runs.items() if k.startswith(f"{name}:")]
+            if rs:
+                summary[name] = {"matches": len(rs), "goals_per_match": round(sum(sum(r["score"]) for r in rs) / len(rs), 2),
+                                 "matches_with_a_red": sum(r["red"] for r in rs)}
+        out["summary"] = summary
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(out, indent=1), encoding="utf-8")
+
+    if todo:
+        with mp.get_context("spawn").Pool(workers) as pool:
+            jobs = {k: pool.apply_async(S.play_candidate, args) for k, args in todo}
+            for k, job in jobs.items():
+                r = job.get()
+                runs[k] = {"score": r["score"], "red": bool(r["all"])}
+                save()
+                print(f"dials {k} {r['score']}", flush=True)
+    save()
+    print(json.dumps(out["summary"], indent=1))
+
+
 def director_check(path: Path, n: int) -> None:
     """The Director alone, n calls on each of the app's example stories: beats, gate refusals, repairs, fallbacks.
 
@@ -281,8 +328,12 @@ def main() -> None:
     ap.add_argument("--tables", action="store_true", help="print the tables from the saved report and stop")
     ap.add_argument("--director-check", type=int, default=0, help="only call the Director this many times per example story")
     ap.add_argument("--director-out", default=str(ROOT / "reports" / "scenario_director.json"))
+    ap.add_argument("--dial-probe", type=int, default=0, help="only play this many matches per dial setting")
     a = ap.parse_args()
     out, work = Path(a.out), Path(a.work)
+    if a.dial_probe:
+        dial_probe(ROOT / "reports" / "scenario_dials.json", a.dial_probe, a.workers)
+        return
     if a.director_check:
         director_check(Path(a.director_out), a.director_check)
         return
