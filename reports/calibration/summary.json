@@ -1,12 +1,12 @@
 {
  "seeds": "1-24",
  "model": "gpt-5-mini",
- "rounds": 7,
- "trials": 26,
- "accepted": 2,
- "promoted": 2,
- "refused_measured": 24,
- "refused_for_leaving_band": 24,
+ "rounds": 8,
+ "trials": 34,
+ "accepted": 5,
+ "promoted": 3,
+ "refused_measured": 29,
+ "refused_for_leaving_band": 29,
  "refused_before_measuring": 2,
  "baseline": {
   "in_band": 11,
@@ -14,12 +14,12 @@
   "margin": 18.63
  },
  "incumbent": {
-  "trial": 17,
+  "trial": 32,
   "dials": {
    "FINISH_LOGIT": -0.12,
    "BLOCK_SCALE": 1.1,
    "FOUL_RATE": 1.03,
-   "CORNER_DEFLECT": 1.0,
+   "CORNER_DEFLECT": 1.6,
    "LOSS": 0.04,
    "RESIST_FINAL_THIRD": 0.7,
    "RESIST_SHOOTING_RANGE": 0.28,
@@ -37,26 +37,26 @@
    "RED_STRAIGHT": 0.002,
    "RED_SECOND": 0.035
   },
-  "in_band": 15,
-  "distance": 0.2083,
-  "margin": 21.309,
+  "in_band": 16,
+  "distance": 0.0,
+  "margin": 24.823,
   "means": {
-   "goals_per_match": 3.5,
-   "shots_per_team": 15.125,
-   "sot_per_team": 5.2083,
-   "goals_per_shot": 0.1156,
-   "sot_share": 0.3489,
-   "fouls_per_team": 11.1667,
-   "corners_per_team": 4.7292,
-   "yellows_per_match": 4.25,
-   "reds_per_match": 0.25,
-   "xg_per_shot": 0.1193,
-   "passes_per_team": 404.4167,
-   "pass_completion": 0.7802,
-   "ball_in_play_min": 60.5474,
-   "match_length_min": 100.3792,
-   "distance_km_outfield": 11.1075,
-   "top_speed_kmh": 30.5235
+   "goals_per_match": 3.2917,
+   "shots_per_team": 13.625,
+   "sot_per_team": 5.1458,
+   "goals_per_shot": 0.1201,
+   "sot_share": 0.38,
+   "fouls_per_team": 11.0417,
+   "corners_per_team": 5.375,
+   "yellows_per_match": 3.75,
+   "reds_per_match": 0.2083,
+   "xg_per_shot": 0.1217,
+   "passes_per_team": 396.2708,
+   "pass_completion": 0.773,
+   "ball_in_play_min": 59.4074,
+   "match_length_min": 100.3857,
+   "distance_km_outfield": 11.0876,
+   "top_speed_kmh": 30.5433
   },
   "changed_from_defaults": {
    "SHOT_RANGE": [
@@ -74,6 +74,10 @@
    "FOUL_RATE": [
     1.0,
     1.03
+   ],
+   "CORNER_DEFLECT": [
+    1.0,
+    1.6
    ],
    "RESTART_PACE": [
     1.0,
@@ -102,6 +106,13 @@
    "in_band": 15,
    "distance": 0.2083,
    "margin": 21.309
+  },
+  {
+   "trial": 32,
+   "round": 8,
+   "in_band": 16,
+   "distance": 0.0,
+   "margin": 24.823
   }
  ]
 }
