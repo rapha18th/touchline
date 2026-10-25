@@ -114,6 +114,9 @@ Settings for each side (null keeps the club's own value):
 - formation: "4-3-3", "4-2-3-1" or "3-5-2" (five at the back without the ball), or null.
 Built into the engine: a side trailing after the hour presses and goes direct; a side leading late sits deeper.
 A typical engine match has about 3 to 4 goals, 13 to 17 shots a side and a red card in about one match in four.
+Measured on this engine: mild dials (0.6 to 0.75) barely move the result. Both sides at tempo and risk 0.85 with
+press and directness 0.75 gave about 7 goals a match; both sides at tempo 0.3 and risk 0.2 gave about 2.5. To
+change how many goals a match has, push both sides' dials near the ends of their range.
 
 Beats are what the finished match must show. Use only these kinds, and only for what the story asks:
 - winner: side "home", "away" or "draw".

@@ -29,6 +29,7 @@ import argparse
 import asyncio
 import json
 import shutil
+import sys
 import time
 from pathlib import Path
 
@@ -116,7 +117,8 @@ def summarise(rep: dict) -> dict:
 TILT_ARMS = ("director", "rules", "untouched")
 
 
-def tilt(rep: dict, *, seeds: int, workers: int, base_seed: int, period_s: float | None, save) -> None:
+def tilt(rep: dict, *, seeds: int, workers: int, base_seed: int, period_s: float | None, save,
+         arms: tuple[str, ...] = TILT_ARMS) -> None:
     """Do the settings make the story more likely? Single matches, no search, the same seeds for every arm.
 
     Each story's gold beats are checked on `seeds` full matches played with the Director's settings, the
@@ -134,7 +136,7 @@ def tilt(rep: dict, *, seeds: int, workers: int, base_seed: int, period_s: float
         gold = STORIES[i][1]
         settings = {"director": ScenarioSpec.model_validate(row["spec"]), "rules": ScenarioSpec.model_validate(row["rules"]),
                     "untouched": ScenarioSpec()}
-        for arm in TILT_ARMS:
+        for arm in arms:
             key = f"{i}:{arm}"
             spec = ScenarioSpec(home=settings[arm].home, away=settings[arm].away, beats=gold).model_dump_json()
             want[key] = []
@@ -233,6 +235,16 @@ def tables(rep: dict, director_path: Path | None = None) -> str:
                 r = t[arm]
                 out.append(f"| {arm} | {r['matches']} | {r['beats_met']} of {r['beats_checked']} ({pct(r['beats_met'], r['beats_checked'])}) | "
                            f"{r['matches_all_gold']} of {r['matches']} | {r['goals_per_match']} |")
+    if rep.get("tilt"):
+        arms = [a for a in TILT_ARMS if any(k.endswith(f":{a}") for k in rep["tilt"])]
+        out += ["", "| story (single matches) | " + " | ".join(f"{a}: gold met, goals a match" for a in arms) + " |",
+                "|---|" + "---|" * len(arms)]
+        for i, row in enumerate(rep["stories"]):
+            cells = []
+            for a in arms:
+                t = rep["tilt"].get(f"{i}:{a}")
+                cells.append("" if not t else f"{sum(t['met'])} of {t['total'] * len(t['met'])}, {t['goals']:.1f}")
+            out.append(f"| {row['story']} | " + " | ".join(cells) + " |")
     out += ["", "| story | gold | director | rules | untouched | no_prune |", "|---|---|---|---|---|---|"]
     for row in rep["stories"]:
         cell = lambda a: (f"{row['arms'][a]['gold']['met']}/{row['arms'][a]['gold']['total']}" if a in row.get("arms", {}) else "")
@@ -259,6 +271,7 @@ def main() -> None:
     ap.add_argument("--arms", default=",".join(ARMS))
     ap.add_argument("--period-s", type=float, default=None, help="short periods for a quick check; the report uses full matches")
     ap.add_argument("--tilt", type=int, default=0, help="also play this many single matches per story and arm (no search)")
+    ap.add_argument("--tilt-arms", default=",".join(TILT_ARMS), help="which settings the tilt check plays")
     ap.add_argument("--tables", action="store_true", help="print the tables from the saved report and stop")
     ap.add_argument("--director-check", type=int, default=0, help="only call the Director this many times per example story")
     ap.add_argument("--director-out", default=str(ROOT / "reports" / "scenario_director.json"))
@@ -274,7 +287,7 @@ def main() -> None:
     rep = json.loads(out.read_text(encoding="utf-8")) if out.exists() else {}
     rep.setdefault("stories", [])
     rep["config"] = {"seeds": a.seeds, "workers": a.workers, "base_seed": a.base_seed, "period_s": a.period_s,
-                     "command": "python -m touchline_live.eval.scenario_bench --out reports/scenario_bench.json --workers 3 --tilt 4"}
+                     "command": "python -m touchline_live.eval.scenario_bench " + " ".join(sys.argv[1:])}
 
     def save():
         rep["summary"] = summarise(rep)
@@ -313,7 +326,8 @@ def main() -> None:
                   f"{r['candidates']} cand {r['played_min']} min {time.perf_counter() - t0:.0f} s  {story}", flush=True)
     if a.tilt:
         rep["config"]["tilt"] = a.tilt
-        tilt(rep, seeds=a.tilt, workers=a.workers, base_seed=a.base_seed + 20_000, period_s=a.period_s, save=save)
+        tilt(rep, seeds=a.tilt, workers=a.workers, base_seed=a.base_seed + 20_000, period_s=a.period_s, save=save,
+             arms=tuple(x for x in a.tilt_arms.split(",") if x))
     save()
     print(json.dumps({"summary": rep["summary"], "tilt": rep.get("tilt_summary")}, indent=1))
 
