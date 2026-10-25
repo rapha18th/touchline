@@ -100,7 +100,7 @@ def flight_end(t0: int, g: np.ndarray, uv: np.ndarray, players: list, fps: float
         if np.isnan(uv[t, 0]):
             gap += 1
             if gap > 5:
-                return last_good
+                return _bridge(t0, last_good, g, uv, fps, stop)
             continue
         gap = 0
         # Image path: predict this pixel from a quadratic through the last observed flight frames.
@@ -152,6 +152,27 @@ def flight_end(t0: int, g: np.ndarray, uv: np.ndarray, players: list, fps: float
                                 best, bd = s_, d
                     return best
     return last_good
+
+
+def _bridge(t0: int, last: int, g: np.ndarray, uv: np.ndarray, fps: float, stop: int) -> int:
+    """The ball went out of sight in flight (behind a player). If it comes back within 1.5 s on the line it
+    was travelling, ahead of where it vanished, the flight ran on to there."""
+    seen = [t for t in range(t0 + 1, last + 1) if not np.isnan(g[t, 0])]
+    if len(seen) < 2:
+        return last
+    a, b = g[seen[0]], g[last]
+    d = b - a
+    n = float(np.linalg.norm(d))
+    if n < 0.5:
+        return last
+    d /= n
+    for t in range(last + 1, min(stop, last + int(1.5 * fps)) + 1):
+        if np.isnan(uv[t, 0]) or np.isnan(g[t, 0]):
+            continue
+        r = g[t] - b
+        along, across = float(r @ d), float(abs(r[0] * d[1] - r[1] * d[0]))
+        return t if (along > 0 and across < 1.5 + 0.1 * along) else last
+    return last
 
 
 def _rows(P: np.ndarray, uv: np.ndarray):
@@ -279,7 +300,9 @@ def detect_events(obs: dict, P, H=None) -> dict:
         ca, ra = fit_air(P, tau, uv[fr])
         tt = np.linspace(0, (t1 - t0) / fps, 50)
         za = eval_air(ca, tt)[:, 2]
-        aerial = bool(ra < 0.7 * rg and za.max() > 0.6 and ca[5] < 0)
+        # In the air only if that model explains the pixels clearly better and is physically sane.
+        aerial = bool(len(fr) >= 6 and ra < 0.7 * rg and 0.6 < za.max() < 30 and ca[5] < 0
+                      and np.hypot(ca[2], ca[3]) < 45)
         T1 = (t1 - t0) / fps
         if aerial:
             start = np.array([ca[0], ca[1]])
@@ -303,5 +326,6 @@ def detect_events(obs: dict, P, H=None) -> dict:
                       "length_m": round(float(np.linalg.norm(end - start)), 2), "speed_kmh": round(speed * 3.6, 1),
                       "max_height_m": round(height, 2), "start": [round(float(v), 2) for v in start],
                       "end_xy": [round(float(v), 2) for v in end], "kicker": kicker, "receiver": receiver,
-                      "fit_px": {"ground": round(rg, 2), "air": round(ra, 2)}, "n_obs": int(len(fr))})
+                      "fit_px": {"ground": round(rg, 2), "air": round(ra, 2)}, "n_obs": int(len(fr)),
+                      **({"air": [round(float(v), 4) for v in ca]} if aerial else {})})
     return {"kicks": kicks, "keepers": sides}

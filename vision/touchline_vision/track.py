@@ -6,22 +6,35 @@ import numpy as np
 
 
 def ball_path(cands: list[np.ndarray], vmax: float = 40.0, max_gap: int = 12, gap_cost: float = 0.5,
-              motion: float = 1.0) -> list[int | None]:
+              motion: float = 1.0, jump_cost: float = 3.0) -> list[int | None]:
     """Choose at most one candidate per frame so the chosen points form a plausible ball path.
 
     cands[t] is an (n_t, 3) array of (u, v, score) per frame. A shortest path through a DAG: each chosen
     candidate earns -(1 + score), each skipped frame costs gap_cost, each step costs motion * (speed / vmax)^2
-    and is allowed only if the ball moved at most vmax pixels per frame. Returns the chosen index per frame.
+    and is allowed only if the ball moved at most vmax pixels per frame. A jump to anywhere costs jump_cost
+    (the ball is reset after a goal or out of play), and after a long gap (the ball held inside a player)
+    the path may resume anywhere at a capped cost. Returns the chosen index per frame.
     """
     T = len(cands)
     best = [np.full(len(c), np.inf) for c in cands]
     back: list[list[tuple[int, int] | None]] = [[None] * len(c) for c in cands]
+    run_best, run_arg = np.inf, None          # the best path end at least max_gap + 1 frames back
     for t in range(T):
         c = cands[t]
+        s_old = t - max_gap - 1
+        if s_old >= 0 and len(cands[s_old]):
+            j = int(np.argmin(best[s_old]))
+            if best[s_old][j] < run_best:
+                run_best, run_arg = float(best[s_old][j]), (s_old, j)
         if len(c) == 0:
             continue
         reward = -(1.0 + np.clip(c[:, 2], -1.0, 1.0))
         best[t] = gap_cost * t + reward          # start of the path here
+        # Or resume after a long occlusion (the ball held inside a player): anywhere, at a capped cost.
+        if run_arg is not None and run_best + gap_cost * max_gap < gap_cost * t:
+            best[t] = run_best + gap_cost * max_gap + reward
+            for j in range(len(c)):
+                back[t][j] = run_arg
         for s in range(max(0, t - max_gap), t):
             p = cands[s]
             if len(p) == 0:
@@ -30,8 +43,13 @@ def ball_path(cands: list[np.ndarray], vmax: float = 40.0, max_gap: int = 12, ga
             d = np.linalg.norm(c[None, :, :2] - p[:, None, :2], axis=2)        # (n_s, n_t)
             step = best[s][:, None] + gap_cost * (dt - 1) + motion * (d / dt / vmax) ** 2
             step = np.where(d <= vmax * dt + 4.0, step, np.inf)
+            # A jump anywhere, at a price: the ball is reset after a goal or goes out and comes back.
+            k = int(np.argmin(best[s]))
+            jump = best[s][k] + gap_cost * (dt - 1) + jump_cost
+            step = np.vstack([step, np.full((1, len(c)), jump)])
             i = np.argmin(step, axis=0)
             val = step[i, np.arange(len(c))] + reward
+            i = np.where(i == len(p), k, i)
             better = val < best[t]
             for j in np.nonzero(better)[0]:
                 best[t][j] = val[j]
@@ -50,6 +68,37 @@ def ball_path(cands: list[np.ndarray], vmax: float = 40.0, max_gap: int = 12, ga
         out[t] = j
         end = back[t][j]
     return out
+
+
+def despike(cands: list[np.ndarray], path: list[int | None], tol: float = 4.0, rounds: int = 2) -> list[int | None]:
+    """Second-order clean-up of a chosen path. A chosen point is a spike when it sits off the midpoint
+    of its neighbours and off the straight-line predictions from both sides; then the candidate nearest
+    the midpoint replaces it, or the point is dropped. A first-order path can zig-zag between the ball
+    and a white kit beside it; this straightens it, while a kick (at rest, then fast) passes."""
+    path = list(path)
+    T = len(path)
+
+    def pt(t):
+        return None if t < 0 or t >= T or path[t] is None else cands[t][path[t], :2]
+
+    for _ in range(rounds):
+        for t in range(1, T - 1):
+            a, b, c = pt(t - 1), pt(t), pt(t + 1)
+            if a is None or b is None or c is None:
+                continue
+            mid = 0.5 * (a + c)
+            preds = [mid]
+            if pt(t - 2) is not None:
+                preds.append(2 * a - pt(t - 2))
+            if pt(t + 2) is not None:
+                preds.append(2 * c - pt(t + 2))
+            lim = tol + 0.1 * np.linalg.norm(c - a)
+            if min(np.linalg.norm(b - q) for q in preds) <= lim:
+                continue
+            d = np.linalg.norm(cands[t][:, :2] - mid, axis=1)
+            j = int(np.argmin(d))
+            path[t] = j if d[j] <= lim else None
+    return path
 
 
 def fill_gaps(t: np.ndarray, xy: np.ndarray, T: int, max_gap: int = 12) -> tuple[np.ndarray, np.ndarray]:

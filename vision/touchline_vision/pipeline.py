@@ -19,7 +19,7 @@ import numpy as np
 from .calibrate import Calibration, calibrate
 from .detect import Detector
 from .geometry import apply_h, camera_from_h
-from .track import PlayerTracker, ball_path
+from .track import PlayerTracker, ball_path, despike
 from .video import Clip
 
 WORK = Path(tempfile.gettempdir()) / "touchline_vision" / "run"
@@ -65,12 +65,18 @@ def stage_observe(clip: Clip, cal: Calibration, work: Path, force: bool = False)
         ids = tracker.step(i, xy, [p.label.replace("_gk", "") for p in keep])
         players.append([[round(float(x), 3), round(float(y), 3), p.label, int(k), round(p.u, 1), round(p.v, 1)]
                         for (x, y), p, k in zip(xy, keep, ids)])
-    path = ball_path(cands)
-    ball = [None if j is None else [round(float(cands[t][j, 0]), 2), round(float(cands[t][j, 1]), 2)] for t, j in enumerate(path)]
-    out = {"n": len(clip), "fps": clip.fps, "ball_px": ball, "players": players,
+    out = {"n": len(clip), "fps": clip.fps, "cands": [np.round(c, 2).tolist() for c in cands], "players": players,
            "candidates_per_frame": round(float(np.mean([len(c) for c in cands])), 2)}
+    out["ball_px"] = choose_ball(out)
     f.write_text(json.dumps(out), encoding="utf-8")
     return out
+
+
+def choose_ball(obs: dict) -> list:
+    """The ball's pixel per frame (None where unseen) from the stored candidates."""
+    cands = [np.array(c, float).reshape(-1, 3) for c in obs["cands"]]
+    path = despike(cands, ball_path(cands))
+    return [None if j is None else [round(float(cands[t][j, 0]), 2), round(float(cands[t][j, 1]), 2)] for t, j in enumerate(path)]
 
 
 def main(argv=None) -> int:
@@ -96,6 +102,8 @@ def main(argv=None) -> int:
             msg["ball_seen"] = round(sum(b is not None for b in obs["ball_px"]) / obs["n"], 3)
         if "events" in stages:
             from . import events as E
+            obs["ball_px"] = choose_ball(obs)
+            (work / "obs.json").write_text(json.dumps(obs), encoding="utf-8")
             ev = E.detect_events(obs, cal.P, cal.H)
             (work / "events.json").write_text(json.dumps(ev, indent=1), encoding="utf-8")
             msg["kicks"] = len(ev["kicks"])

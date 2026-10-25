@@ -39,7 +39,7 @@ class Detector:
     upright blob whose body colour is nearest one of the four kits."""
 
     def __init__(self, bg: np.ndarray, kits: dict, H: np.ndarray, fg_thresh: int = 28):
-        self.bg = bg.astype(np.int16)
+        self.bg8 = bg
         self.H = H
         self.Hinv = np.linalg.inv(H)
         self.fg_thresh = fg_thresh
@@ -57,11 +57,14 @@ class Detector:
     def foreground(self, frame: np.ndarray) -> np.ndarray:
         """Pixels that changed against the empty pitch, less the shadows: a shadow darkens every channel
         by about the same factor, a kit changes the hue."""
-        f = frame.astype(np.int16)
-        diff = np.abs(f - self.bg).sum(axis=2)
-        ratio = (f + 1.0) / (self.bg + 1.0)
-        shadow = (ratio.max(axis=2) < 0.85) & (ratio.min(axis=2) > 0.4) & (ratio.max(axis=2) - ratio.min(axis=2) < 0.18)
-        fg = ((diff > self.fg_thresh * 1.4) & ~shadow).astype(np.uint8)
+        d = cv2.absdiff(frame, self.bg8)
+        diff = d[..., 0].astype(np.uint16) + d[..., 1] + d[..., 2]
+        ys, xs = np.nonzero(diff > self.fg_thresh * 1.4)
+        ratio = (frame[ys, xs].astype(np.float32) + 1.0) / (self.bg8[ys, xs].astype(np.float32) + 1.0)
+        hi, lo = ratio.max(axis=1), ratio.min(axis=1)
+        keep = ~((hi < 0.85) & (lo > 0.4) & (hi - lo < 0.18))
+        fg = np.zeros(diff.shape, np.uint8)
+        fg[ys[keep], xs[keep]] = 1
         return cv2.morphologyEx(fg, cv2.MORPH_OPEN, self.kernel)
 
     def detect(self, frame: np.ndarray) -> tuple[list[Blob], list[Blob], np.ndarray]:
