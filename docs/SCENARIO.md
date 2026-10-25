@@ -125,14 +125,67 @@ the event logs byte for byte.
 
 ## What we measured
 
-Every number here comes from `reports/scenario_bench.json`, `reports/scenario_bench_v2.json` and
-`reports/scenario_director.json`. `python -m touchline_live.eval.scenario_bench --tables` prints the tables
-from the first two (add `--out reports/scenario_bench_v2.json` for the second). The first run used the Director's
-first prompt; the calibration section shows the prompt the code ships now.
+Every number here comes from a file in `reports/`, named where it is used.
+`python -m touchline_live.eval.scenario_bench --tables --out <report>` prints the tables of any bench report.
 
-**Headline.** With the shipped prompt, the product met 11 of 17 hand written beats and told 3 of 8 stories
-completely, against 6 of 17 and none for a keyword baseline on the same seeds and budget. Settings alone move
-the odds a little at best; the search and the validator do most of the work.
+The engine changed under this work. The first runs (`scenario_bench.json`, `scenario_bench_v2.json`) played on the
+engine before its realism calibration (`docs/REALISM.md`, merged here at 19d909f). The current engine plays about
+3.1 goals a match (`reports/realism.json`). The dial probe and `scenario_bench_v3.json` play on it.
+
+**Headline, current engine.** Over eight hand-written stories on the same seeds and budget, the product (Match
+Director, gate, pruned search, validator) met 9 of 17 hand-written beats and told 3 stories completely. A keyword
+Director with the same search met 9 of 17 and told 2. The Director read 16 of the 17 beats from the words; the
+keywords read 13. On their own, the style dials barely move a result. The search and the validator make the
+story come true, and the Director decides what "true" means.
+
+### On the current engine
+
+**The dial probe** (`reports/scenario_dials.json`, `--dial-probe 8`). Eight full matches on the same seeds with
+both sides' dials high (tempo and risk 0.85, press and directness 0.75), low (tempo 0.3, risk 0.2) and as drawn:
+
+| dials | matches | goals a match | matches with a red card |
+|---|---|---|---|
+| high | 8 | 3.38 | 2 |
+| low | 8 | 2.75 | 0 |
+| as drawn | 8 | 3.25 | 0 |
+
+On the calibrated engine the style dials barely move the result. The Director's prompt now quotes these numbers
+and tells it to set the dials for how the match should look and to let the beats carry the result.
+
+**The bench** (`reports/scenario_bench_v3.json`, `--out reports/scenario_bench_v3.json --arms director,rules`).
+The same eight stories, gold beats and seeds as the earlier runs, described below. Two arms: the product with the
+shipped prompt, and the keyword baseline.
+
+| arm | gold beats met | stories with every gold beat | own beats met | candidates (pruned) | match minutes played | wall s |
+|---|---|---|---|---|---|---|
+| director | 9 of 17 (53%) | 3 of 8 | 12 of 22 | 35 (19) | 2264 | 909 |
+| rules | 9 of 17 (53%) | 2 of 8 | 12 of 19 | 34 (17) | 2323 | 828 |
+
+| Director | gold beats read | extra beats |
+|---|---|---|
+| director | 16 of 17 | 6 |
+| rules | 13 of 17 | 6 |
+
+| story | gold | director | rules |
+|---|---|---|---|
+| an underdog parks the bus and nicks it late | away win, a goal for away from minute 75 | 0/2 | 1/2 |
+| a wild end-to-end draw with a red card | a draw, at least 4 goals, a red card | 1/3 | 2/3 |
+| the home side fall behind and come back to win | a home comeback | 0/1 | 1/1 |
+| a tight, cagey game settled by a single goal | 1 goal | 1/1 | 0/1 |
+| the favourites dominate at home and win with a clean sheet | home win, a home clean sheet, home outshoot away by 6 | 3/3 | 2/3 |
+| a goalless draw where both defences win every battle | no goals | 1/1 | 0/1 |
+| the visitors score first, go down to ten men and hang on to win | away score first, a red card for away, away win | 2/3 | 0/3 |
+| a late winner for the home side in a game of few chances | home win, a goal for home from minute 75, at most 3 goals | 1/3 | 3/3 |
+
+**What it says.** The two arms tie on beats. The Director wins where reading matters: the keywords turned "the
+visitors score first" into "home score first" and met none of that story, while the Director met 2 of 3. The
+goalless draw went to the Director by luck as much as anything: both arms stopped every candidate at its first
+goal, and the Director's sixth candidate ended 0-0. The keywords won stories a single seed decided, such as the
+comeback. Three cautions. The keyword list and
+the bench stories were written by the same hand, so the keywords know these phrasings; a Spanish story gives them
+nothing. Eight stories cannot rank close arms. And each run of the Director is a new set of model calls.
+
+### On the engine before its realism calibration
 
 **The bench.** Eight generic stories, each with beats written by hand before any run (the gold beats). Each story
 goes through four arms on the same seeds and the same budget of three full matches:
@@ -184,8 +237,8 @@ their totals differ.
 - **Settings, in the search, did not show a gain.** The Director's beats on clubs as drawn met 9 of 17 too. With
   eight stories and three matches of budget the bench cannot separate the settings from luck. The tilt check
   below asks that question directly.
-- **Rare stories miss.** No arm wrote the comeback or the goalless draw. The engine averages 3 to 4 goals a match,
-  and three matches of budget are few tries for a 0-0.
+- **Rare stories miss.** No arm wrote the comeback or the goalless draw. That engine averaged about 4 goals a
+  match, and three matches of budget are few tries for a 0-0.
 - The sample is small. A difference of one or two beats here is within what a new seed range would change.
 
 **The tilt check.** The same question without a search: single full matches on paired seeds (the same clubs), with
@@ -238,7 +291,8 @@ comeback, which no arm had written before. Two cautions. The gain in the single 
 settings, is about one standard deviation of a count that size: it points the right way and needs more matches
 to stand as a result. And the
 second run is a new set of Director calls, so the change mixes the prompt with the model's own variation (it
-also read one gold beat fewer: 16 of 17).
+also read one gold beat fewer: 16 of 17). Then the realism calibration landed and the high dials stopped moving
+goals (the dial probe above), so the prompt quotes the probe now and these two runs describe the engine as it was.
 
 **The Director on the app's examples.** Five calls on each of the four stories the app offers, after the repair
 fix below and before the calibration:
