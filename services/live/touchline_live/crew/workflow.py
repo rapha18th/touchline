@@ -28,7 +28,7 @@ from .. import telemetry
 from .. import voice as tts
 from . import llm, prompts
 from .models import Insight, Job, Lines, PersonaLine, Recap, Translations
-from .verify import NUM, MatchRecord, verify_text
+from .verify import MatchRecord, translation_problem, verify_text
 
 RECAP_KINDS = {"half_time", "full_time"}
 
@@ -243,17 +243,24 @@ class Localiser(Executor):
         async def one(persona: str, text: str):
             r = await self.agent.run(json.dumps({"text": text, "languages": langs}, ensure_ascii=False),
                                      options={"response_format": Translations, "reasoning": {"effort": "none"}})
-            out = {}
-            src_nums = sorted(NUM.findall(text))
+            out, refused = {}, []
             for it in r.value.items:
-                # The Verifier's rule carries across languages: the numbers must survive translation intact.
-                if sorted(NUM.findall(it.text)) == src_nums and "—" not in it.text:
+                if it.lang not in langs:
+                    continue
+                # The Verifier's rule carries across languages: the numbers survive intact, and the line
+                # is really translated. A refused translation is left out and the caption stays English.
+                why = translation_problem(text, it.text)
+                if why:
+                    refused.append({"persona": persona, "lang": it.lang, "reason": why})
+                else:
                     out[it.lang] = it.text
-            return persona, out
+            return persona, out, refused
 
-        for persona, out in await asyncio.gather(*[one(p, t) for p, t in texts.items() if p != "studio"]):
+        refused = []
+        for persona, out, ref in await asyncio.gather(*[one(p, t) for p, t in texts.items() if p != "studio"]):
             job.translations[persona] = out
-        _mark(job, "localiser", t0, langs=len(langs))
+            refused += ref
+        _mark(job, "localiser", t0, langs=len(langs), **({"refused": refused} if refused else {}))
         await ctx.send_message(job)
 
 

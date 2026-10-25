@@ -315,3 +315,85 @@ def test_audio_route_serves_clips_by_hash_only():
     for bad in ("/api/audio/TL-000007/..%2F..%2FREADME.md", "/api/audio/notahash.mp3",
                 "/api/audio/TL-000007/0123456789abcdef0123.mp3"):
         assert c.get(bad).status_code == 404
+
+
+# ----- untranslated lines, spoken numbers, a rerun in one language ------------------------------------
+
+def test_translation_problem_refuses_a_line_handed_back_untranslated():
+    from touchline_live.crew.verify import translation_problem
+    assert translation_problem("Garo has 2 goals.", "  garo HAS 2   goals. ") == "untranslated"
+    assert translation_problem("Garo has 2 goals.", "Garo a 3 buts.") == "numbers"
+    assert translation_problem("Garo has 2 goals.", "") == "empty"
+    assert translation_problem("Garo has 2 goals.", "Garo a 2 buts.") is None
+
+
+def test_crew_localiser_records_an_untranslated_line_as_refused():
+    from types import SimpleNamespace as NS
+
+    from agent_framework import WorkflowBuilder
+
+    from touchline_live.crew.models import Translation, Translations
+    from touchline_live.crew.workflow import Localiser
+
+    class Echo:
+        """Spanish comes back translated; French comes back as the English line."""
+        async def run(self, prompt, options=None):
+            ask = json.loads(prompt)
+            return NS(value=Translations(items=[Translation(lang="es", text="ES " + ask["text"]),
+                                                Translation(lang="fr", text=ask["text"])]))
+
+    loc = Localiser()
+    loc.agent = Echo()
+    j = job()
+    j.langs, j.translations = ["en", "es", "fr"], {}
+    cues = []
+    director = Director(cues.append)
+    asyncio.run(WorkflowBuilder(name="loc-test", start_executor=loc).add_edge(loc, director).build().run(j))
+    lines = {c["payload"]["persona"]: c for c in cues if c["kind"] == "line"}
+    assert lines["analyst"]["payload"]["translations"] == {"es": "ES Garo has 2 goals."}
+    step = next(t for t in lines["analyst"]["crew"]["trace"] if t["role"] == "localiser")
+    assert sorted((r["persona"], r["lang"], r["reason"]) for r in step["refused"]) == [
+        ("analyst", "fr", "untranslated"), ("casual", "fr", "untranslated")]
+
+
+def test_broadcast_localise_refuses_an_untranslated_line(tmp_path):
+    from types import SimpleNamespace as NS
+
+    from touchline_live.crew.models import Translation, Translations
+
+    class Echo:
+        async def run(self, prompt, options=None):
+            ask = json.loads(prompt)
+            return NS(value=Translations(items=[Translation(lang=l, text=ask["text"]) for l in ask["languages"]]))
+
+    cues = [cue(1, "casual", "Close!", {})]
+    rep = asyncio.run(vb.localise(cues, ["en", "fr"], agent=Echo()))
+    assert rep["added"] == 0 and [(r["lang"], r["reason"]) for r in rep["refused"]] == [("fr", "untranslated")]
+    assert cues[0]["payload"]["translations"] == {}
+
+
+def test_voice_says_decimals_with_a_comma_and_scores_as_words_in_fr_es_pt():
+    line = "Saltbridge Athletic lead 2-0 with 0.21 xG, a shot at 101.2 km/h."
+    assert tts.spoken(line, "en") == line
+    assert tts.spoken(line, "fr") == "Saltbridge Athletic lead deux à zéro with 0,21 xG, a shot at 101,2 km/h."
+    assert "dos a cero" in tts.spoken(line, "es") and "0,21" in tts.spoken(line, "es")
+    assert "dois a zero" in tts.spoken(line, "pt") and "101,2" in tts.spoken(line, "pt")
+    fr = tts.ssml(line, tts.voice_for("fr", "analyst"))
+    assert "deux à zéro" in fr and "0,21" in fr and "2-0" not in fr
+    # The cache follows what is said: a line whose spoken form is unchanged keeps its clip.
+    plain = "Garo marque encore."
+    v = tts.voice_for("fr", "casual")
+    assert tts.key(plain, v) == tts.key(plain + " ", v)
+
+
+def test_a_rerun_in_one_language_keeps_the_other_languages_and_their_clips(tmp_path):
+    cues = [cue(1, "analyst", "Shot from 20 metres.", {"es": "Tiro desde 20 metros.", "pt": "Chute de 20 metros."})]
+    src = tmp_path / "TL-000099.cues.jsonl"
+    src.write_text("".join(json.dumps(c) + "\n" for c in cues), encoding="utf-8")
+    asyncio.run(vb.voice_match("TL-000099", tmp_path, ["en", "es", "pt"], DiskSpeaker))
+    first = json.loads(src.read_text(encoding="utf-8"))["payload"]["audio"]
+    rep = asyncio.run(vb.voice_match("TL-000099", tmp_path, ["es"], DiskSpeaker))
+    after = json.loads(src.read_text(encoding="utf-8"))["payload"]["audio"]
+    assert after == first and rep["removed_stale_files"] == 0
+    for url in after.values():
+        assert (tmp_path / "audio" / url[len("/api/audio/"):]).is_file()

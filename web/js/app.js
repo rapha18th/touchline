@@ -112,7 +112,7 @@ function buildRail() {
     voiceHint();
   });
   markCamera = segment("#camera", view.camera, (v) => setCamera(v));
-  markSpeed = segment("#speed", view.speed, (v) => { view.speed = Number(v); store.set("speed", v); if (view.source === "live") goLive(); });
+  markSpeed = segment("#speed", view.speed, (v) => { view.speed = Number(v); store.set("speed", v); voice.setSpeed(view.speed); if (view.source === "live") goLive(); });
   markSource = segment("#source", view.source, (v) => (v === "live" ? goLive() : goRecorded()));
   $("#toggle-rail").onclick = () => {
     document.body.classList.toggle("rail-closed");
@@ -383,6 +383,7 @@ async function main() {
   document.addEventListener("pointerdown", arm, { capture: true });
   document.addEventListener("keydown", arm, { capture: true });
   voice.setLang(view.lang);
+  voice.setSpeed(view.speed);
   voiceHint();
   if (qs.get("debug") === "1") window.touchlineVoice = voice;
   document.addEventListener("keydown", (e) => {

@@ -108,6 +108,20 @@ def _norm(n: str) -> str:
     return n.rstrip("0").rstrip(".") if "." in n else (n.lstrip("0") or "0")
 
 
+def translation_problem(source: str, text: str) -> str | None:
+    """Why a translation may not air, or None. The Verifier's number rule carries across languages, and a
+    line handed back unchanged was never translated: a viewer who chose French must not hear English."""
+    if not text or not text.strip():
+        return "empty"
+    if " ".join(text.split()).casefold() == " ".join(source.split()).casefold():
+        return "untranslated"
+    if sorted(NUM.findall(text)) != sorted(NUM.findall(source)):
+        return "numbers"
+    if "\u2014" in text or "\u2013" in text:
+        return "dash"
+    return None
+
+
 async def verify_text(record: MatchRecord, match_id: str, match_s: float, text: str, claims: list[Claim],
                       facts: dict, roster: list[str], clubs: list[str], *, max_words: int = 40) -> dict:
     problems: list[str] = []

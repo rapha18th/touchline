@@ -71,8 +71,9 @@ def needs_text(cues: list[dict], langs: list[str]) -> tuple[list[tuple[int, str,
 
 async def localise(cues: list[dict], langs: list[str], agent=None, concurrency: int = 4) -> dict:
     """Fill missing translations with the crew's Localiser: same model, same instructions, same rule.
-    A translation whose numbers differ from the English line, or that carries a dash, is left out."""
-    from touchline_live.crew.verify import NUM
+    A translation whose numbers differ from the English line, that carries a dash, or that is the English
+    line handed back untranslated, is left out and recorded as refused with its reason."""
+    from touchline_live.crew.verify import translation_problem
     todo, dropped = needs_text(cues, langs)
     rep = {"lines": len(todo), "dropped_other_langs": dropped, "added": 0, "refused": [], "failed": []}
     if not todo:
@@ -101,17 +102,24 @@ async def localise(cues: list[dict], langs: list[str], agent=None, concurrency: 
         if isinstance(items, str):
             rep["failed"].append({"line": cues[i]["id"], "error": items})
             continue
-        src = sorted(NUM.findall(text))
         tr = cues[i]["payload"]["translations"]
         for it in items:
             if it.lang not in missing or not it.text.strip():
                 continue
-            if sorted(NUM.findall(it.text)) == src and "—" not in it.text:
+            why = translation_problem(text, it.text)
+            if why is None:
                 tr[it.lang] = it.text
                 rep["added"] += 1
             else:
-                rep["refused"].append({"line": cues[i]["id"], "lang": it.lang, "text": it.text[:160]})
+                rep["refused"].append({"line": cues[i]["id"], "lang": it.lang, "reason": why, "text": it.text[:160]})
     return rep
+
+
+def referenced(cues: list[dict], mid: str) -> set[str]:
+    """Every clip file a line in the broadcast still points to, in any language."""
+    prefix = f"/api/audio/{mid}/"
+    return {url[len(prefix):] for c in cues if c.get("kind") == "line"
+            for url in (c.get("payload", {}).get("audio") or {}).values() if url.startswith(prefix)}
 
 
 def read(path: Path) -> list[dict]:
@@ -175,23 +183,30 @@ async def voice_match(mid: str, broadcasts: Path, langs: list[str], speaker_fact
             done[k] = exc
     rep["retried"] = len(retry)
     await sp.aclose()
-    keep, failed = set(), []
+    failed, voiced = [], set()
+    # Only this run's languages are rebuilt: a run with --langs fr keeps the English, Spanish and
+    # Portuguese clips the broadcast already carries.
     for c in cues:
-        if c.get("kind") == "line":
-            c["payload"].pop("audio", None)
+        audio = c.get("payload", {}).get("audio") if c.get("kind") == "line" else None
+        if audio:
+            for lang in langs:
+                audio.pop(lang, None)
+            if not audio:
+                c["payload"].pop("audio")
     for (i, persona, lang, text, _), res in zip(jobs, done):
         if isinstance(res, BaseException):
             failed.append({"line": cues[i]["id"], "lang": lang, "error": str(res)[:200]})
             continue
         cues[i]["payload"].setdefault("audio", {})[lang] = f"/api/audio/{mid}/{res.name}"
-        keep.add(res.name)
+        voiced.add(res.name)
     write(src, cues)
+    keep = referenced(cues, mid)
     removed = 0
     for f in out_dir.glob("*.mp3"):
         if f.name not in keep:
             f.unlink()
             removed += 1
-    sizes = [(out_dir / n).stat().st_size for n in keep]
+    sizes = [(out_dir / n).stat().st_size for n in voiced]
     lat = sorted(sp.latencies)
     by_lang = {}
     for (_, persona, lang, _, _), res in zip(jobs, done):
@@ -200,7 +215,7 @@ async def voice_match(mid: str, broadcasts: Path, langs: list[str], speaker_fact
             b["clips"] += 1
             b["seconds"] = round(b["seconds"] + res.stat().st_size * 8 / 32000, 1)
     rep.update({
-        "voiced": len(keep), "failed": failed, "synthesised": sp.stats["synth"], "cached": sp.stats["cached"],
+        "voiced": len(voiced), "failed": failed, "synthesised": sp.stats["synth"], "cached": sp.stats["cached"],
         "billed_chars": sp.stats["chars"], "usd": sp.cost_usd(), "removed_stale_files": removed,
         "audio_mb": round(sum(sizes) / 1e6, 2), "mean_clip_kb": round(statistics.mean(sizes) / 1024, 1) if sizes else 0,
         "seconds_of_audio": round(sum(sizes) * 8 / 32000), "by_lang": by_lang,

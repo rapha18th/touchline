@@ -7,6 +7,7 @@ import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { airTime } from "../js/match.js";
 import { Commentary } from "../js/voice.js";
 
 class FakeAudio {
@@ -109,14 +110,41 @@ test("a clip the browser refuses moves on to the next line", async () => {
   assert.ok(c.log.some((x) => x.what === "blocked" && x.id === "l1"));
 });
 
+test("a big moment cuts a smaller line that is already speaking", () => {
+  const { c, el } = rig();
+  c.arm(); c.set(true);
+  c.air(line("l1", A));
+  assert.equal(el().src, A.en);
+  c.air(line("goal", C, { priority: 3 }));
+  assert.equal(el().src, C.en, "the goal speaks now, not after l1 ends");
+  assert.deepEqual(c.log.filter((x) => x.what === "cut").map((x) => x.id), ["l1"]);
+  c.air(line("goal2", B, { priority: 3 }));
+  assert.equal(el().src, C.en, "a big moment does not cut another big moment");
+});
+
+test("at a faster replay a waiting line goes stale sooner, by its ttl over the speed", () => {
+  const { c, el, clock } = rig();
+  c.arm(); c.set(true); c.setSpeed(4);
+  assert.equal(c.staleAfter({ ttl: 8000 }), 2000);
+  c.setSpeed(1);
+  assert.equal(c.staleAfter({ ttl: 8000 }), 3500, "never longer than maxWaitMs");
+  c.setSpeed(4);
+  c.air(line("l1", A));
+  c.air(line("l2", B));
+  clock.t = 2500; el().end();                        // l2 waited 2.5 s at 4x: 10 match seconds, past its 8 s ttl
+  assert.equal(c.current, null);
+  assert.ok(c.log.some((x) => x.what === "stale" && x.id === "l2"));
+});
+
 // The recorded broadcasts, replayed at match pace with each clip as long as its file, in every language.
+// Each line airs when the app airs it: airTime from match.js, the crew's measured latency after its moment.
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 
 for (const match of ["TL-000007", "TL-000011"]) {
-  test(`${match} plays one line at a time in every language, from clips on disk`, () => {
+  test(`${match} plays one line at a time in every language, from clips on disk`, (t) => {
     const cues = readFileSync(join(ROOT, "broadcasts", `${match}.cues.jsonl`), "utf8").split("\n").filter(Boolean)
       .map((l) => JSON.parse(l)).filter((q) => q.kind === "line" && q.payload?.audio)
-      .sort((a, b) => a.match_s - b.match_s);
+      .sort((a, b) => airTime(a) - airTime(b));
     const file = (url) => join(ROOT, "broadcasts", "audio", url.slice("/api/audio/".length));
     for (const lang of ["en", "es", "fr", "pt"]) {
       for (const persona of ["analyst", "casual"]) {
@@ -134,16 +162,19 @@ for (const match of ["TL-000007", "TL-000011"]) {
         };
         const mine = cues.filter((q) => q.payload.persona === persona);
         for (const q of mine) {
-          while (endsAt <= q.match_s * 1000) { clock.t = endsAt; endsAt = Infinity; el().end(); tick(); }
-          clock.t = q.match_s * 1000;
+          while (endsAt <= airTime(q) * 1000) { clock.t = endsAt; endsAt = Infinity; el().end(); tick(); }
+          clock.t = airTime(q) * 1000;
           assert.equal(c.air(q), true, `${q.id} has a ${lang} clip`);
           tick();
         }
         while (endsAt < Infinity) { clock.t = endsAt; endsAt = Infinity; el().end(); tick(); }
         const skipped = c.log.filter((x) => x.what === "stale" || x.what === "superseded").length;
+        const cut = c.log.filter((x) => x.what === "cut").length;      // a cut line started: it is in played
+        assert.ok(cut <= played.length);
         assert.equal(played.length + skipped, mine.length, `${lang} ${persona}: every line plays or is skipped`);
         assert.ok(played.length >= mine.length / 2, `${lang} ${persona}: ${played.length} of ${mine.length} played`);
         assert.ok(played.every((u) => mine.some((q) => q.payload.audio[lang] === u)));
+        t.diagnostic(`${match} ${lang} ${persona}: ${mine.length} aired, ${played.length} spoken (${cut} cut by a big moment), ${skipped} skipped`);
       }
     }
   });

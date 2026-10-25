@@ -18,6 +18,7 @@ import asyncio
 import hashlib
 import json
 import os
+import re
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -70,9 +71,32 @@ def voice_for(lang: str, persona: str, moment: str | None = None) -> Voice:
     return v
 
 
+# How a French, Spanish or Portuguese broadcaster says a number. The caption keeps the verified text,
+# 0.21 and 2-0; the voice says 0,21 and "deux à zéro", the way a viewer in that language hears it.
+WORDS = {
+    "es": ("cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez"),
+    "fr": ("zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"),
+    "pt": ("zero", "um", "dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove", "dez"),
+}
+TO = {"es": "a", "fr": "à", "pt": "a"}
+SCORE = re.compile(r"(?<![\w.,])(\d{1,2}) ?[-\u2013] ?(\d{1,2})(?![\w.,]\d|\w)")
+DECIMAL = re.compile(r"(?<![\w.,])(\d+)\.(\d+)(?!\.?\d)")
+
+
+def spoken(text: str, lang: str) -> str:
+    """The words the voice says for a line: decimals with a comma and scores as words in fr, es and pt."""
+    text = " ".join(text.split())
+    words = WORDS.get(lang)
+    if not words:
+        return text
+    say = lambda n: words[int(n)] if int(n) < len(words) else str(int(n))   # noqa: E731
+    text = SCORE.sub(lambda m: f"{say(m[1])} {TO[lang]} {say(m[2])}", text)
+    return DECIMAL.sub(r"\1,\2", text)
+
+
 def ssml(text: str, v: Voice) -> str:
     """Compact SSML: markup inside <voice> is billed, so add only what changes the delivery."""
-    body = escape(" ".join(text.split()))
+    body = escape(spoken(text, v.locale[:2]))
     if v.rate or v.pitch:
         attrs = "".join(f" {k}='{val}'" for k, val in (("rate", v.rate), ("pitch", v.pitch)) if val)
         body = f"<prosody{attrs}>{body}</prosody>"
@@ -90,7 +114,8 @@ def billed_chars(doc: str) -> int:
 
 
 def key(text: str, v: Voice, fmt: str = FORMAT) -> str:
-    blob = json.dumps({"t": " ".join(text.split()), "v": asdict(v), "f": fmt}, sort_keys=True, ensure_ascii=False)
+    # Keyed on what the voice says, so a line whose spoken form changes is voiced again.
+    blob = json.dumps({"t": spoken(text, v.locale[:2]), "v": asdict(v), "f": fmt}, sort_keys=True, ensure_ascii=False)
     return hashlib.sha1(blob.encode("utf-8")).hexdigest()[:20]
 
 

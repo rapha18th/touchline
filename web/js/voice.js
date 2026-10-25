@@ -22,6 +22,7 @@ export class Commentary {
     this.make = audio;
     this.now = now;
     this.maxWaitMs = maxWaitMs;     // a line still waiting after this long is stale
+    this.speed = 1;                 // match seconds per wall second: a line's ttl runs faster at 2x
     this.on = false;
     this.lang = "en";
     this.armed = false;             // true once a gesture on the page has unlocked sound
@@ -51,6 +52,11 @@ export class Commentary {
 
   setLang(lang) { this.lang = lang; }
 
+  // The replay speed. A cue's ttl is in match seconds, so at 4x a line goes stale four times sooner.
+  setSpeed(speed) { this.speed = Number(speed) > 0 ? Number(speed) : 1; }
+
+  staleAfter(it) { return Math.min(this.maxWaitMs, it.ttl / this.speed); }
+
   // A line has aired on this viewer's screen. Returns true when its clip was queued.
   air(cue) {
     if (!this.on || !this.armed || cue.kind !== "line") return false;
@@ -61,6 +67,12 @@ export class Commentary {
       // A big moment goes next: the smaller lines still waiting would only talk over it.
       for (const it of this.queue) this.note("superseded", it);
       this.queue = [];
+      // And a smaller line already speaking is cut, so the goal is heard as it happens.
+      if (this.current && this.current.priority < item.priority) {
+        this.note("cut", this.current);
+        this.el.pause();
+        this.current = null;
+      }
     }
     this.queue.push(item);
     if (!this.current) this.next();
@@ -71,7 +83,7 @@ export class Commentary {
     this.current = null;
     while (this.queue.length) {
       const it = this.queue.shift();
-      if (this.now() - it.at > Math.min(this.maxWaitMs, it.ttl)) { this.note("stale", it); continue; }
+      if (this.now() - it.at > this.staleAfter(it)) { this.note("stale", it); continue; }
       this.current = it;
       this.el.src = it.url;
       this.note("play", it);

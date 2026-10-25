@@ -4,7 +4,7 @@
 
 const ROLE = {
   producer: "Producer", analyst: "Analyst", narrator: "Narrator", recap: "Recap writer", verifier: "Verifier",
-  fallback: "Fallback", localiser: "Localiser", director: "Director",
+  fallback: "Fallback", localiser: "Localiser", voice: "Voice", director: "Director",
 };
 const KIND = {
   goal: "Goal", big_chance: "Big chance", big_save: "Big save", hard_pass: "Hard pass", milestone: "Milestone",
@@ -94,7 +94,7 @@ export class CrewRoom {
         <button class="cr-x" aria-label="Close the crew room">✕</button>
       </header>
       <div class="cr-tally" aria-live="polite"></div>
-      <div class="cr-legend">${["producer", "analyst", "narrator", "verifier", "localiser", "director"]
+      <div class="cr-legend">${["producer", "analyst", "narrator", "verifier", "localiser", "voice", "director"]
         .map((r) => `<span><i class="r-${r}"></i>${ROLE[r]}</span>`).join("")}</div>
       <section class="cr-ask">
         <h3>Ask the record</h3>
@@ -246,7 +246,8 @@ export class CrewRoom {
         const vd = verdicts[v++] || {};
         what = t.ok ? `passed, ${vd.claims_checked ?? "?"} claims checked` : `refused, ${t.problems} problem${t.problems === 1 ? "" : "s"}`;
       } else if (t.role === "fallback") what = "template line from verified facts only";
-      else if (t.role === "localiser") what = `${t.langs} language${t.langs === 1 ? "" : "s"}`;
+      else if (t.role === "localiser") what = `${t.langs} language${t.langs === 1 ? "" : "s"}${t.refused?.length ? `, ${t.refused.length} refused (${[...new Set(t.refused.map((r) => r.reason))].join(", ")})` : ""}`;
+      else if (t.role === "voice") what = `${t.clips} clip${t.clips === 1 ? "" : "s"}, ${t.late} late, ${t.failed} failed`;
       else if (t.role === "director") what = `${t.cues} cue${t.cues === 1 ? "" : "s"} to air`;
       const bad = t.role === "verifier" && t.ok === false;
       return `<li class="${bad ? "refused" : ""}"><i class="r-${t.role}"></i><b>${ROLE[t.role] || esc(t.role)}</b><span>${esc(what)}</span><em class="num">${secs(t.ms)}</em></li>`;
