@@ -102,5 +102,201 @@
    "pt/analyst": "pt-BR-FranciscaNeural"
   },
   "format": "audio-16khz-32kbitrate-mono-mp3"
+ },
+ "TL-000008": {
+  "match": "TL-000008",
+  "clips": 192,
+  "to_synthesise": 192,
+  "estimated_chars": 32965,
+  "estimated_usd": 0.4945,
+  "match_chars": 32965,
+  "match_usd": 0.4945,
+  "localised": {
+   "lines": 0,
+   "dropped_other_langs": 0,
+   "added": 0,
+   "refused": [],
+   "failed": []
+  },
+  "retried": 0,
+  "voiced": 192,
+  "failed": [],
+  "synthesised": 192,
+  "cached": 0,
+  "billed_chars": 32965,
+  "usd": 0.4945,
+  "removed_stale_files": 0,
+  "audio_mb": 8.25,
+  "mean_clip_kb": 42.0,
+  "seconds_of_audio": 2062,
+  "by_lang": {
+   "en": {
+    "clips": 48,
+    "seconds": 493.8
+   },
+   "es": {
+    "clips": 48,
+    "seconds": 520.3
+   },
+   "fr": {
+    "clips": 48,
+    "seconds": 494.2
+   },
+   "pt": {
+    "clips": 48,
+    "seconds": 555.2
+   }
+  },
+  "synth_ms_median": 991,
+  "synth_ms_p95": 1569,
+  "wall_s": 55.6,
+  "voices": {
+   "en/caller": "en-GB-RyanNeural",
+   "en/analyst": "en-GB-SoniaNeural",
+   "es/caller": "es-MX-JorgeNeural",
+   "es/analyst": "es-MX-DaliaNeural",
+   "fr/caller": "fr-FR-HenriNeural",
+   "fr/analyst": "fr-FR-DeniseNeural",
+   "pt/caller": "pt-BR-AntonioNeural",
+   "pt/analyst": "pt-BR-FranciscaNeural"
+  },
+  "format": "audio-16khz-32kbitrate-mono-mp3"
+ },
+ "TL-000009": {
+  "match": "TL-000009",
+  "clips": 165,
+  "to_synthesise": 165,
+  "estimated_chars": 27026,
+  "estimated_usd": 0.4054,
+  "match_chars": 27026,
+  "match_usd": 0.4054,
+  "localised": {
+   "lines": 1,
+   "dropped_other_langs": 0,
+   "added": 0,
+   "refused": [
+    {
+     "line": "TL-000009-l0002",
+     "lang": "es",
+     "reason": "untranslated",
+     "text": "88 control, 78 percent of the passes and only 6 turnovers in the last 5 minutes. Thornfield Rovers keep structure with a 29.6 metre, 46.7 km/h cross to Milo Bel"
+    },
+    {
+     "line": "TL-000009-l0002",
+     "lang": "fr",
+     "reason": "untranslated",
+     "text": "88 control, 78 percent of the passes and only 6 turnovers in the last 5 minutes. Thornfield Rovers keep structure with a 29.6 metre, 46.7 km/h cross to Milo Bel"
+    },
+    {
+     "line": "TL-000009-l0002",
+     "lang": "pt",
+     "reason": "untranslated",
+     "text": "88 control, 78 percent of the passes and only 6 turnovers in the last 5 minutes. Thornfield Rovers keep structure with a 29.6 metre, 46.7 km/h cross to Milo Bel"
+    }
+   ],
+   "failed": []
+  },
+  "retried": 0,
+  "voiced": 165,
+  "failed": [],
+  "synthesised": 165,
+  "cached": 0,
+  "billed_chars": 27026,
+  "usd": 0.4054,
+  "removed_stale_files": 0,
+  "audio_mb": 6.93,
+  "mean_clip_kb": 41.0,
+  "seconds_of_audio": 1733,
+  "by_lang": {
+   "en": {
+    "clips": 42,
+    "seconds": 423.8
+   },
+   "es": {
+    "clips": 41,
+    "seconds": 439.6
+   },
+   "fr": {
+    "clips": 41,
+    "seconds": 406.4
+   },
+   "pt": {
+    "clips": 41,
+    "seconds": 463.0
+   }
+  },
+  "synth_ms_median": 947,
+  "synth_ms_p95": 1599,
+  "wall_s": 44.3,
+  "voices": {
+   "en/caller": "en-GB-RyanNeural",
+   "en/analyst": "en-GB-SoniaNeural",
+   "es/caller": "es-MX-JorgeNeural",
+   "es/analyst": "es-MX-DaliaNeural",
+   "fr/caller": "fr-FR-HenriNeural",
+   "fr/analyst": "fr-FR-DeniseNeural",
+   "pt/caller": "pt-BR-AntonioNeural",
+   "pt/analyst": "pt-BR-FranciscaNeural"
+  },
+  "format": "audio-16khz-32kbitrate-mono-mp3"
+ },
+ "TL-000012": {
+  "match": "TL-000012",
+  "clips": 200,
+  "to_synthesise": 200,
+  "estimated_chars": 32763,
+  "estimated_usd": 0.4914,
+  "match_chars": 32763,
+  "match_usd": 0.4914,
+  "localised": {
+   "lines": 0,
+   "dropped_other_langs": 0,
+   "added": 0,
+   "refused": [],
+   "failed": []
+  },
+  "retried": 0,
+  "voiced": 200,
+  "failed": [],
+  "synthesised": 200,
+  "cached": 0,
+  "billed_chars": 32763,
+  "usd": 0.4914,
+  "removed_stale_files": 0,
+  "audio_mb": 8.31,
+  "mean_clip_kb": 40.6,
+  "seconds_of_audio": 2076,
+  "by_lang": {
+   "en": {
+    "clips": 50,
+    "seconds": 499.7
+   },
+   "es": {
+    "clips": 50,
+    "seconds": 528.0
+   },
+   "fr": {
+    "clips": 50,
+    "seconds": 492.4
+   },
+   "pt": {
+    "clips": 50,
+    "seconds": 556.6
+   }
+  },
+  "synth_ms_median": 925,
+  "synth_ms_p95": 1892,
+  "wall_s": 54.9,
+  "voices": {
+   "en/caller": "en-GB-RyanNeural",
+   "en/analyst": "en-GB-SoniaNeural",
+   "es/caller": "es-MX-JorgeNeural",
+   "es/analyst": "es-MX-DaliaNeural",
+   "fr/caller": "fr-FR-HenriNeural",
+   "fr/analyst": "fr-FR-DeniseNeural",
+   "pt/caller": "pt-BR-AntonioNeural",
+   "pt/analyst": "pt-BR-FranciscaNeural"
+  },
+  "format": "audio-16khz-32kbitrate-mono-mp3"
  }
 }

@@ -15,7 +15,7 @@ SPEC.loader.exec_module(stage)
 
 
 def test_the_dockerfile_names_the_three_showcase_matches():
-    assert stage.showcase_ids(ROOT / "Dockerfile") == ["TL-000007", "TL-000008", "TL-000011"]
+    assert stage.showcase_ids(ROOT / "Dockerfile") == ["TL-000008", "TL-000009", "TL-000012"]
 
 
 def test_copy_sources_are_the_dockerfile_copies():
@@ -53,8 +53,8 @@ def test_stage_takes_only_the_showcase_matches(tmp_path):
     out, manifest = run_stage(tmp_path, src)
     tops = sorted(p.name for p in out.iterdir())
     assert tops == sorted([stage.MARKER, "Dockerfile", "broadcasts", "data", "engine", "schema", "services", "web"])
-    assert sorted(p.name for p in (out / "data" / "matches").iterdir()) == ["TL-000007", "TL-000008", "TL-000011"]
-    assert [m["id"] for m in manifest["matches"]] == ["TL-000007", "TL-000008", "TL-000011"]
+    assert sorted(p.name for p in (out / "data" / "matches").iterdir()) == ["TL-000008", "TL-000009", "TL-000012"]
+    assert [m["id"] for m in manifest["matches"]] == ["TL-000008", "TL-000009", "TL-000012"]
     assert manifest["gzip_bytes"] > 0
     assert not list(out.rglob("__pycache__"))
 

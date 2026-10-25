@@ -1,5 +1,7 @@
 # Vision: passes and shots read from Touchline's rendered feed
 
+> These numbers were measured on matches from the engine before its realism calibration (main before c8e4d28). The calibration changed every generated match, so the same match ids now hold different matches. To reproduce exactly, generate the matches at that commit first: `git worktree add ../tl-v1 735c630` and run the commands below from there.
+
 The challenge asks for pass and speed metrics generated automatically from an incoming video feed. Touchline
 does it on its own rendered broadcast. We film generated matches through the fan app's 3D pitch, hand the
 pipeline the frames and each side's shirt, second and keeper colours, and it writes every pass and shot with

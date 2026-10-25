@@ -1,0 +1,4547 @@
+{
+ "match": "TL-000012",
+ "score": "Elmstead Albion 4-2 Ashbury Albion",
+ "wall_s": 137.6,
+ "state_cues": {
+  "player_tag": 63,
+  "shot_card": 25,
+  "momentum": 24,
+  "stat": 46,
+  "milestone": 13,
+  "pass_card": 31,
+  "scorebug": 6,
+  "instant_line": 6
+ },
+ "crew_jobs": 27,
+ "mcp_calls": 158,
+ "fallbacks": 1,
+ "repairs": 10,
+ "voice": null,
+ "errors": [],
+ "jobs": [
+  {
+   "kind": "goal",
+   "match_s": 681.24,
+   "ms": 11019,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 2204,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        346,
+        345,
+        343
+       ],
+       "ms": 183.4
+      },
+      {
+       "tool": "state_at",
+       "match_s": 681.24,
+       "ms": 2020.7
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 3602
+    },
+    {
+     "role": "narrator",
+     "ms": 3032,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 21,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 7,
+       "match_s": 681.24,
+       "ms": 15.5
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 681.24,
+       "ms": 17.9
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 681.24,
+       "ms": 19.7
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 2124,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "goal",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 2204,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          346,
+          345,
+          343
+         ],
+         "ms": 183.4
+        },
+        {
+         "tool": "state_at",
+         "match_s": 681.24,
+         "ms": 2020.7
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 3602
+      },
+      {
+       "role": "narrator",
+       "ms": 3032,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 21,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 7,
+         "match_s": 681.24,
+         "ms": 15.5
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 681.24,
+         "ms": 17.9
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 681.24,
+         "ms": 19.7
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 2124,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 617.41,
+   "ms": 12976,
+   "fallback": true,
+   "attempts": 2,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 2203,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        325
+       ],
+       "ms": 179.8
+      },
+      {
+       "tool": "state_at",
+       "match_s": 617.41,
+       "ms": 2023.2
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 3994
+    },
+    {
+     "role": "narrator",
+     "ms": 2602,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 18,
+     "ok": false,
+     "problems": 2,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 617.41,
+       "ms": 9.1
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 617.41,
+       "ms": 14.2
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 617.41,
+       "ms": 17.1
+      }
+     ]
+    },
+    {
+     "role": "narrator",
+     "ms": 2752,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 15,
+     "ok": false,
+     "problems": 1,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 6,
+       "match_s": 617.41,
+       "ms": 12.0
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 617.41,
+       "ms": 14.3
+      }
+     ]
+    },
+    {
+     "role": "fallback",
+     "ms": 0
+    },
+    {
+     "role": "localiser",
+     "ms": 1369,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 3
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 3,
+     "fallback": true,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 2203,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          325
+         ],
+         "ms": 179.8
+        },
+        {
+         "tool": "state_at",
+         "match_s": 617.41,
+         "ms": 2023.2
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 3994
+      },
+      {
+       "role": "narrator",
+       "ms": 2602,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 18,
+       "ok": false,
+       "problems": 2,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 617.41,
+         "ms": 9.1
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 617.41,
+         "ms": 14.2
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 617.41,
+         "ms": 17.1
+        }
+       ]
+      },
+      {
+       "role": "narrator",
+       "ms": 2752,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 15,
+       "ok": false,
+       "problems": 1,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 6,
+         "match_s": 617.41,
+         "ms": 12.0
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 617.41,
+         "ms": 14.3
+        }
+       ]
+      },
+      {
+       "role": "fallback",
+       "ms": 0
+      },
+      {
+       "role": "localiser",
+       "ms": 1369,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 3
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 337.11,
+   "ms": 15985,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 477,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        150
+       ],
+       "ms": 174.0
+      },
+      {
+       "tool": "state_at",
+       "match_s": 337.11,
+       "ms": 303.0
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 7639
+    },
+    {
+     "role": "narrator",
+     "ms": 2782,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 22,
+     "ok": false,
+     "problems": 1,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 337.11,
+       "ms": 12.6
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 337.11,
+       "ms": 16.3
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 337.11,
+       "ms": 20.2
+      }
+     ]
+    },
+    {
+     "role": "narrator",
+     "ms": 3336,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 20,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 337.11,
+       "ms": 12.3
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 337.11,
+       "ms": 15.4
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 337.11,
+       "ms": 18.7
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 1385,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 477,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          150
+         ],
+         "ms": 174.0
+        },
+        {
+         "tool": "state_at",
+         "match_s": 337.11,
+         "ms": 303.0
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 7639
+      },
+      {
+       "role": "narrator",
+       "ms": 2782,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 22,
+       "ok": false,
+       "problems": 1,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 337.11,
+         "ms": 12.6
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 337.11,
+         "ms": 16.3
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 337.11,
+         "ms": 20.2
+        }
+       ]
+      },
+      {
+       "role": "narrator",
+       "ms": 3336,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 20,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 337.11,
+         "ms": 12.3
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 337.11,
+         "ms": 15.4
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 337.11,
+         "ms": 18.7
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 1385,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 2261.05,
+   "ms": 6811,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 486,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        1189
+       ],
+       "ms": 7.8
+      },
+      {
+       "tool": "state_at",
+       "match_s": 2261.05,
+       "ms": 478.3
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2386
+    },
+    {
+     "role": "narrator",
+     "ms": 2300,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 18,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 2261.05,
+       "ms": 11.4
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 2261.05,
+       "ms": 14.2
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 2261.05,
+       "ms": 17.1
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 1611,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 486,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          1189
+         ],
+         "ms": 7.8
+        },
+        {
+         "tool": "state_at",
+         "match_s": 2261.05,
+         "ms": 478.3
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2386
+      },
+      {
+       "role": "narrator",
+       "ms": 2300,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 18,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 2261.05,
+         "ms": 11.4
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 2261.05,
+         "ms": 14.2
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 2261.05,
+         "ms": 17.1
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 1611,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "goal",
+   "match_s": 2262.2,
+   "ms": 8030,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 522,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        1193,
+        1192,
+        1189
+       ],
+       "ms": 8.9
+      },
+      {
+       "tool": "state_at",
+       "match_s": 2262.2,
+       "ms": 513.1
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2945
+    },
+    {
+     "role": "narrator",
+     "ms": 3005,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 19,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 2262.2,
+       "ms": 12.7
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 2262.2,
+       "ms": 15.9
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 2262.2,
+       "ms": 18.0
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 1527,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "goal",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 522,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          1193,
+          1192,
+          1189
+         ],
+         "ms": 8.9
+        },
+        {
+         "tool": "state_at",
+         "match_s": 2262.2,
+         "ms": 513.1
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2945
+      },
+      {
+       "role": "narrator",
+       "ms": 3005,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 19,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 2262.2,
+         "ms": 12.7
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 2262.2,
+         "ms": 15.9
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 2262.2,
+         "ms": 18.0
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 1527,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 1338.17,
+   "ms": 15600,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 300,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        764
+       ],
+       "ms": 7.7
+      },
+      {
+       "tool": "state_at",
+       "match_s": 1338.17,
+       "ms": 292.2
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2572
+    },
+    {
+     "role": "narrator",
+     "ms": 2847,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 18,
+     "ok": false,
+     "problems": 2,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 1338.17,
+       "ms": 12.8
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 1338.17,
+       "ms": 15.4
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 1338.17,
+       "ms": 17.4
+      }
+     ]
+    },
+    {
+     "role": "narrator",
+     "ms": 2436,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 21,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 4,
+       "match_s": 1338.17,
+       "ms": 14.0
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 1338.17,
+       "ms": 17.0
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 1338.17,
+       "ms": 20.2
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 7394,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 300,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          764
+         ],
+         "ms": 7.7
+        },
+        {
+         "tool": "state_at",
+         "match_s": 1338.17,
+         "ms": 292.2
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2572
+      },
+      {
+       "role": "narrator",
+       "ms": 2847,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 18,
+       "ok": false,
+       "problems": 2,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 1338.17,
+         "ms": 12.8
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 1338.17,
+         "ms": 15.4
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 1338.17,
+         "ms": 17.4
+        }
+       ]
+      },
+      {
+       "role": "narrator",
+       "ms": 2436,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 21,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 4,
+         "match_s": 1338.17,
+         "ms": 14.0
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 1338.17,
+         "ms": 17.0
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 1338.17,
+         "ms": 20.2
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 7394,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "goal",
+   "match_s": 2471.6,
+   "ms": 13039,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 722,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        1276,
+        1275,
+        1273
+       ],
+       "ms": 14.4
+      },
+      {
+       "tool": "state_at",
+       "match_s": 2471.6,
+       "ms": 707.1
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 4152
+    },
+    {
+     "role": "narrator",
+     "ms": 3328,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 20,
+     "ok": false,
+     "problems": 2,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 7,
+       "match_s": 2471.6,
+       "ms": 9.9
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 2471.6,
+       "ms": 16.3
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 2471.6,
+       "ms": 19.1
+      }
+     ]
+    },
+    {
+     "role": "narrator",
+     "ms": 2516,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 20,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 7,
+       "match_s": 2471.6,
+       "ms": 13.2
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 2471.6,
+       "ms": 16.7
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 2471.6,
+       "ms": 19.4
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 2266,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "goal",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 722,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          1276,
+          1275,
+          1273
+         ],
+         "ms": 14.4
+        },
+        {
+         "tool": "state_at",
+         "match_s": 2471.6,
+         "ms": 707.1
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 4152
+      },
+      {
+       "role": "narrator",
+       "ms": 3328,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 20,
+       "ok": false,
+       "problems": 2,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 7,
+         "match_s": 2471.6,
+         "ms": 9.9
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 2471.6,
+         "ms": 16.3
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 2471.6,
+         "ms": 19.1
+        }
+       ]
+      },
+      {
+       "role": "narrator",
+       "ms": 2516,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 20,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 7,
+         "match_s": 2471.6,
+         "ms": 13.2
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 2471.6,
+         "ms": 16.7
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 2471.6,
+         "ms": 19.4
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 2266,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 2817.22,
+   "ms": 13136,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 662,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        1434
+       ],
+       "ms": 7.4
+      },
+      {
+       "tool": "state_at",
+       "match_s": 2817.22,
+       "ms": 654.5
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 3785
+    },
+    {
+     "role": "narrator",
+     "ms": 2838,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 25,
+     "ok": false,
+     "problems": 1,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 2817.22,
+       "ms": 16.2
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 2817.22,
+       "ms": 20.4
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 2817.22,
+       "ms": 23.4
+      }
+     ]
+    },
+    {
+     "role": "narrator",
+     "ms": 2537,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 1670,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 2817.22,
+       "ms": 1665.3
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 2817.22,
+       "ms": 1667.4
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 2817.22,
+       "ms": 1669.2
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 1603,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 662,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          1434
+         ],
+         "ms": 7.4
+        },
+        {
+         "tool": "state_at",
+         "match_s": 2817.22,
+         "ms": 654.5
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 3785
+      },
+      {
+       "role": "narrator",
+       "ms": 2838,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 25,
+       "ok": false,
+       "problems": 1,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 2817.22,
+         "ms": 16.2
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 2817.22,
+         "ms": 20.4
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 2817.22,
+         "ms": 23.4
+        }
+       ]
+      },
+      {
+       "role": "narrator",
+       "ms": 2537,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 1670,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 2817.22,
+         "ms": 1665.3
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 2817.22,
+         "ms": 1667.4
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 2817.22,
+         "ms": 1669.2
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 1603,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_chance",
+   "match_s": 2817.9,
+   "ms": 13418,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 10,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        1435
+       ],
+       "ms": 7.3
+      },
+      {
+       "tool": "state_at",
+       "match_s": 2817.9,
+       "ms": 2.7
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 3539
+    },
+    {
+     "role": "narrator",
+     "ms": 5051,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 26,
+     "ok": false,
+     "problems": 1,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 6,
+       "match_s": 2817.9,
+       "ms": 19.4
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 2817.9,
+       "ms": 22.3
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 2817.9,
+       "ms": 24.7
+      }
+     ]
+    },
+    {
+     "role": "narrator",
+     "ms": 2938,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 18,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 4,
+       "match_s": 2817.9,
+       "ms": 9.6
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 2817.9,
+       "ms": 15.2
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 2817.9,
+       "ms": 17.5
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 1816,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_chance",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 10,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          1435
+         ],
+         "ms": 7.3
+        },
+        {
+         "tool": "state_at",
+         "match_s": 2817.9,
+         "ms": 2.7
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 3539
+      },
+      {
+       "role": "narrator",
+       "ms": 5051,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 26,
+       "ok": false,
+       "problems": 1,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 6,
+         "match_s": 2817.9,
+         "ms": 19.4
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 2817.9,
+         "ms": 22.3
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 2817.9,
+         "ms": 24.7
+        }
+       ]
+      },
+      {
+       "role": "narrator",
+       "ms": 2938,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 18,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 4,
+         "match_s": 2817.9,
+         "ms": 9.6
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 2817.9,
+         "ms": 15.2
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 2817.9,
+         "ms": 17.5
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 1816,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "milestone",
+   "match_s": 2946.48,
+   "ms": 8061,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 14,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        1582,
+        1581,
+        1579
+       ],
+       "ms": 10.2
+      },
+      {
+       "tool": "state_at",
+       "match_s": 2946.48,
+       "ms": 3.5
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2938
+    },
+    {
+     "role": "narrator",
+     "ms": 2674,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 20,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 2946.48,
+       "ms": 13.3
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 2946.48,
+       "ms": 16.7
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 2946.48,
+       "ms": 18.7
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 2406,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "milestone",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 14,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          1582,
+          1581,
+          1579
+         ],
+         "ms": 10.2
+        },
+        {
+         "tool": "state_at",
+         "match_s": 2946.48,
+         "ms": 3.5
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2938
+      },
+      {
+       "role": "narrator",
+       "ms": 2674,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 20,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 2946.48,
+         "ms": 13.3
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 2946.48,
+         "ms": 16.7
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 2946.48,
+         "ms": 18.7
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 2406,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "goal",
+   "match_s": 2946.48,
+   "ms": 12161,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 621,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        1582,
+        1581,
+        1579
+       ],
+       "ms": 7.6
+      },
+      {
+       "tool": "state_at",
+       "match_s": 2946.48,
+       "ms": 613.4
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 3090
+    },
+    {
+     "role": "narrator",
+     "ms": 2832,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 640,
+     "ok": false,
+     "problems": 2,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 2946.48,
+       "ms": 13.1
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 2946.48,
+       "ms": 635.4
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 2946.48,
+       "ms": 639.1
+      }
+     ]
+    },
+    {
+     "role": "narrator",
+     "ms": 2608,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 21,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 2946.48,
+       "ms": 12.1
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 2946.48,
+       "ms": 16.1
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 2946.48,
+       "ms": 19.6
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 2334,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "goal",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 621,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          1582,
+          1581,
+          1579
+         ],
+         "ms": 7.6
+        },
+        {
+         "tool": "state_at",
+         "match_s": 2946.48,
+         "ms": 613.4
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 3090
+      },
+      {
+       "role": "narrator",
+       "ms": 2832,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 640,
+       "ok": false,
+       "problems": 2,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 2946.48,
+         "ms": 13.1
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 2946.48,
+         "ms": 635.4
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 2946.48,
+         "ms": 639.1
+        }
+       ]
+      },
+      {
+       "role": "narrator",
+       "ms": 2608,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 21,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 2946.48,
+         "ms": 12.1
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 2946.48,
+         "ms": 16.1
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 2946.48,
+         "ms": 19.6
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 2334,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 3303.2,
+   "ms": 8464,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 804,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        1759
+       ],
+       "ms": 7.6
+      },
+      {
+       "tool": "state_at",
+       "match_s": 3303.2,
+       "ms": 796.6
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2430
+    },
+    {
+     "role": "narrator",
+     "ms": 2786,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 18,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 6,
+       "match_s": 3303.2,
+       "ms": 11.4
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 3303.2,
+       "ms": 14.4
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 3303.2,
+       "ms": 17.1
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 2415,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 804,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          1759
+         ],
+         "ms": 7.6
+        },
+        {
+         "tool": "state_at",
+         "match_s": 3303.2,
+         "ms": 796.6
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2430
+      },
+      {
+       "role": "narrator",
+       "ms": 2786,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 18,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 6,
+         "match_s": 3303.2,
+         "ms": 11.4
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 3303.2,
+         "ms": 14.4
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 3303.2,
+         "ms": 17.1
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 2415,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_chance",
+   "match_s": 3352.07,
+   "ms": 11616,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 782,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        1796
+       ],
+       "ms": 8.6
+      },
+      {
+       "tool": "state_at",
+       "match_s": 3352.07,
+       "ms": 773.7
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 3027
+    },
+    {
+     "role": "narrator",
+     "ms": 2739,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 743,
+     "ok": false,
+     "problems": 1,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 6,
+       "match_s": 3352.07,
+       "ms": 736.3
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 3352.07,
+       "ms": 739.3
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 3352.07,
+       "ms": 741.6
+      }
+     ]
+    },
+    {
+     "role": "narrator",
+     "ms": 2744,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 22,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 6,
+       "match_s": 3352.07,
+       "ms": 14.1
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 3352.07,
+       "ms": 17.3
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 3352.07,
+       "ms": 20.3
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 1545,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_chance",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 782,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          1796
+         ],
+         "ms": 8.6
+        },
+        {
+         "tool": "state_at",
+         "match_s": 3352.07,
+         "ms": 773.7
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 3027
+      },
+      {
+       "role": "narrator",
+       "ms": 2739,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 743,
+       "ok": false,
+       "problems": 1,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 6,
+         "match_s": 3352.07,
+         "ms": 736.3
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 3352.07,
+         "ms": 739.3
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 3352.07,
+         "ms": 741.6
+        }
+       ]
+      },
+      {
+       "role": "narrator",
+       "ms": 2744,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 22,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 6,
+         "match_s": 3352.07,
+         "ms": 14.1
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 3352.07,
+         "ms": 17.3
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 3352.07,
+         "ms": 20.3
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 1545,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 3641.96,
+   "ms": 7955,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 828,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        1954
+       ],
+       "ms": 6.9
+      },
+      {
+       "tool": "state_at",
+       "match_s": 3641.96,
+       "ms": 820.9
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2568
+    },
+    {
+     "role": "narrator",
+     "ms": 2765,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 19,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 3641.96,
+       "ms": 8.8
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 3641.96,
+       "ms": 14.7
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 3641.96,
+       "ms": 17.8
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 1767,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 828,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          1954
+         ],
+         "ms": 6.9
+        },
+        {
+         "tool": "state_at",
+         "match_s": 3641.96,
+         "ms": 820.9
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2568
+      },
+      {
+       "role": "narrator",
+       "ms": 2765,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 19,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 3641.96,
+         "ms": 8.8
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 3641.96,
+         "ms": 14.7
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 3641.96,
+         "ms": 17.8
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 1767,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 4242.3,
+   "ms": 8123,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 983,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        2228
+       ],
+       "ms": 8.9
+      },
+      {
+       "tool": "state_at",
+       "match_s": 4242.3,
+       "ms": 973.9
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2410
+    },
+    {
+     "role": "narrator",
+     "ms": 3148,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 18,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 6,
+       "match_s": 4242.3,
+       "ms": 12.9
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 4242.3,
+       "ms": 15.3
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 4242.3,
+       "ms": 17.1
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 1555,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 983,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          2228
+         ],
+         "ms": 8.9
+        },
+        {
+         "tool": "state_at",
+         "match_s": 4242.3,
+         "ms": 973.9
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2410
+      },
+      {
+       "role": "narrator",
+       "ms": 3148,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 18,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 6,
+         "match_s": 4242.3,
+         "ms": 12.9
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 4242.3,
+         "ms": 15.3
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 4242.3,
+         "ms": 17.1
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 1555,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "half_time",
+   "match_s": 2842.68,
+   "ms": 40306,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 852,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        346,
+        1193,
+        1276,
+        1437
+       ],
+       "ms": 9.5
+      },
+      {
+       "tool": "state_at",
+       "match_s": 2842.68,
+       "ms": 842.2
+      }
+     ]
+    },
+    {
+     "role": "recap",
+     "ms": 36216,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 561,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 16,
+       "match_s": 2842.68,
+       "ms": 559.5
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 2669,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 1
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "half_time",
+     "cues": 1,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 852,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          346,
+          1193,
+          1276,
+          1437
+         ],
+         "ms": 9.5
+        },
+        {
+         "tool": "state_at",
+         "match_s": 2842.68,
+         "ms": 842.2
+        }
+       ]
+      },
+      {
+       "role": "recap",
+       "ms": 36216,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 561,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 16,
+         "match_s": 2842.68,
+         "ms": 559.5
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 2669,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "goal",
+   "match_s": 4243.4400000000005,
+   "ms": 9766,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 837,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        2231,
+        2230,
+        2228
+       ],
+       "ms": 7.0
+      },
+      {
+       "tool": "state_at",
+       "match_s": 4243.4400000000005,
+       "ms": 829.9
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2724
+    },
+    {
+     "role": "narrator",
+     "ms": 3134,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 778,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 6,
+       "match_s": 4243.4400000000005,
+       "ms": 769.9
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 4243.4400000000005,
+       "ms": 773.6
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 4243.4400000000005,
+       "ms": 776.7
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 2284,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "goal",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 837,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          2231,
+          2230,
+          2228
+         ],
+         "ms": 7.0
+        },
+        {
+         "tool": "state_at",
+         "match_s": 4243.4400000000005,
+         "ms": 829.9
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2724
+      },
+      {
+       "role": "narrator",
+       "ms": 3134,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 778,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 6,
+         "match_s": 4243.4400000000005,
+         "ms": 769.9
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 4243.4400000000005,
+         "ms": 773.6
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 4243.4400000000005,
+         "ms": 776.7
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 2284,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "milestone",
+   "match_s": 4243.4400000000005,
+   "ms": 8795,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 11,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        2231,
+        2230,
+        2228
+       ],
+       "ms": 8.3
+      },
+      {
+       "tool": "state_at",
+       "match_s": 4243.4400000000005,
+       "ms": 2.7
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2964
+    },
+    {
+     "role": "narrator",
+     "ms": 2707,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 905,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 4243.4400000000005,
+       "ms": 897.7
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 4243.4400000000005,
+       "ms": 901.1
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 4243.4400000000005,
+       "ms": 904.4
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 2199,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "milestone",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 11,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          2231,
+          2230,
+          2228
+         ],
+         "ms": 8.3
+        },
+        {
+         "tool": "state_at",
+         "match_s": 4243.4400000000005,
+         "ms": 2.7
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2964
+      },
+      {
+       "role": "narrator",
+       "ms": 2707,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 905,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 4243.4400000000005,
+         "ms": 897.7
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 4243.4400000000005,
+         "ms": 901.1
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 4243.4400000000005,
+         "ms": 904.4
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 2199,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 4973.4400000000005,
+   "ms": 8632,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 944,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        2571
+       ],
+       "ms": 8.0
+      },
+      {
+       "tool": "state_at",
+       "match_s": 4973.4400000000005,
+       "ms": 936.2
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2576
+    },
+    {
+     "role": "narrator",
+     "ms": 3675,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 20,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 4973.4400000000005,
+       "ms": 9.1
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 4973.4400000000005,
+       "ms": 14.9
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 4973.4400000000005,
+       "ms": 17.9
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 1409,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 944,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          2571
+         ],
+         "ms": 8.0
+        },
+        {
+         "tool": "state_at",
+         "match_s": 4973.4400000000005,
+         "ms": 936.2
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2576
+      },
+      {
+       "role": "narrator",
+       "ms": 3675,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 20,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 4973.4400000000005,
+         "ms": 9.1
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 4973.4400000000005,
+         "ms": 14.9
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 4973.4400000000005,
+         "ms": 17.9
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 1409,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "goal",
+   "match_s": 4974.639999999999,
+   "ms": 8777,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 1027,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        2575,
+        2574,
+        2571
+       ],
+       "ms": 7.3
+      },
+      {
+       "tool": "state_at",
+       "match_s": 4974.639999999999,
+       "ms": 1020.0
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2666
+    },
+    {
+     "role": "narrator",
+     "ms": 2735,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 18,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 4974.639999999999,
+       "ms": 8.6
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 4974.639999999999,
+       "ms": 13.8
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 4974.639999999999,
+       "ms": 16.9
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 2320,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "goal",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 1027,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          2575,
+          2574,
+          2571
+         ],
+         "ms": 7.3
+        },
+        {
+         "tool": "state_at",
+         "match_s": 4974.639999999999,
+         "ms": 1020.0
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2666
+      },
+      {
+       "role": "narrator",
+       "ms": 2735,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 18,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 4974.639999999999,
+         "ms": 8.6
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 4974.639999999999,
+         "ms": 13.8
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 4974.639999999999,
+         "ms": 16.9
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 2320,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "milestone",
+   "match_s": 4974.639999999999,
+   "ms": 8772,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 13,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        2575,
+        2574,
+        2571
+       ],
+       "ms": 9.2
+      },
+      {
+       "tool": "state_at",
+       "match_s": 4974.639999999999,
+       "ms": 3.8
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 3119
+    },
+    {
+     "role": "narrator",
+     "ms": 3277,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 952,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 6,
+       "match_s": 4974.639999999999,
+       "ms": 8.9
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 4974.639999999999,
+       "ms": 948.9
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 4974.639999999999,
+       "ms": 951.2
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 1402,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "milestone",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 13,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          2575,
+          2574,
+          2571
+         ],
+         "ms": 9.2
+        },
+        {
+         "tool": "state_at",
+         "match_s": 4974.639999999999,
+         "ms": 3.8
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 3119
+      },
+      {
+       "role": "narrator",
+       "ms": 3277,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 952,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 6,
+         "match_s": 4974.639999999999,
+         "ms": 8.9
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 4974.639999999999,
+         "ms": 948.9
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 4974.639999999999,
+         "ms": 951.2
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 1402,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_chance",
+   "match_s": 5119.68,
+   "ms": 8007,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 992,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        2656
+       ],
+       "ms": 10.0
+      },
+      {
+       "tool": "state_at",
+       "match_s": 5119.68,
+       "ms": 981.7
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2991
+    },
+    {
+     "role": "narrator",
+     "ms": 2593,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 17,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 6,
+       "match_s": 5119.68,
+       "ms": 11.1
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 5119.68,
+       "ms": 13.3
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 5119.68,
+       "ms": 15.8
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 1405,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_chance",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 992,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          2656
+         ],
+         "ms": 10.0
+        },
+        {
+         "tool": "state_at",
+         "match_s": 5119.68,
+         "ms": 981.7
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2991
+      },
+      {
+       "role": "narrator",
+       "ms": 2593,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 17,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 6,
+         "match_s": 5119.68,
+         "ms": 11.1
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 5119.68,
+         "ms": 13.3
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 5119.68,
+         "ms": 15.8
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 1405,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 5394.9400000000005,
+   "ms": 7691,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 1052,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        2756
+       ],
+       "ms": 7.5
+      },
+      {
+       "tool": "state_at",
+       "match_s": 5394.9400000000005,
+       "ms": 1044.2
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2068
+    },
+    {
+     "role": "narrator",
+     "ms": 2541,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 21,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 4,
+       "match_s": 5394.9400000000005,
+       "ms": 13.5
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 5394.9400000000005,
+       "ms": 16.9
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 1,
+       "match_s": 5394.9400000000005,
+       "ms": 19.6
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 2001,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 1052,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          2756
+         ],
+         "ms": 7.5
+        },
+        {
+         "tool": "state_at",
+         "match_s": 5394.9400000000005,
+         "ms": 1044.2
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2068
+      },
+      {
+       "role": "narrator",
+       "ms": 2541,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 21,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 4,
+         "match_s": 5394.9400000000005,
+         "ms": 13.5
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 5394.9400000000005,
+         "ms": 16.9
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 1,
+         "match_s": 5394.9400000000005,
+         "ms": 19.6
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 2001,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_save",
+   "match_s": 5119.68,
+   "ms": 11758,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 10,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        2657,
+        2656
+       ],
+       "ms": 7.0
+      },
+      {
+       "tool": "state_at",
+       "match_s": 5119.68,
+       "ms": 3.3
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 3053
+    },
+    {
+     "role": "narrator",
+     "ms": 3047,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 17,
+     "ok": false,
+     "problems": 1,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 5119.68,
+       "ms": 10.5
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 5119.68,
+       "ms": 13.5
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 3,
+       "match_s": 5119.68,
+       "ms": 15.9
+      }
+     ]
+    },
+    {
+     "role": "narrator",
+     "ms": 3370,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 19,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 5119.68,
+       "ms": 9.3
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 5119.68,
+       "ms": 15.7
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 5119.68,
+       "ms": 17.9
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 2232,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_save",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 10,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          2657,
+          2656
+         ],
+         "ms": 7.0
+        },
+        {
+         "tool": "state_at",
+         "match_s": 5119.68,
+         "ms": 3.3
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 3053
+      },
+      {
+       "role": "narrator",
+       "ms": 3047,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 17,
+       "ok": false,
+       "problems": 1,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 5119.68,
+         "ms": 10.5
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 5119.68,
+         "ms": 13.5
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 3,
+         "match_s": 5119.68,
+         "ms": 15.9
+        }
+       ]
+      },
+      {
+       "role": "narrator",
+       "ms": 3370,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 19,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 5119.68,
+         "ms": 9.3
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 5119.68,
+         "ms": 15.7
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 5119.68,
+         "ms": 17.9
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 2232,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "hard_pass",
+   "match_s": 5829.66,
+   "ms": 10598,
+   "fallback": false,
+   "attempts": 1,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 1136,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        2971
+       ],
+       "ms": 6.9
+      },
+      {
+       "tool": "state_at",
+       "match_s": 5829.66,
+       "ms": 1129.3
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 2466
+    },
+    {
+     "role": "narrator",
+     "ms": 2472,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 540,
+     "ok": false,
+     "problems": 2,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 5829.66,
+       "ms": 526.1
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 5829.66,
+       "ms": 539.2
+      }
+     ]
+    },
+    {
+     "role": "narrator",
+     "ms": 2345,
+     "attempt": 1
+    },
+    {
+     "role": "verifier",
+     "ms": 15,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 5,
+       "match_s": 5829.66,
+       "ms": 10.9
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 5829.66,
+       "ms": 14.1
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 1614,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "hard_pass",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 1136,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          2971
+         ],
+         "ms": 6.9
+        },
+        {
+         "tool": "state_at",
+         "match_s": 5829.66,
+         "ms": 1129.3
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 2466
+      },
+      {
+       "role": "narrator",
+       "ms": 2472,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 540,
+       "ok": false,
+       "problems": 2,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 5829.66,
+         "ms": 526.1
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 5829.66,
+         "ms": 539.2
+        }
+       ]
+      },
+      {
+       "role": "narrator",
+       "ms": 2345,
+       "attempt": 1
+      },
+      {
+       "role": "verifier",
+       "ms": 15,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 5,
+         "match_s": 5829.66,
+         "ms": 10.9
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 5829.66,
+         "ms": 14.1
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 1614,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "big_chance",
+   "match_s": 5830.48,
+   "ms": 9309,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 1139,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        2972
+       ],
+       "ms": 7.9
+      },
+      {
+       "tool": "state_at",
+       "match_s": 5830.48,
+       "ms": 1130.6
+      }
+     ]
+    },
+    {
+     "role": "analyst",
+     "ms": 3520
+    },
+    {
+     "role": "narrator",
+     "ms": 2833,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 20,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 6,
+       "match_s": 5830.48,
+       "ms": 13.4
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 5830.48,
+       "ms": 16.1
+      },
+      {
+       "tool": "verify_numbers",
+       "claims": 2,
+       "match_s": 5830.48,
+       "ms": 18.0
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 1783,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 4
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "big_chance",
+     "cues": 4,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 1139,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          2972
+         ],
+         "ms": 7.9
+        },
+        {
+         "tool": "state_at",
+         "match_s": 5830.48,
+         "ms": 1130.6
+        }
+       ]
+      },
+      {
+       "role": "analyst",
+       "ms": 3520
+      },
+      {
+       "role": "narrator",
+       "ms": 2833,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 20,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 6,
+         "match_s": 5830.48,
+         "ms": 13.4
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 5830.48,
+         "ms": 16.1
+        },
+        {
+         "tool": "verify_numbers",
+         "claims": 2,
+         "match_s": 5830.48,
+         "ms": 18.0
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 1783,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 4
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "full_time",
+   "match_s": 5940.8,
+   "ms": 39007,
+   "fallback": false,
+   "attempts": 0,
+   "trace": [
+    {
+     "role": "producer",
+     "ms": 1550,
+     "mcp_calls": 2,
+     "mcp": [
+      {
+       "tool": "get_events",
+       "ids": [
+        346,
+        1193,
+        1276,
+        1582,
+        2231,
+        2575
+       ],
+       "ms": 324.1
+      },
+      {
+       "tool": "state_at",
+       "match_s": 5940.8,
+       "ms": 1226.1
+      }
+     ]
+    },
+    {
+     "role": "recap",
+     "ms": 31087,
+     "attempt": 0
+    },
+    {
+     "role": "verifier",
+     "ms": 11,
+     "ok": true,
+     "problems": 0,
+     "mcp": [
+      {
+       "tool": "verify_numbers",
+       "claims": 8,
+       "match_s": 5940.8,
+       "ms": 9.4
+      }
+     ]
+    },
+    {
+     "role": "localiser",
+     "ms": 6347,
+     "langs": 3
+    },
+    {
+     "role": "director",
+     "ms": 0,
+     "cues": 1
+    }
+   ],
+   "outputs": [
+    {
+     "kind": "full_time",
+     "cues": 1,
+     "fallback": false,
+     "trace": [
+      {
+       "role": "producer",
+       "ms": 1550,
+       "mcp_calls": 2,
+       "mcp": [
+        {
+         "tool": "get_events",
+         "ids": [
+          346,
+          1193,
+          1276,
+          1582,
+          2231,
+          2575
+         ],
+         "ms": 324.1
+        },
+        {
+         "tool": "state_at",
+         "match_s": 5940.8,
+         "ms": 1226.1
+        }
+       ]
+      },
+      {
+       "role": "recap",
+       "ms": 31087,
+       "attempt": 0
+      },
+      {
+       "role": "verifier",
+       "ms": 11,
+       "ok": true,
+       "problems": 0,
+       "mcp": [
+        {
+         "tool": "verify_numbers",
+         "claims": 8,
+         "match_s": 5940.8,
+         "ms": 9.4
+        }
+       ]
+      },
+      {
+       "role": "localiser",
+       "ms": 6347,
+       "langs": 3
+      },
+      {
+       "role": "director",
+       "ms": 0,
+       "cues": 1
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

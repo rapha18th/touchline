@@ -64,7 +64,7 @@ On a goal, a verified caption airs at once from the record; the crew's lines fol
 
 ```bash
 .venv/Scripts/python -m pip install -e services/live
-.venv/Scripts/python -m touchline_live.live TL-000007 --speed 0 --langs es fr pt   # needs an Azure login
+.venv/Scripts/python -m touchline_live.live TL-000008 --speed 0 --langs es fr pt   # needs an Azure login
 .venv/Scripts/python -m touchline_live.mcp_server --http                        # the match record over MCP
 .venv/Scripts/python -m pytest services/live
 ```
@@ -92,7 +92,7 @@ The fan app plays a match on a floodlit 3D pitch and builds the graphics from th
 - **Crew room**: every crew moment with its handoffs, verdicts, refusals, repairs and MCP calls, and **Ask the record**, where a viewer's question is answered over MCP and shown only if the Verifier passes it ([MCP](docs/MCP.md)).
 - **Recorded or live**: recorded broadcasts replay every cue a live crew run put on air, at the latency it measured; Go live starts a fresh run on the server with the crew working as the match plays.
 
-`/overlay?match=TL-000007&persona=studio&preview=0` serves the same graphics on a transparent page for a vision mixer or a browser source.
+`/overlay?match=TL-000008&persona=studio&preview=0` serves the same graphics on a transparent page for a vision mixer or a browser source.
 
 ```bash
 .venv/Scripts/python -m uvicorn touchline_live.server:app --app-dir services/live --port 8080

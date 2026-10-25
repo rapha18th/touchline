@@ -291,7 +291,7 @@ def test_localise_fills_missing_languages_keeps_numbers_and_drops_other_language
 
 
 def test_recorded_broadcasts_point_at_clips_that_exist():
-    for mid in ("TL-000007", "TL-000011"):
+    for mid in ("TL-000008", "TL-000009", "TL-000012"):
         src = ROOT / "broadcasts" / f"{mid}.cues.jsonl"
         refs = [u for c in vb.read(src) for u in (c.get("payload", {}).get("audio") or {}).values()]
         langs = {l for c in vb.read(src) for l in (c.get("payload", {}).get("audio") or {})}
@@ -307,13 +307,13 @@ def test_audio_route_serves_clips_by_hash_only():
 
     from touchline_live import server
     c = TestClient(server.app)
-    src = ROOT / "broadcasts" / "TL-000007.cues.jsonl"
+    src = ROOT / "broadcasts" / "TL-000008.cues.jsonl"
     url = next(u for cu in vb.read(src) for u in (cu.get("payload", {}).get("audio") or {}).values())
     r = c.get(url)
     assert r.status_code == 200 and r.headers["content-type"] == "audio/mpeg" and r.content[:1] in (b"I", b"\xff")
     assert "immutable" in r.headers["cache-control"]
-    for bad in ("/api/audio/TL-000007/..%2F..%2FREADME.md", "/api/audio/notahash.mp3",
-                "/api/audio/TL-000007/0123456789abcdef0123.mp3"):
+    for bad in ("/api/audio/TL-000008/..%2F..%2FREADME.md", "/api/audio/notahash.mp3",
+                "/api/audio/TL-000008/0123456789abcdef0123.mp3"):
         assert c.get(bad).status_code == 404
 
 

@@ -2,7 +2,7 @@
 
 The Dockerfile is the manifest. Every path it COPYs from the context is staged and nothing else is,
 so the context cannot drift from the image. data/matches is narrowed to the showcase matches named
-by the Dockerfile's SEEDS argument (TL-000007, TL-000008 and TL-000011 today): the ones whose
+by the Dockerfile's SEEDS argument (TL-000008, TL-000009 and TL-000012 today): the ones whose
 recorded broadcasts ship in broadcasts/.
 
     python infra/stage.py                       # stage into %TEMP%/touchline-build, print its path

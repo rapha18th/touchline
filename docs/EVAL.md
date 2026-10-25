@@ -1,5 +1,7 @@
 # Crew evaluation: what the Verifier and the crew buy
 
+> These numbers were measured on matches from the engine before its realism calibration (main before c8e4d28). The calibration changed every generated match, so the same match ids now hold different matches. To reproduce exactly, generate the matches at that commit first: `git worktree add ../tl-v1 735c630` and run the commands below from there.
+
 We put 40 moments from 4 generated matches through the crew, through the crew with its Verifier removed, and
 through a one-call writer. Then we attacked the crew three ways. Every line was checked twice: by the
 Verifier's own logic run against the true record, and by an independent model judge. Every flagged line the crew

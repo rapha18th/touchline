@@ -140,7 +140,7 @@ test("at a faster replay a waiting line goes stale sooner, by its ttl over the s
 // Each line airs when the app airs it: airTime from match.js, the crew's measured latency after its moment.
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 
-for (const match of ["TL-000007", "TL-000011"]) {
+for (const match of ["TL-000008", "TL-000009", "TL-000012"]) {
   test(`${match} plays one line at a time in every language, from clips on disk`, (t) => {
     const cues = readFileSync(join(ROOT, "broadcasts", `${match}.cues.jsonl`), "utf8").split("\n").filter(Boolean)
       .map((l) => JSON.parse(l)).filter((q) => q.kind === "line" && q.payload?.audio)
@@ -160,7 +160,7 @@ for (const match of ["TL-000007", "TL-000011"]) {
             endsAt = clock.t + (statSync(file(url)).size * 8 / 32000) * 1000;   // 32 kbit/s mp3
           }
         };
-        const mine = cues.filter((q) => q.payload.persona === persona);
+        const mine = cues.filter((q) => q.payload.persona === persona && q.payload.audio[lang]);   // a refused translation has no clip
         for (const q of mine) {
           while (endsAt <= airTime(q) * 1000) { clock.t = endsAt; endsAt = Infinity; el().end(); tick(); }
           clock.t = airTime(q) * 1000;

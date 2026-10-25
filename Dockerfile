@@ -16,7 +16,7 @@ COPY schema schema
 # The showcase matches ship as generated, so recorded broadcasts line up frame for frame.
 # Any seed listed here that is missing gets generated during the build.
 COPY data/matches data/matches
-ARG SEEDS="7 8 11"
+ARG SEEDS="8 9 12"
 RUN for s in $SEEDS; do d=data/matches/TL-$(printf %06d $s); \
       [ -f "$d/tracking.npz" ] || python -m touchline_engine generate --seed $s --out data/matches; done
 
