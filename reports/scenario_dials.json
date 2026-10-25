@@ -1,0 +1,204 @@
+{
+ "runs": {
+  "high:990000": {
+   "score": [
+    4,
+    3
+   ],
+   "red": true
+  },
+  "high:990001": {
+   "score": [
+    2,
+    1
+   ],
+   "red": false
+  },
+  "high:990002": {
+   "score": [
+    1,
+    1
+   ],
+   "red": false
+  },
+  "high:990003": {
+   "score": [
+    1,
+    1
+   ],
+   "red": true
+  },
+  "high:990004": {
+   "score": [
+    1,
+    3
+   ],
+   "red": false
+  },
+  "high:990005": {
+   "score": [
+    3,
+    1
+   ],
+   "red": false
+  },
+  "high:990006": {
+   "score": [
+    1,
+    1
+   ],
+   "red": false
+  },
+  "high:990007": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false
+  },
+  "low:990000": {
+   "score": [
+    3,
+    2
+   ],
+   "red": false
+  },
+  "low:990001": {
+   "score": [
+    0,
+    1
+   ],
+   "red": false
+  },
+  "low:990002": {
+   "score": [
+    1,
+    1
+   ],
+   "red": false
+  },
+  "low:990003": {
+   "score": [
+    2,
+    0
+   ],
+   "red": false
+  },
+  "low:990004": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false
+  },
+  "low:990005": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false
+  },
+  "low:990006": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false
+  },
+  "low:990007": {
+   "score": [
+    1,
+    2
+   ],
+   "red": false
+  },
+  "none:990000": {
+   "score": [
+    2,
+    0
+   ],
+   "red": false
+  },
+  "none:990001": {
+   "score": [
+    0,
+    1
+   ],
+   "red": false
+  },
+  "none:990002": {
+   "score": [
+    1,
+    3
+   ],
+   "red": false
+  },
+  "none:990003": {
+   "score": [
+    0,
+    0
+   ],
+   "red": false
+  },
+  "none:990004": {
+   "score": [
+    2,
+    3
+   ],
+   "red": false
+  },
+  "none:990005": {
+   "score": [
+    3,
+    4
+   ],
+   "red": false
+  },
+  "none:990006": {
+   "score": [
+    1,
+    4
+   ],
+   "red": false
+  },
+  "none:990007": {
+   "score": [
+    2,
+    0
+   ],
+   "red": false
+  }
+ },
+ "settings": {
+  "high": {
+   "tempo": 0.85,
+   "risk": 0.85,
+   "press": 0.75,
+   "directness": 0.75
+  },
+  "low": {
+   "tempo": 0.3,
+   "risk": 0.2
+  },
+  "none": {}
+ },
+ "matches_per_setting": 8,
+ "command": "python -m touchline_live.eval.scenario_bench --dial-probe 8 --workers 3",
+ "summary": {
+  "high": {
+   "matches": 8,
+   "goals_per_match": 3.38,
+   "matches_with_a_red": 2
+  },
+  "low": {
+   "matches": 8,
+   "goals_per_match": 2.75,
+   "matches_with_a_red": 0
+  },
+  "none": {
+   "matches": 8,
+   "goals_per_match": 3.25,
+   "matches_with_a_red": 0
+  }
+ }
+}

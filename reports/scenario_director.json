@@ -1,0 +1,229 @@
+{
+ "stories": {
+  "An underdog parks the bus and nicks it late": [
+   {
+    "beats": [
+     "away win",
+     "a goal for away from minute 75",
+     "an away clean sheet",
+     "away score first"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 8898
+   },
+   {
+    "beats": [
+     "away win",
+     "a goal for away from minute 75",
+     "an away clean sheet"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 5419
+   },
+   {
+    "beats": [
+     "away win",
+     "a goal for away from minute 75",
+     "an away clean sheet"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 4088
+   },
+   {
+    "beats": [
+     "away win",
+     "a goal for away from minute 75",
+     "an away clean sheet"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 4576
+   },
+   {
+    "beats": [
+     "away win",
+     "a goal for away from minute 75",
+     "an away clean sheet"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 4317
+   }
+  ],
+  "A wild end-to-end draw with a red card": [
+   {
+    "beats": [
+     "a draw",
+     "a red card",
+     "3 to 5 goals",
+     "a goal from minute 75"
+    ],
+    "refused_first": 1,
+    "repaired": true,
+    "fallback": false,
+    "ms": 8078
+   },
+   {
+    "beats": [
+     "a draw",
+     "a red card",
+     "3 to 6 goals"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 5107
+   },
+   {
+    "beats": [
+     "a draw",
+     "a red card",
+     "3 to 6 goals"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 5055
+   },
+   {
+    "beats": [
+     "a draw",
+     "a red card",
+     "3 to 5 goals",
+     "a goal from minute 75"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 4334
+   },
+   {
+    "beats": [
+     "a draw",
+     "a red card",
+     "3 to 6 goals"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 4273
+   }
+  ],
+  "The home side fall behind and come back to win": [
+   {
+    "beats": [
+     "a home comeback",
+     "home win"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 3688
+   },
+   {
+    "beats": [
+     "a home comeback",
+     "home win"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 3553
+   },
+   {
+    "beats": [
+     "a home comeback",
+     "home win"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 4180
+   },
+   {
+    "beats": [
+     "a home comeback",
+     "home win"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 4199
+   },
+   {
+    "beats": [
+     "a home comeback",
+     "home win",
+     "away score first"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 3796
+   }
+  ],
+  "A tight, cagey game settled by a single goal": [
+   {
+    "beats": [
+     "home win",
+     "1 goal"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 3545
+   },
+   {
+    "beats": [
+     "home win",
+     "1 goal"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 5498
+   },
+   {
+    "beats": [
+     "home win",
+     "1 goal",
+     "a home clean sheet"
+    ],
+    "refused_first": 1,
+    "repaired": true,
+    "fallback": false,
+    "ms": 5679
+   },
+   {
+    "beats": [
+     "home win",
+     "1 goal"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 3726
+   },
+   {
+    "beats": [
+     "home win",
+     "1 goal"
+    ],
+    "refused_first": 0,
+    "repaired": false,
+    "fallback": false,
+    "ms": 3440
+   }
+  ]
+ },
+ "calls_per_story": 5,
+ "command": "python -m touchline_live.eval.scenario_bench --director-check 5"
+}

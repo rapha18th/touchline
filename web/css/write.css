@@ -1,0 +1,45 @@
+/* Write the match: the box on the match picker. Tokens come from touchline.css. */
+.write { display: grid; gap: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 16px; background: rgba(7, 11, 9, .55); }
+.write h2, #picker .list-h { font: 600 11.5px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--amber); margin: 0; }
+#picker .list-h { color: var(--dim); margin: 8px 0 0; }
+.write-lede { margin: 0; font-size: 14px; color: var(--chalk-dim); max-width: 64ch; }
+.write-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: stretch; }
+.write-form textarea { font: 400 16px/1.35 var(--body); color: var(--chalk); background: rgba(241, 240, 232, .06); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; resize: vertical; min-height: 48px; width: 100%; box-sizing: border-box; }
+.write-form textarea:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
+.write-go { border: 0; border-radius: 8px; padding: 0 18px; background: var(--amber); color: #0b120e; font: 700 18px/1 var(--display); letter-spacing: .06em; text-transform: uppercase; cursor: pointer; min-height: 44px; }
+.write-go:disabled { opacity: .6; cursor: progress; }
+.write-go:focus-visible, .write-examples button:focus-visible, .write-links a:focus-visible { outline: 2px solid var(--chalk); outline-offset: 2px; }
+.write-examples { display: flex; flex-wrap: wrap; gap: 6px; }
+.write-examples button { border: 1px solid var(--line); background: transparent; color: var(--chalk-dim); border-radius: 999px; padding: 6px 12px; font-size: 13px; cursor: pointer; text-align: left; }
+.write-examples button:hover { color: var(--chalk); border-color: var(--chalk-dim); }
+.write-status { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 10px; }
+.write-status p { margin: 0; }
+.write-state { font: 600 13px/1.3 var(--mono); letter-spacing: .04em; color: var(--chalk); }
+.write-state .dim, .write-links .dim { color: var(--dim); font-weight: 400; }
+.write-headline { font: 700 22px/1.1 var(--display); letter-spacing: .03em; text-transform: uppercase; }
+.write-beats { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.write-beats li { font-size: 12.5px; border: 1px solid var(--line); border-radius: 4px; padding: 3px 8px; color: var(--chalk-dim); }
+.write-gate { font-size: 12.5px; color: var(--chaos); }
+.write-cands { margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; font-size: 13px; color: var(--chalk-dim); }
+.write-cands .num { color: var(--dim); margin-right: 6px; }
+.write-cands .live { color: var(--chalk); }
+.write-bar { height: 4px; border-radius: 2px; background: rgba(241, 240, 232, .1); overflow: hidden; }
+.write-bar i { display: block; height: 100%; background: var(--amber); transition: width .6s ease; }
+.write-report { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 14px; }
+.write-report li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.write-report b { font: 600 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; min-width: 56px; }
+.write-report .ok b { color: var(--ok); }
+.write-report .miss b { color: var(--chaos); }
+.write-report span { color: var(--dim); font-size: 12.5px; }
+.write-summary { font-size: 13.5px; color: var(--chalk-dim); }
+.write-links { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.write-links a { color: var(--chalk); font: 700 17px/1 var(--display); letter-spacing: .06em; text-transform: uppercase; text-decoration: none; border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; }
+.write-links a.write-watch { background: var(--chalk); color: #0b120e; border-color: var(--chalk); }
+.write-err { color: var(--chaos); font-size: 13.5px; }
+.fixture .written { color: var(--amber); }
+.written-note { color: var(--amber); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 560px) {
+  .write-form { grid-template-columns: 1fr; }
+  .write-go { padding: 12px 18px; }
+}

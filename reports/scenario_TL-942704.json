@@ -1,0 +1,237 @@
+{
+ "match_id": "TL-942704",
+ "seed": 942704,
+ "final_score": {
+  "home": 1,
+  "away": 1
+ },
+ "clubs": {
+  "home": {
+   "name": "Corran United",
+   "formation": "4-3-3",
+   "style": {
+    "press": 0.72,
+    "directness": 0.7,
+    "width": 0.68,
+    "tempo": 0.78,
+    "risk": 0.76
+   },
+   "strength": 0.5
+  },
+  "away": {
+   "name": "Ashbury City",
+   "formation": "4-3-3",
+   "style": {
+    "press": 0.72,
+    "directness": 0.7,
+    "width": 0.68,
+    "tempo": 0.78,
+    "risk": 0.76
+   },
+   "strength": 0.5
+  }
+ },
+ "scenario": {
+  "story": "A wild end-to-end draw with a red card",
+  "headline": "A draw, a red card, at least 3 goals, home outshoot away by 1",
+  "created": "2026-10-25T12:45:36Z",
+  "spec": {
+   "home": {
+    "strength": 0.5,
+    "style": {
+     "press": 0.72,
+     "directness": 0.7,
+     "width": 0.68,
+     "tempo": 0.78,
+     "risk": 0.76
+    },
+    "formation": "4-3-3"
+   },
+   "away": {
+    "strength": 0.5,
+    "style": {
+     "press": 0.72,
+     "directness": 0.7,
+     "width": 0.68,
+     "tempo": 0.78,
+     "risk": 0.76
+    },
+    "formation": "4-3-3"
+   },
+   "beats": [
+    {
+     "kind": "winner",
+     "side": "draw",
+     "minute": null,
+     "at_least": null,
+     "at_most": null,
+     "says": "the match ends all square"
+    },
+    {
+     "kind": "red_card",
+     "side": null,
+     "minute": null,
+     "at_least": 1,
+     "at_most": null,
+     "says": "there is at least one red card"
+    },
+    {
+     "kind": "total_goals",
+     "side": null,
+     "minute": null,
+     "at_least": 3,
+     "at_most": null,
+     "says": "it is a wild game with plenty of goals"
+    },
+    {
+     "kind": "shots_diff",
+     "side": "home",
+     "minute": null,
+     "at_least": 1,
+     "at_most": null,
+     "says": "the home side is involved in an end-to-end contest"
+    }
+   ]
+  },
+  "trace": [
+   {
+    "role": "director",
+    "model": "gpt-5.4-mini",
+    "ms": 13527,
+    "beats": 4
+   },
+   {
+    "role": "gate",
+    "notes": [
+     {
+      "action": "refuse",
+      "what": "either side outshoot home by 1",
+      "says": "both teams are involved in an end-to-end contest",
+      "why": "shots diff needs a side"
+     }
+    ],
+    "beats": 3
+   },
+   {
+    "role": "director",
+    "model": "gpt-5.4-mini",
+    "ms": 1900,
+    "repair": true,
+    "beats": 4
+   },
+   {
+    "role": "gate",
+    "notes": [],
+    "beats": 4
+   }
+  ],
+  "report": {
+   "met": 2,
+   "total": 4,
+   "all": false,
+   "partial": 2.667,
+   "beats": [
+    {
+     "kind": "winner",
+     "beat": "a draw",
+     "says": "the match ends all square",
+     "ok": true,
+     "partial": 1.0,
+     "detail": "drawn 1-1",
+     "sources": [
+      339,
+      564
+     ]
+    },
+    {
+     "kind": "red_card",
+     "beat": "a red card",
+     "says": "there is at least one red card",
+     "ok": false,
+     "partial": 0.0,
+     "detail": "no red card",
+     "sources": []
+    },
+    {
+     "kind": "total_goals",
+     "beat": "at least 3 goals",
+     "says": "it is a wild game with plenty of goals",
+     "ok": false,
+     "partial": 0.6666666666666667,
+     "detail": "2 goals (1-1)",
+     "sources": [
+      339,
+      564
+     ]
+    },
+    {
+     "kind": "shots_diff",
+     "beat": "home outshoot away by 1",
+     "says": "the home side is involved in an end-to-end contest",
+     "ok": true,
+     "partial": 1.0,
+     "detail": "shots 19-17",
+     "sources": []
+    }
+   ]
+  },
+  "search": {
+   "workers": 1,
+   "prune": true,
+   "budget": 3,
+   "spent": 3.0,
+   "wall_s": 350.3,
+   "played_s": 17644.7,
+   "candidates": [
+    {
+     "seed": 942702,
+     "complete": true,
+     "pruned_at": null,
+     "met": 2,
+     "total": 4,
+     "score": [
+      3,
+      4
+     ],
+     "played_s": 5982.4,
+     "wall_s": 111.2,
+     "error": null
+    },
+    {
+     "seed": 942703,
+     "complete": true,
+     "pruned_at": null,
+     "met": 1,
+     "total": 4,
+     "score": [
+      2,
+      0
+     ],
+     "played_s": 5844.5,
+     "wall_s": 102.5,
+     "error": null
+    },
+    {
+     "seed": 942704,
+     "complete": true,
+     "pruned_at": null,
+     "met": 2,
+     "total": 4,
+     "score": [
+      1,
+      1
+     ],
+     "played_s": 5817.8,
+     "wall_s": 131.4,
+     "error": null
+    }
+   ]
+  },
+  "replay": "python -m touchline_live.scenario replay TL-942704 --out <dir>"
+ },
+ "replay_check": {
+  "identical_events": true,
+  "events": 3545,
+  "command": "python -m touchline_live.scenario replay TL-942704 --out <dir>"
+ }
+}

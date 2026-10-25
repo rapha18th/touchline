@@ -15,16 +15,21 @@ POST /mcp                     the match MCP server over streamable HTTP (read-on
                               POST only, one worker, 429 when busy, a token bucket per client
 POST /api/ask/{id}            Ask the record: an agent answers over /mcp, the Verifier passes it first;
                               six questions per client in ten minutes, beside a cap for the whole page
+POST /api/scenario            Write the match: a story in, a background job out (its id)
+GET  /api/scenario/{job}      the job's progress: candidates played, beats met, the match id when done
 """
 
 from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 import re
 import time
+import uuid
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -94,20 +99,37 @@ def health():
 def matches():
     out = []
     for p in sorted(DATA.glob("TL-*")):
-        md = json.loads((p / "meta.json").read_text(encoding="utf-8"))
+        try:
+            md = json.loads((p / "meta.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        sc = md.get("scenario")
         out.append({"match_id": md["match_id"], "home": md["home"]["name"], "away": md["away"]["name"],
                     "home_short": md["home"]["short"], "away_short": md["away"]["short"],
                     "kits": {s: md[s]["kit"] for s in ("home", "away")}, "final": md["final_score"],
                     "venue": md["venue"], "kickoff": md["kickoff_local"],
                     "broadcast": (BROADCASTS / f"{md['match_id']}.cues.jsonl").exists(),
-                    "voiced": (BROADCASTS / "audio" / md["match_id"]).is_dir()})
+                    "voiced": (BROADCASTS / "audio" / md["match_id"]).is_dir(),
+                    # A written match shows the headline built from its typed beats, never the story's own words.
+                    "written": None if not sc else {"headline": sc["headline"], "created": sc.get("created"),
+                                                    "met": sc["report"]["met"], "total": sc["report"]["total"]}})
     return out
+
+
+def public_scenario(sc: dict) -> dict:
+    """What a viewer of a written match sees: the headline and the beat report. The story stays on the server."""
+    return {"headline": sc["headline"], "created": sc.get("created"),
+            "report": {"met": sc["report"]["met"], "total": sc["report"]["total"],
+                       "beats": [{k: b[k] for k in ("beat", "ok", "detail", "sources")} for b in sc["report"]["beats"]]},
+            "search": {k: sc["search"][k] for k in ("workers", "prune", "budget", "spent", "wall_s", "played_s")}}
 
 
 @app.get("/api/match/{mid}")
 def meta(mid: str):
     m = match(mid)
     md = dict(m.meta)
+    if md.get("scenario"):
+        md["scenario"] = public_scenario(md["scenario"])
     md["stream"] = {"hz": FPS / STEP, "step": STEP, "scale": UNIT, "frames": [int(np.ceil(n / STEP)) for n in m.period_frames]}
     return md
 
@@ -200,6 +222,93 @@ async def ask_the_record(mid: str, q: Question, request: Request):
             return JSONResponse(status_code=502, content={
                 "detail": f"the record agent did not answer: {type(exc).__name__}",
                 "error": err, "attempts": progress["attempts"]})
+
+
+# ----- write the match -----------------------------------------------------------------------
+# One job plays at a time on a host; the engine already uses the process pool scenario.pool_size picks.
+WRITE_LIMIT = int(os.environ.get("TOUCHLINE_SCENARIO_PER_HOUR", "12"))
+WRITE_QUEUE = int(os.environ.get("TOUCHLINE_SCENARIO_QUEUE", "3"))
+WRITE_KEEP = int(os.environ.get("TOUCHLINE_SCENARIO_KEEP", "12"))
+WRITE_SEEDS = int(os.environ.get("TOUCHLINE_SCENARIO_SEEDS", "3"))
+_writer = ThreadPoolExecutor(max_workers=1, thread_name_prefix="scenario")
+_jobs: dict[str, dict] = {}
+_written: list[float] = []
+
+
+class Story(BaseModel):
+    story: str = Field(min_length=8, max_length=300)
+
+
+def _job_view(job: dict) -> dict:
+    keep = ("id", "state", "story", "headline", "beats", "gate", "director", "repaired", "played", "playing", "best", "budget",
+            "spent", "workers", "match_id", "report", "error", "elapsed_s", "queued_behind")
+    view = {k: job[k] for k in keep if k in job}
+    if job["state"] in ("queued", "directing", "playing"):
+        view["elapsed_s"] = round(time.time() - job["created"], 1)
+        if job["state"] == "queued":
+            view["queued_behind"] = sum(1 for j in _jobs.values() if j["state"] == "queued" and j["created"] < job["created"])
+    return view
+
+
+def _write_job(job: dict) -> None:
+    from . import scenario
+
+    def progress(p: dict) -> None:
+        st = p.get("state")
+        if st == "directing":
+            job["state"] = "directing"
+        elif st == "directed":
+            spec = scenario.ScenarioSpec.model_validate(p["spec"])
+            gates = [t for t in p["trace"] if t.get("role") == "gate"]
+            refusals = lambda t: [{k: n[k] for k in ("what", "why")} for n in t["notes"] if n["action"] == "refuse"]
+            job.update(state="playing", headline=p["headline"], beats=[scenario.describe(b) for b in spec.beats],
+                       director=next((t.get("model") for t in p["trace"] if t.get("role") == "director" and t.get("model")), None),
+                       repaired=any(t.get("repair") for t in p["trace"]),
+                       # The gate's refusals in the first round (which the Director then repaired) and in the last.
+                       gate={"first": refusals(gates[0]) if len(gates) > 1 else [], "final": refusals(gates[-1]) if gates else []})
+        elif st in ("playing", "chosen"):
+            job.update(played=[{k: c.get(k) for k in ("seed", "complete", "pruned_at", "met", "total", "score")}
+                               for c in p["candidates"]],
+                       playing=[pl["minute"] for pl in p["playing"]], best=p["best"], budget=p["budget"],
+                       spent=p["spent"], workers=p["workers"])
+
+    try:
+        res = scenario.write_match(job["story"], data_dir=DATA, seeds=WRITE_SEEDS, progress=progress, use_llm=CREW)
+        for gone in scenario.prune_old(DATA, WRITE_KEEP):
+            _cache.pop(gone, None)
+            _cache.pop(f"bin:{gone}", None)
+        job.update(state="done", match_id=res["match_id"], playing=[],
+                   report={"met": res["report"]["met"], "total": res["report"]["total"],
+                           "beats": [{k: b[k] for k in ("beat", "ok", "detail")} for b in res["report"]["beats"]]})
+    except Exception as exc:
+        logging.getLogger("touchline.scenario").exception("scenario job %s failed", job["id"])
+        job.update(state="failed", error=f"{type(exc).__name__}: the match could not be written")
+    job["elapsed_s"] = round(time.time() - job["created"], 1)
+
+
+@app.post("/api/scenario", status_code=202)
+def write_scenario(s: Story):
+    now = time.time()
+    _written[:] = [t for t in _written if now - t < 3600]
+    if len(_written) >= WRITE_LIMIT:
+        raise HTTPException(429, "a lot of matches have been written this hour; try again later")
+    if sum(1 for j in _jobs.values() if j["state"] in ("queued", "directing", "playing")) >= WRITE_QUEUE:
+        raise HTTPException(429, "the engine is busy writing other matches; try again in a few minutes")
+    _written.append(now)
+    for old in [k for k, j in _jobs.items() if now - j["created"] > 6 * 3600]:
+        _jobs.pop(old, None)
+    job = {"id": uuid.uuid4().hex[:12], "state": "queued", "story": s.story.strip(), "created": now}
+    _jobs[job["id"]] = job
+    _writer.submit(_write_job, job)
+    return _job_view(job)
+
+
+@app.get("/api/scenario/{jid}")
+def scenario_job(jid: str):
+    job = _jobs.get(jid)
+    if job is None:
+        raise HTTPException(404, "no such job on this server")
+    return _job_view(job)
 
 
 # ----- live channels ------------------------------------------------------------------------

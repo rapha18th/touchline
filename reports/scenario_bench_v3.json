@@ -1,0 +1,1715 @@
+{
+ "stories": [
+  {
+   "story": "an underdog parks the bus and nicks it late",
+   "gold": [
+    "away win",
+    "a goal for away from minute 75"
+   ],
+   "arms": {
+    "director": {
+     "arm": "director",
+     "seed": 950007,
+     "score": [
+      1,
+      0
+     ],
+     "own": {
+      "met": 1,
+      "total": 4
+     },
+     "gold": {
+      "met": 0,
+      "total": 2,
+      "all": false,
+      "beats": [
+       {
+        "beat": "away win",
+        "ok": false,
+        "detail": "home won 1-0"
+       },
+       {
+        "beat": "a goal for away from minute 75",
+        "ok": false,
+        "detail": "no goal for away"
+       }
+      ]
+     },
+     "candidates": 8,
+     "pruned": 7,
+     "played_min": 397.3,
+     "wall_s": 205.8,
+     "spent": 4.1
+    },
+    "rules": {
+     "arm": "rules",
+     "seed": 950000,
+     "score": [
+      2,
+      2
+     ],
+     "own": {
+      "met": 2,
+      "total": 3
+     },
+     "gold": {
+      "met": 1,
+      "total": 2,
+      "all": false,
+      "beats": [
+       {
+        "beat": "away win",
+        "ok": false,
+        "detail": "drawn 2-2"
+       },
+       {
+        "beat": "a goal for away from minute 75",
+        "ok": true,
+        "detail": "away scored at 87'"
+       }
+      ]
+     },
+     "candidates": 3,
+     "pruned": 0,
+     "played_min": 295.8,
+     "wall_s": 87.2,
+     "spent": 3.0
+    }
+   },
+   "director_fell_back": false,
+   "spec": {
+    "home": {
+     "strength": 0.62,
+     "style": {
+      "press": 0.62,
+      "directness": 0.52,
+      "width": 0.56,
+      "tempo": 0.58,
+      "risk": 0.5
+     },
+     "formation": "4-2-3-1"
+    },
+    "away": {
+     "strength": 0.48,
+     "style": {
+      "press": 0.2,
+      "directness": 0.28,
+      "width": 0.38,
+      "tempo": 0.34,
+      "risk": 0.22
+     },
+     "formation": "3-5-2"
+    },
+    "beats": [
+     {
+      "kind": "winner",
+      "side": "away",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "the underdog nicks it late"
+     },
+     {
+      "kind": "late_goal",
+      "side": "away",
+      "minute": 75,
+      "at_least": null,
+      "at_most": null,
+      "says": "the underdog nicks it late"
+     },
+     {
+      "kind": "clean_sheet",
+      "side": "away",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "parks the bus"
+     },
+     {
+      "kind": "total_goals",
+      "side": null,
+      "minute": null,
+      "at_least": 1,
+      "at_most": 2,
+      "says": "nicks it late"
+     }
+    ]
+   },
+   "trace": [
+    {
+     "role": "director",
+     "model": "gpt-5.4-mini",
+     "ms": 7636,
+     "beats": 4
+    },
+    {
+     "role": "gate",
+     "notes": [],
+     "beats": 4
+    }
+   ],
+   "rules": {
+    "home": {
+     "strength": 0.68,
+     "style": {
+      "press": 0.85,
+      "directness": null,
+      "width": null,
+      "tempo": null,
+      "risk": 0.8
+     },
+     "formation": null
+    },
+    "away": {
+     "strength": 0.32,
+     "style": {
+      "press": 0.15,
+      "directness": 0.8,
+      "width": null,
+      "tempo": 0.3,
+      "risk": 0.2
+     },
+     "formation": "3-5-2"
+    },
+    "beats": [
+     {
+      "kind": "winner",
+      "side": "away",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "underdog"
+     },
+     {
+      "kind": "shots_diff",
+      "side": "home",
+      "minute": null,
+      "at_least": 6,
+      "at_most": null,
+      "says": "parks the bus"
+     },
+     {
+      "kind": "late_goal",
+      "side": "away",
+      "minute": 80,
+      "at_least": null,
+      "at_most": null,
+      "says": "late"
+     }
+    ]
+   },
+   "beats": {
+    "director": [
+     "away win",
+     "a goal for away from minute 75",
+     "an away clean sheet",
+     "1 to 2 goals"
+    ],
+    "rules": [
+     "away win",
+     "home outshoot away by 6",
+     "a goal for away from minute 80"
+    ]
+   },
+   "read": {
+    "director": {
+     "gold": 2,
+     "read": 2,
+     "extra": 2
+    },
+    "rules": {
+     "gold": 2,
+     "read": 2,
+     "extra": 1
+    }
+   }
+  },
+  {
+   "story": "a wild end-to-end draw with a red card",
+   "gold": [
+    "a draw",
+    "at least 4 goals",
+    "a red card"
+   ],
+   "arms": {
+    "director": {
+     "arm": "director",
+     "seed": 950101,
+     "score": [
+      1,
+      1
+     ],
+     "own": {
+      "met": 1,
+      "total": 3
+     },
+     "gold": {
+      "met": 1,
+      "total": 3,
+      "all": false,
+      "beats": [
+       {
+        "beat": "a draw",
+        "ok": true,
+        "detail": "drawn 1-1"
+       },
+       {
+        "beat": "at least 4 goals",
+        "ok": false,
+        "detail": "2 goals (1-1)"
+       },
+       {
+        "beat": "a red card",
+        "ok": false,
+        "detail": "no red card"
+       }
+      ]
+     },
+     "candidates": 3,
+     "pruned": 0,
+     "played_min": 294.6,
+     "wall_s": 83.9,
+     "spent": 3.0
+    },
+    "rules": {
+     "arm": "rules",
+     "seed": 950102,
+     "score": [
+      2,
+      2
+     ],
+     "own": {
+      "met": 2,
+      "total": 3
+     },
+     "gold": {
+      "met": 2,
+      "total": 3,
+      "all": false,
+      "beats": [
+       {
+        "beat": "a draw",
+        "ok": true,
+        "detail": "drawn 2-2"
+       },
+       {
+        "beat": "at least 4 goals",
+        "ok": true,
+        "detail": "4 goals (2-2)"
+       },
+       {
+        "beat": "a red card",
+        "ok": false,
+        "detail": "no red card"
+       }
+      ]
+     },
+     "candidates": 3,
+     "pruned": 0,
+     "played_min": 294.6,
+     "wall_s": 86.4,
+     "spent": 3.0
+    }
+   },
+   "director_fell_back": false,
+   "spec": {
+    "home": {
+     "strength": 0.5,
+     "style": {
+      "press": 0.7,
+      "directness": 0.75,
+      "width": 0.8,
+      "tempo": 0.8,
+      "risk": 0.8
+     },
+     "formation": "4-3-3"
+    },
+    "away": {
+     "strength": 0.5,
+     "style": {
+      "press": 0.7,
+      "directness": 0.75,
+      "width": 0.8,
+      "tempo": 0.8,
+      "risk": 0.8
+     },
+     "formation": "4-3-3"
+    },
+    "beats": [
+     {
+      "kind": "winner",
+      "side": "draw",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "a draw"
+     },
+     {
+      "kind": "red_card",
+      "side": null,
+      "minute": null,
+      "at_least": 1,
+      "at_most": null,
+      "says": "with a red card"
+     },
+     {
+      "kind": "total_goals",
+      "side": null,
+      "minute": null,
+      "at_least": 3,
+      "at_most": null,
+      "says": "wild end-to-end"
+     }
+    ]
+   },
+   "trace": [
+    {
+     "role": "director",
+     "model": "gpt-5.4-mini",
+     "ms": 5927,
+     "beats": 3
+    },
+    {
+     "role": "gate",
+     "notes": [],
+     "beats": 3
+    }
+   ],
+   "rules": {
+    "home": {
+     "strength": null,
+     "style": {
+      "press": 0.75,
+      "directness": 0.75,
+      "width": null,
+      "tempo": 0.85,
+      "risk": 0.85
+     },
+     "formation": null
+    },
+    "away": {
+     "strength": null,
+     "style": {
+      "press": 0.75,
+      "directness": 0.75,
+      "width": null,
+      "tempo": 0.85,
+      "risk": 0.85
+     },
+     "formation": null
+    },
+    "beats": [
+     {
+      "kind": "total_goals",
+      "side": null,
+      "minute": null,
+      "at_least": 4,
+      "at_most": null,
+      "says": "end to end"
+     },
+     {
+      "kind": "winner",
+      "side": "draw",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "draw"
+     },
+     {
+      "kind": "red_card",
+      "side": null,
+      "minute": null,
+      "at_least": 1,
+      "at_most": null,
+      "says": "red card"
+     }
+    ]
+   },
+   "beats": {
+    "director": [
+     "a draw",
+     "a red card",
+     "at least 3 goals"
+    ],
+    "rules": [
+     "at least 4 goals",
+     "a draw",
+     "a red card"
+    ]
+   },
+   "read": {
+    "director": {
+     "gold": 3,
+     "read": 3,
+     "extra": 0
+    },
+    "rules": {
+     "gold": 3,
+     "read": 3,
+     "extra": 0
+    }
+   }
+  },
+  {
+   "story": "the home side fall behind and come back to win",
+   "gold": [
+    "a home comeback"
+   ],
+   "arms": {
+    "director": {
+     "arm": "director",
+     "seed": 950201,
+     "score": [
+      2,
+      2
+     ],
+     "own": {
+      "met": 0,
+      "total": 2
+     },
+     "gold": {
+      "met": 0,
+      "total": 1,
+      "all": false,
+      "beats": [
+       {
+        "beat": "a home comeback",
+        "ok": false,
+        "detail": "no comeback, 2-2"
+       }
+      ]
+     },
+     "candidates": 3,
+     "pruned": 0,
+     "played_min": 294.4,
+     "wall_s": 85.1,
+     "spent": 3.0
+    },
+    "rules": {
+     "arm": "rules",
+     "seed": 950201,
+     "score": [
+      5,
+      4
+     ],
+     "own": {
+      "met": 2,
+      "total": 2
+     },
+     "gold": {
+      "met": 1,
+      "total": 1,
+      "all": true,
+      "beats": [
+       {
+        "beat": "a home comeback",
+        "ok": true,
+        "detail": "home behind at 28', won 5-4"
+       }
+      ]
+     },
+     "candidates": 2,
+     "pruned": 0,
+     "played_min": 192.8,
+     "wall_s": 87.5,
+     "spent": 2.0
+    }
+   },
+   "director_fell_back": false,
+   "spec": {
+    "home": {
+     "strength": 0.6,
+     "style": {
+      "press": 0.62,
+      "directness": 0.58,
+      "width": 0.55,
+      "tempo": 0.62,
+      "risk": 0.64
+     },
+     "formation": "4-2-3-1"
+    },
+    "away": {
+     "strength": 0.54,
+     "style": {
+      "press": 0.52,
+      "directness": 0.54,
+      "width": 0.5,
+      "tempo": 0.55,
+      "risk": 0.54
+     },
+     "formation": "4-2-3-1"
+    },
+    "beats": [
+     {
+      "kind": "comeback",
+      "side": "home",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "the home side fall behind and come back to win"
+     },
+     {
+      "kind": "winner",
+      "side": "home",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "the home side come back to win"
+     }
+    ]
+   },
+   "trace": [
+    {
+     "role": "director",
+     "model": "gpt-5.4-mini",
+     "ms": 5128,
+     "beats": 2
+    },
+    {
+     "role": "gate",
+     "notes": [],
+     "beats": 2
+    }
+   ],
+   "rules": {
+    "home": {
+     "strength": null,
+     "style": {
+      "press": null,
+      "directness": null,
+      "width": null,
+      "tempo": null,
+      "risk": null
+     },
+     "formation": null
+    },
+    "away": {
+     "strength": null,
+     "style": {
+      "press": null,
+      "directness": null,
+      "width": null,
+      "tempo": null,
+      "risk": null
+     },
+     "formation": null
+    },
+    "beats": [
+     {
+      "kind": "winner",
+      "side": "home",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "win"
+     },
+     {
+      "kind": "comeback",
+      "side": "home",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "comeback"
+     }
+    ]
+   },
+   "beats": {
+    "director": [
+     "a home comeback",
+     "home win"
+    ],
+    "rules": [
+     "home win",
+     "a home comeback"
+    ]
+   },
+   "read": {
+    "director": {
+     "gold": 1,
+     "read": 1,
+     "extra": 1
+    },
+    "rules": {
+     "gold": 1,
+     "read": 1,
+     "extra": 1
+    }
+   }
+  },
+  {
+   "story": "a tight, cagey game settled by a single goal",
+   "gold": [
+    "1 goal"
+   ],
+   "arms": {
+    "director": {
+     "arm": "director",
+     "seed": 950302,
+     "score": [
+      0,
+      1
+     ],
+     "own": {
+      "met": 1,
+      "total": 1
+     },
+     "gold": {
+      "met": 1,
+      "total": 1,
+      "all": true,
+      "beats": [
+       {
+        "beat": "1 goal",
+        "ok": true,
+        "detail": "1 goal (0-1)"
+       }
+      ]
+     },
+     "candidates": 2,
+     "pruned": 1,
+     "played_min": 119.7,
+     "wall_s": 75.7,
+     "spent": 1.21
+    },
+    "rules": {
+     "arm": "rules",
+     "seed": 950302,
+     "score": [
+      0,
+      0
+     ],
+     "own": {
+      "met": 1,
+      "total": 1
+     },
+     "gold": {
+      "met": 0,
+      "total": 1,
+      "all": false,
+      "beats": [
+       {
+        "beat": "1 goal",
+        "ok": false,
+        "detail": "0 goals (0-0)"
+       }
+      ]
+     },
+     "candidates": 3,
+     "pruned": 2,
+     "played_min": 209.5,
+     "wall_s": 81.6,
+     "spent": 2.15
+    }
+   },
+   "director_fell_back": false,
+   "spec": {
+    "home": {
+     "strength": 0.52,
+     "style": {
+      "press": 0.32,
+      "directness": 0.38,
+      "width": 0.44,
+      "tempo": 0.34,
+      "risk": 0.22
+     },
+     "formation": "4-2-3-1"
+    },
+    "away": {
+     "strength": 0.5,
+     "style": {
+      "press": 0.3,
+      "directness": 0.36,
+      "width": 0.42,
+      "tempo": 0.32,
+      "risk": 0.2
+     },
+     "formation": "4-2-3-1"
+    },
+    "beats": [
+     {
+      "kind": "total_goals",
+      "side": null,
+      "minute": null,
+      "at_least": 1,
+      "at_most": 1,
+      "says": "a tight, cagey game settled by a single goal"
+     }
+    ]
+   },
+   "trace": [
+    {
+     "role": "director",
+     "model": "gpt-5.4-mini",
+     "ms": 5482,
+     "beats": 1
+    },
+    {
+     "role": "gate",
+     "notes": [],
+     "beats": 1
+    }
+   ],
+   "rules": {
+    "home": {
+     "strength": null,
+     "style": {
+      "press": null,
+      "directness": null,
+      "width": null,
+      "tempo": 0.3,
+      "risk": 0.2
+     },
+     "formation": null
+    },
+    "away": {
+     "strength": null,
+     "style": {
+      "press": null,
+      "directness": null,
+      "width": null,
+      "tempo": 0.3,
+      "risk": 0.2
+     },
+     "formation": null
+    },
+    "beats": [
+     {
+      "kind": "total_goals",
+      "side": null,
+      "minute": null,
+      "at_least": null,
+      "at_most": 2,
+      "says": "tight"
+     }
+    ]
+   },
+   "beats": {
+    "director": [
+     "1 goal"
+    ],
+    "rules": [
+     "at most 2 goals"
+    ]
+   },
+   "read": {
+    "director": {
+     "gold": 1,
+     "read": 1,
+     "extra": 0
+    },
+    "rules": {
+     "gold": 1,
+     "read": 1,
+     "extra": 0
+    }
+   }
+  },
+  {
+   "story": "the favourites dominate at home and win with a clean sheet",
+   "gold": [
+    "home win",
+    "a home clean sheet",
+    "home outshoot away by 6"
+   ],
+   "arms": {
+    "director": {
+     "arm": "director",
+     "seed": 950402,
+     "score": [
+      3,
+      0
+     ],
+     "own": {
+      "met": 2,
+      "total": 2
+     },
+     "gold": {
+      "met": 3,
+      "total": 3,
+      "all": true,
+      "beats": [
+       {
+        "beat": "home win",
+        "ok": true,
+        "detail": "home won 3-0"
+       },
+       {
+        "beat": "a home clean sheet",
+        "ok": true,
+        "detail": "home conceded 0"
+       },
+       {
+        "beat": "home outshoot away by 6",
+        "ok": true,
+        "detail": "shots 12-4"
+       }
+      ]
+     },
+     "candidates": 5,
+     "pruned": 4,
+     "played_min": 272.1,
+     "wall_s": 78.5,
+     "spent": 2.79
+    },
+    "rules": {
+     "arm": "rules",
+     "seed": 950401,
+     "score": [
+      1,
+      0
+     ],
+     "own": {
+      "met": 2,
+      "total": 3
+     },
+     "gold": {
+      "met": 2,
+      "total": 3,
+      "all": false,
+      "beats": [
+       {
+        "beat": "home win",
+        "ok": true,
+        "detail": "home won 1-0"
+       },
+       {
+        "beat": "a home clean sheet",
+        "ok": true,
+        "detail": "home conceded 0"
+       },
+       {
+        "beat": "home outshoot away by 6",
+        "ok": false,
+        "detail": "shots 4-18"
+       }
+      ]
+     },
+     "candidates": 5,
+     "pruned": 4,
+     "played_min": 327.7,
+     "wall_s": 104.4,
+     "spent": 3.43
+    }
+   },
+   "director_fell_back": false,
+   "spec": {
+    "home": {
+     "strength": 0.68,
+     "style": {
+      "press": 0.72,
+      "directness": 0.58,
+      "width": 0.62,
+      "tempo": 0.66,
+      "risk": 0.48
+     },
+     "formation": "4-2-3-1"
+    },
+    "away": {
+     "strength": 0.42,
+     "style": {
+      "press": 0.38,
+      "directness": 0.46,
+      "width": 0.48,
+      "tempo": 0.44,
+      "risk": 0.34
+     },
+     "formation": "4-3-3"
+    },
+    "beats": [
+     {
+      "kind": "winner",
+      "side": "home",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "the favourites dominate at home and win"
+     },
+     {
+      "kind": "clean_sheet",
+      "side": "home",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "the favourites dominate at home and win with a clean sheet"
+     }
+    ]
+   },
+   "trace": [
+    {
+     "role": "director",
+     "model": "gpt-5.4-mini",
+     "ms": 4358,
+     "beats": 2
+    },
+    {
+     "role": "gate",
+     "notes": [],
+     "beats": 2
+    }
+   ],
+   "rules": {
+    "home": {
+     "strength": null,
+     "style": {
+      "press": null,
+      "directness": null,
+      "width": null,
+      "tempo": null,
+      "risk": null
+     },
+     "formation": null
+    },
+    "away": {
+     "strength": null,
+     "style": {
+      "press": null,
+      "directness": null,
+      "width": null,
+      "tempo": null,
+      "risk": null
+     },
+     "formation": null
+    },
+    "beats": [
+     {
+      "kind": "winner",
+      "side": "home",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "win"
+     },
+     {
+      "kind": "clean_sheet",
+      "side": "home",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "clean sheet"
+     },
+     {
+      "kind": "shots_diff",
+      "side": "home",
+      "minute": null,
+      "at_least": 8,
+      "at_most": null,
+      "says": "dominate"
+     }
+    ]
+   },
+   "beats": {
+    "director": [
+     "home win",
+     "a home clean sheet"
+    ],
+    "rules": [
+     "home win",
+     "a home clean sheet",
+     "home outshoot away by 8"
+    ]
+   },
+   "read": {
+    "director": {
+     "gold": 3,
+     "read": 2,
+     "extra": 0
+    },
+    "rules": {
+     "gold": 3,
+     "read": 3,
+     "extra": 0
+    }
+   }
+  },
+  {
+   "story": "a goalless draw where both defences win every battle",
+   "gold": [
+    "no goals"
+   ],
+   "arms": {
+    "director": {
+     "arm": "director",
+     "seed": 950501,
+     "score": [
+      0,
+      0
+     ],
+     "own": {
+      "met": 4,
+      "total": 4
+     },
+     "gold": {
+      "met": 1,
+      "total": 1,
+      "all": true,
+      "beats": [
+       {
+        "beat": "no goals",
+        "ok": true,
+        "detail": "0 goals (0-0)"
+       }
+      ]
+     },
+     "candidates": 6,
+     "pruned": 5,
+     "played_min": 197.4,
+     "wall_s": 84.6,
+     "spent": 2.0
+    },
+    "rules": {
+     "arm": "rules",
+     "seed": 950508,
+     "score": [
+      1,
+      2
+     ],
+     "own": {
+      "met": 0,
+      "total": 2
+     },
+     "gold": {
+      "met": 0,
+      "total": 1,
+      "all": false,
+      "beats": [
+       {
+        "beat": "no goals",
+        "ok": false,
+        "detail": "3 goals (1-2)"
+       }
+      ]
+     },
+     "candidates": 9,
+     "pruned": 8,
+     "played_min": 387.4,
+     "wall_s": 155.3,
+     "spent": 4.02
+    }
+   },
+   "director_fell_back": false,
+   "spec": {
+    "home": {
+     "strength": 0.5,
+     "style": {
+      "press": 0.38,
+      "directness": 0.32,
+      "width": 0.42,
+      "tempo": 0.35,
+      "risk": 0.18
+     },
+     "formation": "4-2-3-1"
+    },
+    "away": {
+     "strength": 0.5,
+     "style": {
+      "press": 0.36,
+      "directness": 0.3,
+      "width": 0.4,
+      "tempo": 0.34,
+      "risk": 0.18
+     },
+     "formation": "4-2-3-1"
+    },
+    "beats": [
+     {
+      "kind": "winner",
+      "side": "draw",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "a goalless draw"
+     },
+     {
+      "kind": "total_goals",
+      "side": null,
+      "minute": null,
+      "at_least": 0,
+      "at_most": 0,
+      "says": "goalless"
+     },
+     {
+      "kind": "clean_sheet",
+      "side": "home",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "both defences win every battle"
+     },
+     {
+      "kind": "clean_sheet",
+      "side": "away",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "both defences win every battle"
+     }
+    ]
+   },
+   "trace": [
+    {
+     "role": "director",
+     "model": "gpt-5.4-mini",
+     "ms": 5057,
+     "beats": 4
+    },
+    {
+     "role": "gate",
+     "notes": [],
+     "beats": 4
+    }
+   ],
+   "rules": {
+    "home": {
+     "strength": null,
+     "style": {
+      "press": null,
+      "directness": null,
+      "width": null,
+      "tempo": null,
+      "risk": null
+     },
+     "formation": null
+    },
+    "away": {
+     "strength": null,
+     "style": {
+      "press": null,
+      "directness": null,
+      "width": null,
+      "tempo": null,
+      "risk": null
+     },
+     "formation": null
+    },
+    "beats": [
+     {
+      "kind": "total_goals",
+      "side": null,
+      "minute": null,
+      "at_least": null,
+      "at_most": 0,
+      "says": "goalless"
+     },
+     {
+      "kind": "winner",
+      "side": "draw",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "draw"
+     }
+    ]
+   },
+   "beats": {
+    "director": [
+     "a draw",
+     "no goals",
+     "a home clean sheet",
+     "an away clean sheet"
+    ],
+    "rules": [
+     "no goals",
+     "a draw"
+    ]
+   },
+   "read": {
+    "director": {
+     "gold": 1,
+     "read": 1,
+     "extra": 3
+    },
+    "rules": {
+     "gold": 1,
+     "read": 1,
+     "extra": 1
+    }
+   }
+  },
+  {
+   "story": "the visitors score first, go down to ten men and hang on to win",
+   "gold": [
+    "away score first",
+    "a red card for away",
+    "away win"
+   ],
+   "arms": {
+    "director": {
+     "arm": "director",
+     "seed": 950603,
+     "score": [
+      0,
+      1
+     ],
+     "own": {
+      "met": 2,
+      "total": 3
+     },
+     "gold": {
+      "met": 2,
+      "total": 3,
+      "all": false,
+      "beats": [
+       {
+        "beat": "away score first",
+        "ok": true,
+        "detail": "away scored first at 83'"
+       },
+       {
+        "beat": "a red card for away",
+        "ok": false,
+        "detail": "no red card"
+       },
+       {
+        "beat": "away win",
+        "ok": true,
+        "detail": "away won 0-1"
+       }
+      ]
+     },
+     "candidates": 4,
+     "pruned": 1,
+     "played_min": 324.7,
+     "wall_s": 118.3,
+     "spent": 3.28
+    },
+    "rules": {
+     "arm": "rules",
+     "seed": 950601,
+     "score": [
+      4,
+      1
+     ],
+     "own": {
+      "met": 1,
+      "total": 3
+     },
+     "gold": {
+      "met": 0,
+      "total": 3,
+      "all": false,
+      "beats": [
+       {
+        "beat": "away score first",
+        "ok": false,
+        "detail": "home scored first at 13'"
+       },
+       {
+        "beat": "a red card for away",
+        "ok": false,
+        "detail": "no red card"
+       },
+       {
+        "beat": "away win",
+        "ok": false,
+        "detail": "home won 4-1"
+       }
+      ]
+     },
+     "candidates": 6,
+     "pruned": 3,
+     "played_min": 310.2,
+     "wall_s": 97.6,
+     "spent": 3.2
+    }
+   },
+   "director_fell_back": false,
+   "spec": {
+    "home": {
+     "strength": 0.55,
+     "style": {
+      "press": 0.52,
+      "directness": 0.5,
+      "width": 0.52,
+      "tempo": 0.52,
+      "risk": 0.48
+     },
+     "formation": "4-2-3-1"
+    },
+    "away": {
+     "strength": 0.46,
+     "style": {
+      "press": 0.46,
+      "directness": 0.58,
+      "width": 0.48,
+      "tempo": 0.5,
+      "risk": 0.46
+     },
+     "formation": "4-2-3-1"
+    },
+    "beats": [
+     {
+      "kind": "first_goal",
+      "side": "away",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "the visitors score first"
+     },
+     {
+      "kind": "red_card",
+      "side": "away",
+      "minute": null,
+      "at_least": 1,
+      "at_most": null,
+      "says": "go down to ten men"
+     },
+     {
+      "kind": "winner",
+      "side": "away",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "hang on to win"
+     }
+    ]
+   },
+   "trace": [
+    {
+     "role": "director",
+     "model": "gpt-5.4-mini",
+     "ms": 4260,
+     "beats": 3
+    },
+    {
+     "role": "gate",
+     "notes": [],
+     "beats": 3
+    }
+   ],
+   "rules": {
+    "home": {
+     "strength": null,
+     "style": {
+      "press": null,
+      "directness": null,
+      "width": null,
+      "tempo": null,
+      "risk": null
+     },
+     "formation": null
+    },
+    "away": {
+     "strength": null,
+     "style": {
+      "press": null,
+      "directness": null,
+      "width": null,
+      "tempo": null,
+      "risk": null
+     },
+     "formation": null
+    },
+    "beats": [
+     {
+      "kind": "winner",
+      "side": "away",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "win"
+     },
+     {
+      "kind": "red_card",
+      "side": null,
+      "minute": null,
+      "at_least": 1,
+      "at_most": null,
+      "says": "red card"
+     },
+     {
+      "kind": "first_goal",
+      "side": "home",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "score first"
+     }
+    ]
+   },
+   "beats": {
+    "director": [
+     "away score first",
+     "a red card for away",
+     "away win"
+    ],
+    "rules": [
+     "away win",
+     "a red card",
+     "home score first"
+    ]
+   },
+   "read": {
+    "director": {
+     "gold": 3,
+     "read": 3,
+     "extra": 0
+    },
+    "rules": {
+     "gold": 3,
+     "read": 1,
+     "extra": 2
+    }
+   }
+  },
+  {
+   "story": "a late winner for the home side in a game of few chances",
+   "gold": [
+    "home win",
+    "a goal for home from minute 75",
+    "at most 3 goals"
+   ],
+   "arms": {
+    "director": {
+     "arm": "director",
+     "seed": 950703,
+     "score": [
+      1,
+      1
+     ],
+     "own": {
+      "met": 1,
+      "total": 3
+     },
+     "gold": {
+      "met": 1,
+      "total": 3,
+      "all": false,
+      "beats": [
+       {
+        "beat": "home win",
+        "ok": false,
+        "detail": "drawn 1-1"
+       },
+       {
+        "beat": "a goal for home from minute 75",
+        "ok": false,
+        "detail": "last goal for home at 66'"
+       },
+       {
+        "beat": "at most 3 goals",
+        "ok": true,
+        "detail": "2 goals (1-1)"
+       }
+      ]
+     },
+     "candidates": 4,
+     "pruned": 1,
+     "played_min": 363.3,
+     "wall_s": 177.4,
+     "spent": 3.65
+    },
+    "rules": {
+     "arm": "rules",
+     "seed": 950701,
+     "score": [
+      1,
+      0
+     ],
+     "own": {
+      "met": 2,
+      "total": 2
+     },
+     "gold": {
+      "met": 3,
+      "total": 3,
+      "all": true,
+      "beats": [
+       {
+        "beat": "home win",
+        "ok": true,
+        "detail": "home won 1-0"
+       },
+       {
+        "beat": "a goal for home from minute 75",
+        "ok": true,
+        "detail": "home scored at 81'"
+       },
+       {
+        "beat": "at most 3 goals",
+        "ok": true,
+        "detail": "1 goal (1-0)"
+       }
+      ]
+     },
+     "candidates": 3,
+     "pruned": 0,
+     "played_min": 304.7,
+     "wall_s": 128.4,
+     "spent": 3.0
+    }
+   },
+   "director_fell_back": false,
+   "spec": {
+    "home": {
+     "strength": 0.56,
+     "style": {
+      "press": 0.42,
+      "directness": 0.46,
+      "width": 0.45,
+      "tempo": 0.38,
+      "risk": 0.28
+     },
+     "formation": "4-2-3-1"
+    },
+    "away": {
+     "strength": 0.5,
+     "style": {
+      "press": 0.38,
+      "directness": 0.42,
+      "width": 0.4,
+      "tempo": 0.36,
+      "risk": 0.24
+     },
+     "formation": "4-2-3-1"
+    },
+    "beats": [
+     {
+      "kind": "winner",
+      "side": "home",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "a late winner for the home side"
+     },
+     {
+      "kind": "late_goal",
+      "side": "home",
+      "minute": 75,
+      "at_least": null,
+      "at_most": null,
+      "says": "a late winner for the home side"
+     },
+     {
+      "kind": "total_goals",
+      "side": null,
+      "minute": null,
+      "at_least": 1,
+      "at_most": 2,
+      "says": "a game of few chances"
+     }
+    ]
+   },
+   "trace": [
+    {
+     "role": "director",
+     "model": "gpt-5.4-mini",
+     "ms": 8847,
+     "beats": 3
+    },
+    {
+     "role": "gate",
+     "notes": [],
+     "beats": 3
+    }
+   ],
+   "rules": {
+    "home": {
+     "strength": null,
+     "style": {
+      "press": null,
+      "directness": null,
+      "width": null,
+      "tempo": null,
+      "risk": null
+     },
+     "formation": null
+    },
+    "away": {
+     "strength": null,
+     "style": {
+      "press": null,
+      "directness": null,
+      "width": null,
+      "tempo": null,
+      "risk": null
+     },
+     "formation": null
+    },
+    "beats": [
+     {
+      "kind": "winner",
+      "side": "home",
+      "minute": null,
+      "at_least": null,
+      "at_most": null,
+      "says": "win"
+     },
+     {
+      "kind": "late_goal",
+      "side": null,
+      "minute": 80,
+      "at_least": null,
+      "at_most": null,
+      "says": "late"
+     }
+    ]
+   },
+   "beats": {
+    "director": [
+     "home win",
+     "a goal for home from minute 75",
+     "1 to 2 goals"
+    ],
+    "rules": [
+     "home win",
+     "a goal from minute 80"
+    ]
+   },
+   "read": {
+    "director": {
+     "gold": 3,
+     "read": 3,
+     "extra": 0
+    },
+    "rules": {
+     "gold": 3,
+     "read": 1,
+     "extra": 1
+    }
+   }
+  }
+ ],
+ "config": {
+  "seeds": 3,
+  "workers": 3,
+  "base_seed": 950000,
+  "period_s": null,
+  "command": "python -m touchline_live.eval.scenario_bench --out reports/scenario_bench_v3.json --arms director,rules --workers 3"
+ },
+ "summary": {
+  "director": {
+   "stories": 8,
+   "gold_met": 9,
+   "gold_total": 17,
+   "stories_all_gold": 3,
+   "own_met": 12,
+   "own_total": 22,
+   "candidates": 35,
+   "pruned": 19,
+   "played_min": 2263.5,
+   "wall_s": 909.3
+  },
+  "rules": {
+   "stories": 8,
+   "gold_met": 9,
+   "gold_total": 17,
+   "stories_all_gold": 2,
+   "own_met": 12,
+   "own_total": 19,
+   "candidates": 34,
+   "pruned": 17,
+   "played_min": 2322.7,
+   "wall_s": 828.4
+  },
+  "read_director": {
+   "gold": 17,
+   "read": 16,
+   "extra": 6
+  },
+  "read_rules": {
+   "gold": 17,
+   "read": 13,
+   "extra": 6
+  }
+ }
+}
