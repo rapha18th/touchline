@@ -169,9 +169,10 @@ def describe(b: Beat) -> str:
     if b.kind == "total_goals":
         if b.at_most == 0:
             return "no goals"
+        g = lambda n: "1 goal" if n == 1 else f"{n} goals"
         if b.at_least is not None and b.at_most is not None:
-            return f"{b.at_least} goals" if b.at_least == b.at_most else f"{b.at_least} to {b.at_most} goals"
-        return f"at least {b.at_least} goals" if b.at_least is not None else f"at most {b.at_most} goals"
+            return g(b.at_least) if b.at_least == b.at_most else f"{b.at_least} to {g(b.at_most)}"
+        return f"at least {g(b.at_least)}" if b.at_least is not None else f"at most {g(b.at_most)}"
     if b.kind == "late_goal":
         return f"a goal for {side} from minute {b.minute}" if b.side else f"a goal from minute {b.minute}"
     if b.kind == "red_card":
@@ -384,7 +385,9 @@ async def direct(story: str, *, use_llm: bool = True, timeout: float = 40.0) -> 
             from agent_framework import Agent
 
             from .crew import llm
-            agent = Agent(client=llm.client(llm.FAST), name="director", instructions=DIRECTOR)
+            # A fresh client, never the cached one: each job runs its own event loop (asyncio.run in a worker
+            # thread), and a client whose connections belong to a closed loop fails with "Event loop is closed".
+            agent = Agent(client=llm.client.__wrapped__(llm.FAST), name="director", instructions=DIRECTOR)
             opts = {"response_format": ScenarioSpec, "reasoning": {"effort": "none"}}
             r = await asyncio.wait_for(agent.run(story, options=opts), timeout)
             spec = r.value
@@ -488,7 +491,7 @@ def check_beat(b: Beat, events: list[dict]) -> dict:
         lo, hi = b.at_least if b.at_least is not None else 0, b.at_most if b.at_most is not None else 99
         ok = lo <= n <= hi
         gap = 0 if ok else (lo - n if n < lo else n - hi)
-        return {**res, "ok": ok, "partial": max(0.0, 1 - gap / 3), "detail": f"{n} goals ({score})", "sources": [g["id"] for g in goals]}
+        return {**res, "ok": ok, "partial": max(0.0, 1 - gap / 3), "detail": f"{n} goal{'' if n == 1 else 's'} ({score})", "sources": [g["id"] for g in goals]}
     if b.kind == "late_goal":
         mine = [g for g in goals if b.side is None or g["team"] == b.side]
         late = [g for g in mine if match_minute(g["period"], g["t"]) >= b.minute]

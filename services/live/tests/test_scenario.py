@@ -156,6 +156,9 @@ def test_headline_is_built_from_typed_fields_only():
     h = S.headline(spec)
     assert h == "Away win, a goal for away from minute 80"
     assert "<" not in h and "IGNORE" not in h
+    assert S.describe(Beat(kind="total_goals", at_least=1, at_most=1)) == "1 goal"
+    assert S.describe(Beat(kind="total_goals", at_most=0)) == "no goals"
+    assert S.describe(Beat(kind="shots_diff", at_least=2)) == "a shots gap of 2"
 
 
 def test_rules_director_reads_common_stories():

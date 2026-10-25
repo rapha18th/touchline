@@ -199,7 +199,11 @@ def main() -> None:
             rep["stories"].append({"story": story, "gold": [S.describe(b) for b in gold], "arms": {}})
         row = rep["stories"][i]
         if "spec" not in row:
-            spec, trace = asyncio.run(S.direct(story))
+            for _ in range(2):                      # one retry when the model was out of reach
+                spec, trace = asyncio.run(S.direct(story))
+                if not any(t.get("fallback") for t in trace):
+                    break
+            row["director_fell_back"] = any(t.get("fallback") for t in trace)
             rules, _ = S.gate(S.rules_director(story))
             row.update(spec=spec.model_dump(), trace=trace, rules=rules.model_dump(),
                        beats={"director": [S.describe(b) for b in spec.beats], "rules": [S.describe(b) for b in rules.beats]})
