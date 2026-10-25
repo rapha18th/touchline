@@ -10,7 +10,7 @@ def ball_path(cands: list[np.ndarray], vmax: float = 40.0, max_gap: int = 12, ga
     """Choose at most one candidate per frame so the chosen points form a plausible ball path.
 
     cands[t] is an (n_t, 3) array of (u, v, score) per frame. A shortest path through a DAG: each chosen
-    candidate earns -(1 + score), each skipped frame costs gap_cost, each step costs motion * (speed / vmax)^2
+    candidate earns -2 (score + 0.35), so a poor one costs more than a skipped frame (gap_cost), each step costs motion * (speed / vmax)^2
     and is allowed only if the ball moved at most vmax pixels per frame. A jump to anywhere costs jump_cost
     (the ball is reset after a goal or out of play), and after a long gap (the ball held inside a player)
     the path may resume anywhere at a capped cost. Returns the chosen index per frame.
@@ -28,7 +28,7 @@ def ball_path(cands: list[np.ndarray], vmax: float = 40.0, max_gap: int = 12, ga
                 run_best, run_arg = float(best[s_old][j]), (s_old, j)
         if len(c) == 0:
             continue
-        reward = -(1.0 + np.clip(c[:, 2], -1.0, 1.0))
+        reward = -2.0 * (np.clip(c[:, 2], -1.5, 1.0) + 0.35)      # a poor candidate is worse than none
         best[t] = gap_cost * t + reward          # start of the path here
         # Or resume after a long occlusion (the ball held inside a player): anywhere, at a capped cost.
         if run_arg is not None and run_best + gap_cost * max_gap < gap_cost * t:

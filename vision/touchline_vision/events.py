@@ -175,6 +175,52 @@ def _bridge(t0: int, last: int, g: np.ndarray, uv: np.ndarray, fps: float, stop:
     return last
 
 
+def kick_time(t0: int, fr: np.ndarray, g: np.ndarray, uv: np.ndarray, P: np.ndarray, fps: float,
+              players: list | None = None, look_back: int = 25) -> int:
+    """The kick frame, when the ball was hidden at the kicker's feet as it left.
+
+    The onset is found where the ball is first seen moving. If it was out of sight just before, run the
+    early flight back in time. The kick is where that line meets the last place the ball was seen near
+    it, or else the player standing on it."""
+    early = fr[:8]
+    if len(early) < 3 or (t0 - 1 >= 0 and not np.isnan(g[t0 - 1, 0]) and not np.isnan(g[t0, 0])):
+        return t0                                   # seen at the kick: the onset already sits on it
+    tau = (early - early[0]) / fps
+    lin, *_ = np.linalg.lstsq(np.column_stack([np.ones_like(tau), tau]), g[early], rcond=None)
+    quad, *_ = np.linalg.lstsq(np.column_stack([np.ones_like(tau), tau, tau ** 2]), g[early], rcond=None)         if len(early) >= 5 else (np.vstack([lin, np.zeros(2)]), None)
+    pos0, vel = lin[0], lin[1]
+    speed = float(np.linalg.norm(vel))
+    if speed < 3:
+        return t0
+    lo = max(0, t0 - look_back)
+
+    def at(t):
+        # Back in time the ball was faster (it slows as it rolls): extrapolate the quadratic, but never
+        # let it turn round.
+        x = (t - early[0]) / fps
+        q = quad[0] + quad[1] * x + quad[2] * x * x
+        return q if float((q - pos0) @ vel) <= 0 else pos0 + vel * x
+
+    # The ball last seen near the backward line, before the onset (false sightings off the line skipped).
+    for tp in range(t0 - 1, lo - 1, -1):
+        if np.isnan(g[tp, 0]) or np.isnan(uv[tp, 0]):
+            continue
+        r = g[tp] - pos0
+        along = float(r @ vel) / speed
+        across = abs(r[0] * vel[1] - r[1] * vel[0]) / speed
+        if along <= 0.5 and across < 1.5:
+            ts = np.arange(tp, int(early[0]))
+            d = [float(np.linalg.norm(at(t) - g[tp])) for t in ts]
+            return int(ts[int(np.argmin(d))])
+    # Else the player the backward line runs into.
+    if players is not None:
+        for t in range(t0 - 1, lo - 1, -1):
+            q = at(t)
+            if any(np.hypot(p[0] - q[0], p[1] - q[1]) < 1.0 for p in players[t]):
+                return t
+    return t0
+
+
 def _rows(P: np.ndarray, uv: np.ndarray):
     """Per observation, the two projective constraint rows (P0 - u P2) and (P1 - v P2), (n, 2, 4)."""
     return np.stack([P[0][None] - uv[:, :1] * P[2][None], P[1][None] - uv[:, 1:2] * P[2][None]], axis=1)
@@ -293,6 +339,10 @@ def detect_events(obs: dict, P, H=None) -> dict:
         t1 = flight_end(t0, gf, uvf, players, fps)
         pos = max(t1, t0 + 3)
         fr = np.array([t for t in range(t0 + 1, t1 + 1) if not np.isnan(uv[t, 0])])
+        if len(fr) < 3:
+            continue
+        t0 = kick_time(t0, fr, g, uv, P, fps, players)
+        fr = fr[fr > t0]
         if len(fr) < 3:
             continue
         tau = (fr - t0) / fps
