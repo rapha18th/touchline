@@ -152,3 +152,57 @@ def test_handcheck_sample_is_half_flagged():
     lines = [_line(r, "analyst", bad=i % 3 == 0) for i, r in enumerate(runs)]
     pick = ce.handcheck_sample(lines, 6, seed=2)
     assert len(pick) == 6 and sum(l["det"]["flags"]["any"] for l in pick) == 3
+
+
+def _rep_line(key, flags=(), judge_ok=True, text="t"):
+    cond, attack, persona = key.split(":")[1:]
+    return {"key": key, "kind": "goal", "cond": cond, "attack": attack, "persona": persona, "text": text,
+            "fallback": False, "flags": list(flags), "why": {}, "judge": {"ok": judge_ok, "errors": [], "note": ""}}
+
+
+def _rep_run(key, attempts=0, fallback=False, problems=()):
+    return {"key": key, "cond": key.split(":")[1], "attack": key.split(":")[2], "ms": 1, "error": None,
+            "fallback": fallback, "attempts": attempts, "derived": key.split(":")[1] == "B",
+            "verifier_problems": list(problems)}
+
+
+def test_report_lines_rebuild_the_any_flag():
+    ls = ce.report_lines({"lines": [_rep_line("4:A:none:casual", ["history_claim", "false_claim"]),
+                                    _rep_line("4:A:none:studio", ["failed_claim"])]})
+    assert ls[0]["idx"] == 4 and ls[0]["det"]["flags"]["any"] and ls[0]["det"]["flags"]["history_claim"]
+    assert not ls[1]["det"]["flags"]["any"]      # failed_claim alone never sets any: false_claim carries it
+
+
+def test_gate_from_report_splits_first_drafts_by_the_first_verdict():
+    rep = {"runs": [_rep_run("0:A:injection", attempts=1, problems=["casual: number 7 is not in the facts"]),
+                    _rep_run("1:A:injection"),
+                    _rep_run("2:A:injection", attempts=2, fallback=True, problems=["analyst: too long"]),
+                    _rep_run("0:B:injection"), _rep_run("1:B:injection"), _rep_run("2:B:injection")],
+           "lines": [_rep_line("0:B:injection:casual", ["unsupported_number"], judge_ok=False),
+                     _rep_line("0:B:injection:analyst", judge_ok=False),
+                     _rep_line("1:B:injection:casual"),
+                     _rep_line("2:B:injection:analyst", judge_ok=False)]}
+    g = ce.gate_from_report(rep)
+    assert g["blocked"] == {"n": 1, "judge_bad": 1, "det_bad": 1, "bad_either": 1}
+    assert g["passed"] == {"n": 2, "judge_bad": 1, "det_bad": 0, "bad_either": 1}
+    assert g["fallback_runs_left_out"] == 1 and g["judge_bad_drafts_blocked"] == 0.5
+    assert ce.first_blocked({"verifier_first": ["studio: too long"], "attempts": 2}) == {"studio"}
+
+
+def test_rejudge_summary_keeps_the_first_judge():
+    rep = {"summary": {"A": {"runs": 2, "errors": 0, "share_judge_bad": 0.5, "share_bad_either": 0.5, "moments_with_a_bad_line": 0.5}},
+           "lines": [_rep_line("0:A:none:casual", judge_ok=True), _rep_line("1:A:none:casual", ["banned_style"], judge_ok=True)]}
+    ce.rejudge_summary(rep)
+    s = rep["summary"]["A"]
+    assert s["share_judge_bad_v1"] == 0.5 and s["share_judge_bad"] == 0.0
+    assert s["share_bad_either"] == 0.5 and s["moments_with_a_bad_line"] == 0.5
+    ce.rejudge_summary(rep)
+    assert s["share_judge_bad_v1"] == 0.5     # a second pass never overwrites the first judge
+
+
+def test_agreement_reports_both_judges():
+    runs = [_run("0:A:none", "A", "none", 1)]
+    lines = [_line(runs[0], "analyst", judge_ok=False), _line(runs[0], "casual", judge_ok=True)]
+    lines[0]["judge_v1"], lines[1]["judge_v1"] = {"ok": False}, {"ok": False}
+    ag = ce.agreement(lines, {"0:A:none:analyst": {"ok": False}, "0:A:none:casual": {"ok": True}})
+    assert ag["judge"]["agree"] == 1.0 and ag["judge_v1"]["agree"] == 0.5 and ag["judge_v1"]["flagged_but_hand_ok"] == 1

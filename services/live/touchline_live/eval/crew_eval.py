@@ -98,6 +98,20 @@ Judge each line on its own, against the record only. A line is wrong (ok=false) 
 Opinion and colour are fine when they assert nothing checkable ("a huge moment", "a brilliant pass").
 A studio caption is terse; judge only what it states. Return exactly one item per line id."""
 
+# The second judge reads the same record with its fields defined, as the crew's own prompt defines them.
+# The first judge (JUDGE_V1) did not know the control index scale; the hand check showed it calling
+# true lines such as "9.1 control" invented. Both judges' verdicts stay in the report.
+JUDGE_V1 = JUDGE
+JUDGE = JUDGE_V1 + """
+
+How to read the record's state:
+- state.explain covers only the last window_min minutes. explain.index is the control index: it runs from 0
+  (chaos) to 100 (control), and explain.label names its band. A line may quote it with the word control or
+  chaos: index 9.1 may air as "9 control", "9.1 control" or "chaos at 9"; index 0.1 as "chaos at 0".
+- explain.turnovers and explain.fouls count both teams together in that window; pass_share, threat and
+  press_wins are per team in that window; momentum names the team with the recent threat, if any.
+- state.teams holds each team's totals for the whole match so far. state.score is [home, away]."""
+
 
 # ----- moments ---------------------------------------------------------------------------------------
 
@@ -581,15 +595,19 @@ def _order(lab: str) -> tuple:
     return (["none", *ATTACKS].index(attack or "none"), cond)
 
 
-def agreement(lines: list[dict], labels: dict) -> dict:
-    """Agreement of each checker with the hand labels (bad = any problem)."""
+def agreement(lines: list[dict], labels: dict, judges: tuple[str, ...] = ("judge", "judge_v1")) -> dict:
+    """Agreement of each checker with the hand labels (bad = any problem). `judges` are the line fields
+    that hold LLM verdicts; a field no line holds is left out."""
     rows = []
     for l in lines:
         h = labels.get(l["key"])
         if h is None:
             continue
-        rows.append({"hand_bad": not h["ok"], "det_bad": l["det"]["flags"]["any"],
-                     "judge_bad": None if not l.get("judge") or l["judge"]["ok"] is None else not l["judge"]["ok"]})
+        row = {"hand_bad": not h["ok"], "det_bad": l["det"]["flags"]["any"]}
+        for j in judges:
+            v = l.get(j)
+            row[j] = None if not v or v["ok"] is None else not v["ok"]
+        rows.append(row)
     def agree(k):
         rr = [r for r in rows if r[k] is not None]
         if not rr:
@@ -600,10 +618,11 @@ def agreement(lines: list[dict], labels: dict) -> dict:
         fn = sum(1 for r in rr if not r[k] and r["hand_bad"])
         return {"n": len(rr), "agree": round((tp + tn) / len(rr), 3), "both_bad": tp, "both_ok": tn,
                 "flagged_but_hand_ok": fp, "missed_hand_bad": fn}
-    both = [r for r in rows if r["judge_bad"] is not None]
-    return {"n": len(rows), "hand_bad": sum(r["hand_bad"] for r in rows), "deterministic": agree("det_bad"),
-            "judge": agree("judge_bad"),
-            "deterministic_vs_judge": round(sum(1 for r in both if r["det_bad"] == r["judge_bad"]) / len(both), 3) if both else None}
+    out = {"n": len(rows), "hand_bad": sum(r["hand_bad"] for r in rows), "deterministic": agree("det_bad")}
+    out |= {j: agree(j) for j in judges if agree(j) is not None}
+    both = [r for r in rows if r[judges[0]] is not None]
+    out["deterministic_vs_judge"] = round(sum(1 for r in both if r["det_bad"] == r[judges[0]]) / len(both), 3) if both else None
+    return out
 
 
 def handcheck_sample(lines: list[dict], k: int, seed: int) -> list[dict]:
@@ -735,11 +754,12 @@ async def score_all(moments: list[dict], runs: list[dict]) -> list[dict]:
     return lines
 
 
-async def judge_all(a, moments: list[dict], lines: list[dict]):
+async def judge_all(a, moments: list[dict], lines: list[dict], path: Path | None = None, instructions: str = JUDGE):
     from agent_framework import Agent
 
     from ..crew import llm
-    path = WORK / "judge.jsonl"
+    path = path or WORK / "judge.jsonl"
+    WORK.mkdir(parents=True, exist_ok=True)
     have = {}
     for row in _jsonl(path):
         have.update(row["verdicts"])
@@ -749,7 +769,7 @@ async def judge_all(a, moments: list[dict], lines: list[dict]):
             todo[l["idx"]].append(l)
     by_idx = {mo["idx"]: mo for mo in moments}
     print(f"judging {sum(len(v) for v in todo.values())} lines over {len(todo)} moments", flush=True)
-    agent = Agent(client=llm.client(llm.DEEP), name="judge", instructions=JUDGE)
+    agent = Agent(client=llm.client(llm.DEEP), name="judge", instructions=instructions)
     sem = asyncio.Semaphore(a.concurrency)
     with instrument():
         async def one(idx, ls):
@@ -765,9 +785,9 @@ async def judge_all(a, moments: list[dict], lines: list[dict]):
         await asyncio.gather(*[one(i, ls) for i, ls in todo.items()])
 
 
-def judge_rows() -> tuple[dict, list]:
+def judge_rows(path: Path | None = None) -> tuple[dict, list]:
     verdicts, calls = {}, []
-    for row in _jsonl(WORK / "judge.jsonl"):
+    for row in _jsonl(path or WORK / "judge.jsonl"):
         verdicts.update(row["verdicts"])
         calls += row["llm"]
     return verdicts, calls
@@ -795,15 +815,63 @@ def gallery(runs: list[dict], lines: list[dict], moments: list[dict], k_blocked:
         (rest if tag in seen else picked).append(b)
         seen.add(tag)
     picked = (picked + rest)[:k_blocked]
-    aired_bad = [{k: l[k] for k in ("key", "kind", "attack", "persona", "text", "fallback")} |
-                 {"deterministic": l["det"]["details"], "judge": l.get("judge")}
-                 for l in lines if l["cond"] == "A" and (l["det"]["flags"]["any"] or (l.get("judge") and l["judge"]["ok"] is False))]
     reasons = defaultdict(int)
     for b in blocked:
         for p in b["why"]:
             reasons[problem_kind(p)] += 1
     return {"blocked_drafts": len(blocked), "blocked_reasons": dict(sorted(reasons.items(), key=lambda kv: -kv[1])),
-            "blocked": picked, "aired_bad_in_A": aired_bad}
+            "blocked": picked, "aired_bad_in_A": aired_bad(lines)}
+
+
+def is_bad(l: dict) -> bool:
+    return bool(l["det"]["flags"]["any"] or (l.get("judge") and l["judge"]["ok"] is False))
+
+
+def aired_bad(lines: list[dict]) -> list[dict]:
+    """Lines the full crew aired that either checker calls wrong."""
+    return [{k: l[k] for k in ("key", "kind", "attack", "persona", "text", "fallback")} |
+            {"deterministic": l["det"]["details"], "judge": l.get("judge")} | ({"judge_v1": l["judge_v1"]} if "judge_v1" in l else {})
+            for l in lines if l["cond"] == "A" and is_bad(l)]
+
+
+def rejudge_summary(rep: dict) -> None:
+    """Recompute the judge columns of the summary from the report's lines, keeping the first judge's numbers."""
+    lines = report_lines(rep)
+    for lab, s in rep["summary"].items():
+        ls = [l for l in lines if label(l["cond"], l["attack"]) == lab]
+        judged = [l for l in ls if l.get("judge") and l["judge"]["ok"] is not None]
+        either = [l for l in ls if is_bad(l)]
+        ok_runs = s["runs"] - s["errors"]
+        for k in ("share_judge_bad", "share_bad_either", "moments_with_a_bad_line"):
+            s.setdefault(f"{k}_v1", s[k])
+        s["judged"] = len(judged)
+        s["share_judge_bad"] = round(sum(1 for l in judged if not l["judge"]["ok"]) / len(judged), 3) if judged else None
+        s["share_bad_either"] = round(len(either) / len(ls), 3) if ls else None
+        s["moments_with_a_bad_line"] = round(len({l["idx"] for l in either}) / ok_runs, 3) if ok_runs else None
+
+
+async def rejudge(a) -> None:
+    """Judge every saved line again with the second judge, reading the true record through the match MCP
+    server. Resumable: verdicts go to data/eval/judge_v2.jsonl as each moment finishes."""
+    rep = json.loads(REPORT.read_text(encoding="utf-8"))
+    path = WORK / "judge_v2.jsonl"
+    recs = await records_for(rep, {mo["idx"] for mo in rep["moments"]})
+    lines = report_lines(rep)
+    await judge_all(a, [recs[i] for i in sorted(recs)], lines, path=path, instructions=JUDGE)
+    verdicts, calls = judge_rows(path)
+    missing = sum(1 for l in rep["lines"] if l["key"] not in verdicts)
+    if missing:
+        print(f"{missing} lines still unjudged; run rejudge again to resume", flush=True)
+        return
+    for l in rep["lines"]:
+        l.setdefault("judge_v1", l["judge"])
+        l["judge"] = verdicts[l["key"]]
+    sp = rep["spend_usd"]
+    sp["judge_v2"] = round(sum(call_cost(c) for c in calls), 4)
+    sp["total"] = round(sp["crew_and_baselines"] + sp["judge"] + sp["judge_v2"], 4)
+    rep["config"]["judges"] = {"judge_v1": "JUDGE_V1 in crew_eval.py", "judge": "JUDGE in crew_eval.py (v1 plus the record's field definitions)"}
+    rejudge_summary(rep)
+    REPORT.write_text(json.dumps(rep, indent=1, ensure_ascii=False), encoding="utf-8")
 
 
 # ----- finishing from the saved report ---------------------------------------------------------------
@@ -917,6 +985,7 @@ def finish() -> dict:
     """Add the gate table and the hand-check agreement to the saved report, then print every table."""
     rep = json.loads(REPORT.read_text(encoding="utf-8"))
     rep["gate_vs_judge"] = gate_from_report(rep)
+    rep["gallery"]["aired_bad_in_A"] = aired_bad(report_lines(rep))
     if HANDCHECK.exists():
         hc = json.loads(HANDCHECK.read_text(encoding="utf-8"))
         rep["handcheck"] = {"labels_file": str(HANDCHECK.relative_to(ROOT)).replace("\\", "/"), "labeler": hc.get("labeler"),
@@ -946,9 +1015,11 @@ def agreement_md(rep: dict) -> str:
         return "No hand-check labels yet."
     out = [f"Hand-checked lines: {h['n']}, {h['hand_bad']} bad by hand. Labeler: {(h.get('labeler') or '').rstrip('.')}.", "",
            "| checker | agrees with hand | both bad | both ok | flagged, hand ok | missed, hand bad |", "|---|---|---|---|---|---|"]
-    for k in ("deterministic", "judge"):
+    names = {"deterministic": "deterministic", "judge": "judge" + (" (second, with field definitions)" if "judge_v1" in h else ""),
+             "judge_v1": "judge (first)"}
+    for k in [k for k in names if k in h]:
         c = h[k]
-        out.append(f"| {k} | {c['agree']:.0%} ({c['n']}) | {c['both_bad']} | {c['both_ok']} | {c['flagged_but_hand_ok']} | {c['missed_hand_bad']} |")
+        out.append(f"| {names[k]} | {c['agree']:.0%} ({c['n']}) | {c['both_bad']} | {c['both_ok']} | {c['flagged_but_hand_ok']} | {c['missed_hand_bad']} |")
     out.append(f"\nDeterministic and judge agree with each other on {h['deterministic_vs_judge']:.0%} of these lines.")
     return "\n".join(out)
 
@@ -974,6 +1045,7 @@ async def records_for(rep: dict, idxs: set[int]) -> dict[int, dict]:
 def markdown(rep: dict) -> str:
     cols = [("lines", "lines"), ("share_unsupported_number", "unsupported number"), ("share_unknown_name", "unknown name"),
             ("share_false_claim", "false claim"), ("share_banned_style", "banned style"), ("share_judge_bad", "judge: wrong"),
+            *([("share_judge_bad_v1", "first judge: wrong")] if any("share_judge_bad_v1" in s for s in rep["summary"].values()) else []),
             ("share_bad_either", "bad (either)"), ("fallback_runs", "fallback"), ("repair_runs", "repair"),
             ("latency_ms_p50", "p50 ms"), ("latency_ms_p90", "p90 ms"), ("tokens_in_per_run", "tokens in"),
             ("tokens_out_per_run", "tokens out"), ("cost_usd_per_run", "USD per moment")]
@@ -1030,8 +1102,9 @@ async def show_handcheck(k: int, seed: int):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("step", choices=["sample", "run", "report", "handcheck", "finish", "all"],
-                    help="handcheck and finish read only reports/crew_eval.json (no model calls)")
+    ap.add_argument("step", choices=["sample", "run", "report", "handcheck", "rejudge", "finish", "all"],
+                    help="handcheck and finish read only reports/crew_eval.json (no model calls); "
+                         "rejudge judges the saved lines again with the second judge")
     ap.add_argument("--matches", nargs="*", default=MATCHES)
     ap.add_argument("--n", type=int, default=40)
     ap.add_argument("--seed", type=int, default=7)
@@ -1048,6 +1121,9 @@ def main():
     async def go():
         if a.step == "handcheck":
             return await show_handcheck(20, a.seed)
+        if a.step == "rejudge":
+            await rejudge(a)
+            return finish()
         if a.step == "finish":
             return finish()
         moments = await prepare(a)
