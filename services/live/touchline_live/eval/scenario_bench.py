@@ -18,6 +18,12 @@ what the settings alone do to the odds.
 
     python -m touchline_live.eval.scenario_bench --out reports/scenario_bench.json --workers 3 --tilt 4
 
+The calibrated Director (the shipped prompt) ran its arm again on the same seeds:
+
+    python -m touchline_live.eval.scenario_bench --out reports/scenario_bench_v2.json --arms director --tilt 4 --tilt-arms director --workers 3
+    python -m touchline_live.eval.scenario_bench --director-check 5          the Director alone on the app's examples
+    python -m touchline_live.eval.scenario_bench --tables                    every table in docs/SCENARIO.md
+
 The run is resumable: the Director specs and every finished arm are saved to the report as they land,
 and a rerun skips them. With one worker the search is deterministic; with more, which candidate ends
 the search first can depend on timing.
