@@ -43,7 +43,7 @@ Measured on 24 October 2026:
 | Before: repository root minus `.dockerignore` | 82 | 81.2 MB | 73.4 MB |
 | After: staged by `infra/stage.py` | 50 | 35.3 MB | 31.5 MB |
 
-The upload is 57% smaller. The three matches are 34.3 MB of the 35.3 MB. Their `tracking.npz` files are already compressed, so gzip saves little on them. `.touchline-stage.json` in the stage records the commit, the file count, the sizes, and a hash of each staged match's events.
+The upload is 57% smaller. Almost all of that comes from shipping three matches instead of the seven in a local data folder: the image carries only the matches that have recorded broadcasts, and the other four are left out on purpose. The three matches are 34.3 MB of the 35.3 MB. Their `tracking.npz` files are already compressed, so gzip saves little on them. `.touchline-stage.json` in the stage records the commit, the file count, the sizes, and a hash of each staged match's events.
 
 ## Local deploy
 
