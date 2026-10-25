@@ -81,6 +81,11 @@ How to work:
 - Watch the metrics near a band edge: a proposal that fixes one metric but pushes an in-band one out is refused.
   standard_errors_inside_band says how safe each metric is (negative means outside); under about 1, match-to-match
   noise alone can push it out, so move it toward the middle of its band when a dial allows.
+- Measurements are noisy. Any change to a dial reshuffles every random draw in every match, so two vectors
+  that differ by a hair still differ by about one standard_error per metric. A step too small to move a
+  metric by two or more standard errors cannot be told apart from luck, and a trial accepted by a small step
+  was probably lucky. Aim each out-of-band metric and each near-edge metric at the middle of its band, take
+  steps large enough to get there, and offset in the same vector the side effects you expect.
 - Make your proposals in a round differ from each other so they test different hypotheses, for example one
   careful step and one bolder step, or two different dials for the same goal.
 - Stay inside the bounds. List only the dials you change from your starting vector.
@@ -228,7 +233,10 @@ def _models():
 def brief(inc: dict, trials: list[dict], k: int) -> str:
     s = inc["summary"]
     z = per_metric_z(inc)
-    table = [{"metric": m, "mean": s[m]["mean"], "sd_across_matches": s[m]["sd"], "band": [s[m]["low"], s[m]["high"]],
+    n = max(inc["assess"]["n"], 1)
+    table = [{"metric": m, "mean": s[m]["mean"], "sd_across_matches": s[m]["sd"],
+              "standard_error": round(s[m]["sd"] / math.sqrt(n), 4), "band": [s[m]["low"], s[m]["high"]],
+              "band_middle": round((s[m]["low"] + s[m]["high"]) / 2, 4),
               "in_band": s[m]["pass"], "distance": inc["assess"]["per_metric"][m],
               "standard_errors_inside_band": round(z[m], 2)} for m in realism.TARGETS]
     dials = [{"name": d, "value": inc["dials"][d], "low": BOUNDS[d][0], "high": BOUNDS[d][1], "effect": BOUNDS[d][2]}
@@ -255,13 +263,14 @@ def propose(inc: dict, trials: list[dict], k: int, model: str, log) -> tuple[dic
 
     Plan = _models()
     endpoint = os.environ.get("TOUCHLINE_AI_ENDPOINT", "https://touchline-ai-rm.openai.azure.com/")
-    client = OpenAIChatClient(model=model, azure_endpoint=endpoint, credential=AzureCliCredential())
-    agent = Agent(client=client, name="calibrator", instructions=INSTRUCTIONS)
     prompt = brief(inc, trials, k)
     last = None
-    for attempt in range(6):
+    for attempt in range(8):
         t0 = time.perf_counter()
         try:
+            # A fresh client each attempt, so a retry after a network drop opens new connections.
+            client = OpenAIChatClient(model=model, azure_endpoint=endpoint, credential=AzureCliCredential())
+            agent = Agent(client=client, name="calibrator", instructions=INSTRUCTIONS)
             r = asyncio.run(agent.run(prompt, options={"response_format": Plan}))
             plan = r.value if r.value is not None else Plan.model_validate_json(r.text)
             return plan.model_dump(), {"model": model, "seconds": round(time.perf_counter() - t0, 1),
