@@ -125,7 +125,9 @@ def tilt(rep: dict, *, seeds: int, workers: int, base_seed: int, period_s: float
     import multiprocessing as mp
 
     rep.setdefault("tilt", {})
-    jobs = []
+    runs = rep.setdefault("tilt_runs", {})                  # one entry per match, so a rerun resumes match by match
+    want: dict[str, list[str]] = {}
+    todo = []
     for i, row in enumerate(rep["stories"]):
         if "spec" not in row:
             continue
@@ -134,25 +136,37 @@ def tilt(rep: dict, *, seeds: int, workers: int, base_seed: int, period_s: float
                     "untouched": ScenarioSpec()}
         for arm in TILT_ARMS:
             key = f"{i}:{arm}"
-            if key in rep["tilt"]:
-                continue
-            spec = ScenarioSpec(home=settings[arm].home, away=settings[arm].away, beats=gold)
-            jobs.append((key, [(base_seed + 1000 * i + k, spec.model_dump_json()) for k in range(seeds)]))
-    if not jobs:
-        return
-    with mp.get_context("spawn").Pool(workers) as pool:
-        for key, runs in jobs:
-            t0 = time.perf_counter()
-            res = pool.starmap(S.play_candidate, [(seed, sj, False, None, None, period_s) for seed, sj in runs])
-            rep["tilt"][key] = {
-                "seeds": [r["seed"] for r in res], "scores": [r["score"] for r in res],
-                "met": [r["met"] for r in res], "total": res[0]["total"], "all": sum(r["all"] for r in res),
-                "beats": [[b["ok"] for b in r["beats"]] for r in res],
-                "goals": sum(sum(r["score"]) for r in res) / len(res),
-            }
-            save()
-            print(f"tilt {key:12s} all {rep['tilt'][key]['all']}/{len(res)} met {rep['tilt'][key]['met']} "
-                  f"{time.perf_counter() - t0:.0f} s", flush=True)
+            spec = ScenarioSpec(home=settings[arm].home, away=settings[arm].away, beats=gold).model_dump_json()
+            want[key] = []
+            for k in range(seeds):
+                seed = base_seed + 1000 * i + k
+                rk = f"{key}:{seed}"
+                want[key].append(rk)
+                if rk not in runs:
+                    todo.append((rk, (seed, spec, False, None, None, period_s)))
+
+    def fold():
+        for key, rks in want.items():
+            if all(rk in runs for rk in rks):
+                res = [runs[rk] for rk in rks]
+                rep["tilt"][key] = {"seeds": [r["seed"] for r in res], "scores": [r["score"] for r in res],
+                                    "met": [r["met"] for r in res], "total": res[0]["total"],
+                                    "all": sum(r["all"] for r in res), "beats": [r["beats"] for r in res],
+                                    "goals": sum(sum(r["score"]) for r in res) / len(res)}
+
+    if todo:
+        t0 = time.perf_counter()
+        with mp.get_context("spawn").Pool(workers) as pool:
+            jobs = {rk: pool.apply_async(S.play_candidate, args) for rk, args in todo}
+            for n, (rk, job) in enumerate(jobs.items(), 1):
+                r = job.get()
+                runs[rk] = {"seed": r["seed"], "score": r["score"], "met": r["met"], "total": r["total"],
+                            "all": r["all"], "beats": [b["ok"] for b in r["beats"]]}
+                fold()
+                save()
+                print(f"tilt {rk:20s} {r['met']}/{r['total']} {r['score']}  {n}/{len(todo)} {time.perf_counter() - t0:.0f} s", flush=True)
+    fold()
+    save()
 
 
 def tilt_summary(rep: dict) -> dict:
