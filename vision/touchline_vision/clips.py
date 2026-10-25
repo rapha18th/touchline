@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 
 from . import FPS, LENGTH, WIDTH
-from .geometry import PITCH_TO_WORLD, project
+from .geometry import look_camera, project
 
 GK_COLOURS = {"home": "#d9c632", "away": "#3fbf9a"}     # web/js/pitch.js paints keepers in these
 DEAD = {"out", "goal", "foul", "substitution", "period_start", "period_end", "card", "treatment", "var_check", "kickoff"}
@@ -99,21 +99,6 @@ def pick(events: list[dict], period_frames: list[int], n_shot: int, n_pass: int,
         taken.append((a, b))
         clips.append(Clip(f"{prefix}-p{len(clips):02d}", p["match_id"], p["period"], a, b, "passes", p["id"]))
     return clips
-
-
-def look_camera(pos, look, fov_deg: float, w: int, h: int) -> np.ndarray:
-    """The pitch-to-pixel camera of a three.js PerspectiveCamera placed at pos looking at look."""
-    pw = (PITCH_TO_WORLD @ np.r_[np.asarray(pos, float), 1.0])[:3]
-    lw = (PITCH_TO_WORLD @ np.r_[np.asarray(look, float), 1.0])[:3]
-    fwd = lw - pw
-    fwd /= np.linalg.norm(fwd)
-    right = np.cross(fwd, [0.0, 1.0, 0.0])
-    right /= np.linalg.norm(right)
-    up = np.cross(right, fwd)
-    R = np.stack([right, -up, fwd])
-    f = (h / 2) / np.tan(np.radians(fov_deg) / 2)
-    K = np.array([[f, 0, w / 2], [0, f, h / 2], [0, 0, 1.0]])
-    return K @ np.column_stack([R, -R @ pw]) @ PITCH_TO_WORLD
 
 
 def choose_camera(ball: np.ndarray, rng: np.random.Generator, w: int, h: int) -> dict:

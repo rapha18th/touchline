@@ -1,6 +1,7 @@
 """Plane and camera geometry in pitch metres: x along the length, y across the width, z up.
 
 H maps a ground point (x, y) to a pixel (u, v). P is a full 3x4 pinhole camera on the same frame.
+Pixels follow OpenCV: the centre of the top-left pixel is (0, 0).
 """
 
 from __future__ import annotations
@@ -13,11 +14,55 @@ from . import LENGTH, WIDTH
 PITCH_TO_WORLD = np.array([[1.0, 0, 0, -LENGTH / 2], [0, 0, 1.0, 0], [0, 1.0, 0, -WIDTH / 2], [0, 0, 0, 1.0]])
 
 
+def look_cameras(pos, look, fov_deg, w: int, h: int, roll=0.0) -> np.ndarray:
+    """Pitch-to-pixel cameras of three.js-style PerspectiveCameras at pos looking at look, (N, 3, 4).
+    fov is vertical, pixels are square, the principal point is the image centre, roll turns about the
+    optical axis. Inputs broadcast over a leading batch axis."""
+    pos, look = np.atleast_2d(np.asarray(pos, float)), np.atleast_2d(np.asarray(look, float))
+    n = max(len(pos), len(look))
+    fov = np.broadcast_to(np.asarray(fov_deg, float), (n,))
+    roll = np.broadcast_to(np.asarray(roll, float), (n,))
+    M = PITCH_TO_WORLD[:3, :3]
+    pw = pos @ M.T + PITCH_TO_WORLD[:3, 3]
+    lw = look @ M.T + PITCH_TO_WORLD[:3, 3]
+    fwd = lw - pw
+    fwd = fwd / np.linalg.norm(fwd, axis=1, keepdims=True)
+    right = np.cross(fwd, [0.0, 1.0, 0.0])
+    right = right / np.linalg.norm(right, axis=1, keepdims=True)
+    up = np.cross(right, fwd)
+    c, s = np.cos(roll)[:, None], np.sin(roll)[:, None]
+    right, up = c * right + s * up, -s * right + c * up
+    R = np.stack([right, -up, fwd], axis=1)                       # (n, 3, 3) world to camera
+    t = -np.einsum("nij,nj->ni", R, pw)
+    f = (h / 2) / np.tan(np.radians(fov) / 2)
+    K = np.zeros((n, 3, 3))
+    K[:, 0, 0] = f
+    K[:, 1, 1] = f
+    K[:, 0, 2], K[:, 1, 2], K[:, 2, 2] = (w - 1) / 2, (h - 1) / 2, 1.0
+    Rt = np.concatenate([R, t[:, :, None]], axis=2)
+    return K @ Rt @ PITCH_TO_WORLD
+
+
+def look_camera(pos, look, fov_deg: float, w: int, h: int, roll: float = 0.0) -> np.ndarray:
+    """One look-at camera, 3x4."""
+    return look_cameras(pos, look, fov_deg, w, h, roll)[0]
+
+
 def apply_h(H: np.ndarray, pts) -> np.ndarray:
     """Map (N, 2) points through a homography."""
     p = np.asarray(pts, float).reshape(-1, 2)
     q = p @ H[:, :2].T + H[:, 2]
     return q[:, :2] / q[:, 2:3]
+
+
+def apply_h_front(H: np.ndarray, pts) -> tuple[np.ndarray, np.ndarray]:
+    """Map (N, 2) ground points through a homography and flag those in front of the camera.
+    The sign is fixed by the centre spot, which a broadcast camera always has in front of it."""
+    p = np.asarray(pts, float).reshape(-1, 2)
+    sgn = np.sign((H @ [LENGTH / 2, WIDTH / 2, 1.0])[2]) or 1.0
+    q = (p @ H[:, :2].T + H[:, 2]) * sgn
+    front = q[:, 2] > 1e-9
+    return q[:, :2] / np.where(front, q[:, 2], 1.0)[:, None], front
 
 
 def project(P: np.ndarray, X) -> np.ndarray:
@@ -31,7 +76,7 @@ def p_from_clip(m16, w: int, h: int) -> np.ndarray:
     """The renderer's clip-from-world matrix (column-major, 16 numbers) as a pitch-to-pixel 3x4 camera."""
     M = np.asarray(m16, float).reshape(4, 4).T
     C = M @ PITCH_TO_WORLD
-    return np.stack([0.5 * w * (C[0] + C[3]), 0.5 * h * (C[3] - C[1]), C[3]])
+    return np.stack([0.5 * w * (C[0] + C[3]) - 0.5 * C[3], 0.5 * h * (C[3] - C[1]) - 0.5 * C[3], C[3]])
 
 
 def h_from_p(P: np.ndarray) -> np.ndarray:
@@ -53,7 +98,7 @@ def ground_at_height(P: np.ndarray, uv, z: float) -> np.ndarray:
 def camera_from_h(H: np.ndarray, w: int, h: int) -> tuple[np.ndarray, float]:
     """A full camera from a ground homography, assuming square pixels and the principal point at the
     image centre. Returns P (3x4) and the focal length in pixels."""
-    cx, cy = w / 2.0, h / 2.0
+    cx, cy = (w - 1) / 2.0, (h - 1) / 2.0
     Hs = np.array([H[0] - cx * H[2], H[1] - cy * H[2], H[2]], float)
     a, b = Hs[:, 0], Hs[:, 1]
     # g = 1 / f^2 from orthogonality and equal norm of the first two rotation columns.
