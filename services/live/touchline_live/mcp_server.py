@@ -5,30 +5,45 @@ agent (or a judge) can only see what was known when a line went to air.
 
     python -m touchline_live.mcp_server            # stdio, for agents and MCP clients
     python -m touchline_live.mcp_server --http     # streamable HTTP on :8765
+
+The web service also serves these tools at /mcp (see HTTPEndpoint). Every tool is read-only.
 """
 
 from __future__ import annotations
 
 import argparse
+import contextlib
 import functools
 import math
 import os
+import re
 from pathlib import Path
 
+import anyio
 from mcp.server.fastmcp import FastMCP
+from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
+from mcp.server.transport_security import TransportSecuritySettings
+from mcp.types import ToolAnnotations
 
 from . import feed
 from .match_io import Match, clock, load, match_seconds
 from .state import LiveState
 
 DATA = Path(os.environ.get("TOUCHLINE_DATA", Path(__file__).resolve().parents[3] / "data" / "matches"))
-mcp = FastMCP("touchline-match", instructions=(
-    "Facts about a synthetic football match, as of a match time in seconds (period 2 starts at 2700). "
-    "Cite event ids from these tools; never state a number these tools did not return."))
+INSTRUCTIONS = ("Facts about a synthetic football match, as of a match time in seconds (period 2 starts at 2700). "
+                "Cite event ids from these tools; never state a number these tools did not return.")
+mcp = FastMCP("touchline-match", instructions=INSTRUCTIONS)
+# Every tool reads the record and changes nothing; clients may call them freely and repeat them.
+READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
+
+
+MATCH_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 
 
 @functools.lru_cache(maxsize=8)
 def _match(match_id: str) -> Match:
+    if not MATCH_ID.match(match_id) or not (DATA / match_id).is_dir():
+        raise ValueError(f"no match {match_id!r}; list_matches gives the ids")
     return load(DATA / match_id, tracking=True)
 
 
@@ -64,7 +79,7 @@ def _public(e: dict, m: Match) -> dict:
     return out
 
 
-@mcp.tool()
+@mcp.tool(annotations=READ_ONLY)
 def list_matches() -> list[dict]:
     """Every generated match available, with its clubs and final score."""
     out = []
@@ -74,7 +89,7 @@ def list_matches() -> list[dict]:
     return out
 
 
-@mcp.tool()
+@mcp.tool(annotations=READ_ONLY)
 def match_info(match_id: str) -> dict:
     """Clubs, formations, style dials, squads (id, name, number, role), venue and referee."""
     m = _match(match_id)
@@ -87,17 +102,18 @@ def match_info(match_id: str) -> dict:
             "styles": {s: md[s]["style"] for s in ("home", "away")}, "squads": squads}
 
 
-@mcp.tool()
+@mcp.tool(annotations=READ_ONLY)
 def get_events(match_id: str, ids: list[int]) -> list[dict]:
     """The events with these ids, names resolved. Use it to check any claim that cites ids."""
     m = _match(match_id)
-    return [_public(m.events[i], m) for i in ids if 0 <= i < len(m.events)]
+    return [_public(m.events[i], m) for i in ids[:50] if 0 <= i < len(m.events)]
 
 
-@mcp.tool()
+@mcp.tool(annotations=READ_ONLY)
 def events_between(match_id: str, from_s: float, to_s: float, types: list[str] | None = None, limit: int = 60) -> list[dict]:
     """Events released between two match times (seconds), optionally filtered by type."""
     m = _match(match_id)
+    limit = max(1, min(int(limit), 200))
     out = []
     for e in m.events:
         ms = match_seconds(e["period"], e["t_end"] if e.get("t_end") is not None else e["t"])
@@ -108,7 +124,7 @@ def events_between(match_id: str, from_s: float, to_s: float, types: list[str] |
     return out
 
 
-@mcp.tool()
+@mcp.tool(annotations=READ_ONLY)
 def state_at(match_id: str, match_s: float) -> dict:
     """Score, team stats and the control/chaos explainer as known at this match time."""
     return _state(match_id, _asof(match_s)).snapshot()
@@ -127,13 +143,35 @@ def _player_line(match_id: str, player: str, match_s: float) -> dict:
             "distance_km": round(P.dist_m / 1000, 2), "top_speed_kmh": round(P.top_kmh, 1), "sprints_near_ball": P.sprints}
 
 
-@mcp.tool()
+@mcp.tool(annotations=READ_ONLY)
 def player_line(match_id: str, player: str, match_s: float) -> dict:
     """One player's numbers up to this match time. `player` is an id like home-09 or a name."""
     return _player_line(match_id, player, match_s)
 
 
-@mcp.tool()
+LEADER_STATS = ("passes", "completed", "pass_accuracy_pct", "pass_m", "hard_passes_completed", "shots", "goals", "xg",
+                "key_passes", "tackles", "interceptions", "distance_km", "top_speed_kmh", "sprints_near_ball")
+
+
+@mcp.tool(annotations=READ_ONLY)
+def leaders(match_id: str, stat: str, match_s: float, team: str | None = None, limit: int = 5) -> list[dict]:
+    """The players who lead one stat up to this match time, best first. `team` is home, away or left out for
+    both sides. Stats: passes, completed, pass_accuracy_pct, pass_m, hard_passes_completed, shots, goals, xg,
+    key_passes, tackles, interceptions, distance_km, top_speed_kmh, sprints_near_ball."""
+    if stat not in LEADER_STATS:
+        raise ValueError(f"unknown stat {stat!r}; one of {', '.join(LEADER_STATS)}")
+    m = _match(match_id)
+    rows = []
+    for pid, p in m.players.items():
+        if team in ("home", "away") and p["team"] != team:
+            continue
+        line = _player_line(match_id, pid, match_s)
+        rows.append({"id": pid, "name": line["name"], "team": line["team"], stat: line[stat]})
+    rows.sort(key=lambda r: -r[stat])
+    return rows[:max(1, min(int(limit), 40))]
+
+
+@mcp.tool(annotations=READ_ONLY)
 def verify_numbers(match_id: str, match_s: float, claims: list[dict]) -> list[dict]:
     """Check typed claims against the record. Each claim is one of:
     {"kind": "score", "home": 1, "away": 0}
@@ -141,6 +179,7 @@ def verify_numbers(match_id: str, match_s: float, claims: list[dict]) -> list[di
     {"kind": "player_stat", "player": "<id or name>", "stat": "goals"|"xg"|"passes"|..., "value": 2}
     {"kind": "event", "id": 812, "field": "outcome"|"q.xg"|"player_name"|..., "value": "goal"}
     {"kind": "explain", "stat": "turnovers"|"index"|"tempo_passes_per_min"|"pass_share"|"press_wins", "team": "home", "value": 41}
+    {"kind": "leader", "stat": "passes"|"xg"|"distance_km"|..., "team": "home"|"away"|null, "player": "<id or name>"}
     Numbers pass within 2% or 0.05, whichever is larger."""
     st = _state(match_id, _asof(match_s))
     m = _match(match_id)
@@ -196,6 +235,13 @@ def check(c: dict, st: LiveState, m: Match) -> dict:
                 return {**c, "ok": True, "actual": actual, "why": "citation only"}
             value = OUTCOME_ALIASES.get(str(c.get("value")).lower(), c.get("value"))
             ok = actual is not None and _close(value, actual)
+        elif kind == "leader":
+            # A ranking claim: the player must top the stat (ties count) among everyone it ranks.
+            rows = leaders(m.id, c["stat"], st.match_s, c.get("team"), 40)
+            top = rows[0][c["stat"]] if rows else None
+            pid = _player_line(m.id, c["player"], st.match_s).get("id")
+            actual = [r["name"] for r in rows if r[c["stat"]] == top]
+            ok = bool(top) and any(r["id"] == pid and r[c["stat"]] == top for r in rows)
         elif kind == "explain":
             ex = st.explain()
             actual = ex.get(c["stat"])
@@ -207,6 +253,62 @@ def check(c: dict, st: LiveState, m: Match) -> dict:
         return {**c, "ok": bool(ok), "actual": actual}
     except Exception as exc:  # a malformed claim fails closed
         return {**c, "ok": False, "why": f"{type(exc).__name__}: {exc}"}
+
+
+TOOLS = (list_matches, match_info, get_events, events_between, state_at, player_line, leaders, verify_numbers)
+
+
+def _threaded(fn, limiter: anyio.CapacityLimiter):
+    """Run a tool on a worker thread: a replay to a late match time takes about a second of CPU, and inside
+    the web service that must not stall the live channels on the event loop."""
+    @functools.wraps(fn)
+    async def run(**kwargs):
+        return await anyio.to_thread.run_sync(functools.partial(fn, **kwargs), limiter=limiter)
+    return run
+
+
+def http_server(workers: int = 2) -> FastMCP:
+    """The same read-only tools for streamable HTTP inside the web service.
+
+    Stateless, with plain JSON replies: any replica can answer any request, and a browser can call it
+    with one POST. The host check against DNS rebinding is off because the server is public and read-only
+    over synthetic data; there is nothing private to reach.
+    """
+    srv = FastMCP("touchline-match", instructions=INSTRUCTIONS, stateless_http=True, json_response=True,
+                  transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False))
+    limiter = anyio.CapacityLimiter(workers)
+    for fn in TOOLS:
+        srv.add_tool(_threaded(fn, limiter), name=fn.__name__, description=fn.__doc__, annotations=READ_ONLY)
+    return srv
+
+
+class HTTPEndpoint:
+    """An ASGI endpoint for /mcp that a host app mounts as a route and starts in its lifespan.
+
+    Each lifespan gets a fresh session manager, so the host can start and stop more than once (tests do).
+    """
+
+    def __init__(self, workers: int = 2):
+        self.server = http_server(workers)
+        self.manager: StreamableHTTPSessionManager | None = None
+
+    @contextlib.asynccontextmanager
+    async def lifespan(self):
+        s = self.server.settings
+        self.manager = StreamableHTTPSessionManager(app=self.server._mcp_server, json_response=s.json_response,
+                                                    stateless=s.stateless_http, security_settings=s.transport_security)
+        try:
+            async with self.manager.run():
+                yield
+        finally:
+            self.manager = None
+
+    async def __call__(self, scope, receive, send):
+        if self.manager is None:
+            from starlette.responses import PlainTextResponse
+            await PlainTextResponse("MCP server is not running", status_code=503)(scope, receive, send)
+            return
+        await self.manager.handle_request(scope, receive, send)
 
 
 def main():

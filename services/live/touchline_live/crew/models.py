@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 
 class Claim(BaseModel):
     """A checkable fact inside a line. The Verifier resolves every claim against the match record."""
-    kind: Literal["score", "team_stat", "player_stat", "event", "explain"]
+    kind: Literal["score", "team_stat", "player_stat", "event", "explain", "leader"]
     team: Literal["home", "away"] | None = None
     player: str | None = None
     stat: str | None = None

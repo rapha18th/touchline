@@ -1,0 +1,95 @@
+# Deploy to Azure Container Apps on demand. GitHub signs in to Azure with OpenID Connect: a federated
+# credential on an Entra app trusts this repository's main branch, so no secret is stored anywhere.
+# One-time setup: docs/DEPLOY.md.
+name: CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      roll_out:
+        description: Roll the new image out to the Container App after the build
+        type: boolean
+        default: true
+
+permissions:
+  id-token: write   # the OIDC token azure/login exchanges for an Azure access token
+  contents: read
+
+concurrency:
+  group: cd-touchline
+  cancel-in-progress: false
+
+env:
+  RG: rg-touchline
+  ACR: touchlineacrrm
+  APP: touchline
+  AI: touchline-ai-rm
+
+jobs:
+  deploy:
+    name: Build in ACR and roll out
+    # The federated credential trusts refs/heads/main only. A run from another branch would fail at
+    # sign-in; this makes the reason plain.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Stage the build context
+        # The matches are not in git: the image build generates the three showcase seeds named in the
+        # Dockerfile. infra/deploy.sh, run from a machine that holds data/matches, ships them as generated.
+        run: |
+          STAGE=$(python infra/stage.py --allow-missing --out "$RUNNER_TEMP/stage")
+          echo "STAGE=$STAGE" >> "$GITHUB_ENV"
+          echo "TAG=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
+      - name: Sign in to Azure (OIDC, no secret)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build the image in ACR
+        run: |
+          az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors
+          az acr build -r "$ACR" -t "touchline:$TAG" "$STAGE" --only-show-errors
+
+      - name: Roll out
+        if: inputs.roll_out
+        run: |
+          SUFFIX="c$TAG-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}"
+          REV="$APP--$SUFFIX"
+          az containerapp update -n "$APP" -g "$RG" \
+            --image "$ACR.azurecr.io/touchline:$TAG" --revision-suffix "$SUFFIX" \
+            --set-env-vars TOUCHLINE_AI_ENDPOINT="https://$AI.openai.azure.com/" TOUCHLINE_CREW=1 \
+            --no-wait --output none
+          # Wait for the new revision itself, in short polls.
+          for i in $(seq 1 60); do
+            s=$(az containerapp show -n "$APP" -g "$RG" \
+                  --query "join(' ', [properties.provisioningState, properties.latestRevisionName])" -o tsv || true)
+            echo "poll $i: $s"
+            case "$s" in
+              "Succeeded $REV") break ;;
+              Failed*) exit 1 ;;
+            esac
+            sleep 15
+          done
+          [ "$s" = "Succeeded $REV" ] || { echo "no final state for $REV"; exit 1; }
+          FQDN=$(az containerapp show -n "$APP" -g "$RG" --query properties.configuration.ingress.fqdn -o tsv)
+          echo "URL=https://$FQDN" >> "$GITHUB_ENV"
+
+      - name: Health check
+        if: inputs.roll_out
+        run: |
+          # The app scales to zero: the first request wakes a replica.
+          for i in 1 2 3 4 5; do
+            if curl -fsS --max-time 90 "$URL/healthz"; then echo; echo "Live at $URL" >> "$GITHUB_STEP_SUMMARY"; exit 0; fi
+            sleep 10
+          done
+          exit 1
