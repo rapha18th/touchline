@@ -182,7 +182,9 @@ def describe(b: Beat) -> str:
     if b.kind == "first_goal":
         return f"{side} score first"
     if b.kind == "clean_sheet":
-        return f"{_a(side)} clean sheet"
+        return f"{_a(side)} clean sheet" if b.side else "a clean sheet"
+    if b.side is None:
+        return f"a shots gap of {b.at_least}"
     return f"{side} outshoot {_other(b.side)} by {b.at_least}"
 
 

@@ -208,7 +208,7 @@ class Story(BaseModel):
 
 
 def _job_view(job: dict) -> dict:
-    keep = ("id", "state", "story", "headline", "beats", "gate", "director", "played", "playing", "best", "budget",
+    keep = ("id", "state", "story", "headline", "beats", "gate", "director", "repaired", "played", "playing", "best", "budget",
             "spent", "workers", "match_id", "report", "error", "elapsed_s", "queued_behind")
     view = {k: job[k] for k in keep if k in job}
     if job["state"] in ("queued", "directing", "playing"):
@@ -227,10 +227,13 @@ def _write_job(job: dict) -> None:
             job["state"] = "directing"
         elif st == "directed":
             spec = scenario.ScenarioSpec.model_validate(p["spec"])
+            gates = [t for t in p["trace"] if t.get("role") == "gate"]
+            refusals = lambda t: [{k: n[k] for k in ("what", "why")} for n in t["notes"] if n["action"] == "refuse"]
             job.update(state="playing", headline=p["headline"], beats=[scenario.describe(b) for b in spec.beats],
                        director=next((t.get("model") for t in p["trace"] if t.get("role") == "director" and t.get("model")), None),
-                       gate=[{k: n[k] for k in ("action", "what", "why")} for t in p["trace"] if t.get("role") == "gate"
-                             for n in t["notes"]])
+                       repaired=any(t.get("repair") for t in p["trace"]),
+                       # The gate's refusals in the first round (which the Director then repaired) and in the last.
+                       gate={"first": refusals(gates[0]) if len(gates) > 1 else [], "final": refusals(gates[-1]) if gates else []})
         elif st in ("playing", "chosen"):
             job.update(played=[{k: c.get(k) for k in ("seed", "complete", "pruned_at", "met", "total", "score")}
                                for c in p["candidates"]],
