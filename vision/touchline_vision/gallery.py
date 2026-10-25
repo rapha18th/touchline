@@ -73,6 +73,9 @@ def kick_frame(clips: Path, work: Path, clip: str, kick: dict, row: dict | None,
     for ln in lines:
         _text(img, ln, (20, y))
         y += 28
+    h = img.shape[0]
+    _text(img, "dots: ball seen in each frame   blue: start to end on the grass   amber arc: fitted flight in the air",
+          (20, h - 18), 0.5)
     return img
 
 
@@ -81,9 +84,10 @@ def main(argv=None) -> int:
     tmp = Path(tempfile.gettempdir()) / "touchline_vision"
     ap.add_argument("--clips", type=Path, default=tmp / "clips")
     ap.add_argument("--work", type=Path, default=tmp / "run")
-    ap.add_argument("--report", type=Path, default=Path("reports/vision"))
+    ap.add_argument("--report", type=Path, default=Path("reports/vision/dev"))
+    ap.add_argument("--out", type=Path, default=Path("reports/vision/gallery"))
     args = ap.parse_args(argv)
-    out = args.report / "gallery"
+    out = args.out
     per = json.loads((args.report / "clips.json").read_text(encoding="utf-8"))
 
     # 1. The pitch found from its lines: the estimate drawn over the frame.
@@ -126,8 +130,10 @@ def main(argv=None) -> int:
                 b = obs["ball_px"][t]
                 if b is not None:
                     cv2.circle(img, (int(round(b[0])), int(round(b[1]))), 3, AMBER, -1, cv2.LINE_AA)
-            _text(img, f"{c['clip']}: a {m['type']} the feed missed (frame {m['rel']})", (20, 36), 0.9)
-            _text(img, "amber dots: where the tracker saw the ball around it", (20, 70))
+            _text(img, f"{c['clip']}: a {m['type']} ({m['outcome']}) the feed missed, frame {m['rel']}", (20, 36), 0.9)
+            _text(img, "amber dots: where the tracker saw the ball in the second around it", (20, 70))
+            if m["outcome"] == "blocked":
+                _text(img, "a blocked shot flies three or four frames before the blocker has it: too short to read as a kick", (20, 98))
             save(img, out / "04_failure.png")
             break
     print("gallery written to", out)

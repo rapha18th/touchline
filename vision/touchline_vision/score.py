@@ -179,6 +179,7 @@ def main(argv=None) -> int:
     ap.add_argument("--clips", type=Path, default=tmp / "clips")
     ap.add_argument("--work", type=Path, default=tmp / "run")
     ap.add_argument("--out", type=Path, default=Path("reports/vision"))
+    ap.add_argument("--name", default="dev", help="the clip set: dev (tuned on) or heldout (scored once the code was set)")
     args = ap.parse_args(argv)
     per_clip = []
     for d in sorted(p for p in args.clips.iterdir() if (p / "truth.json").exists()):
@@ -221,9 +222,15 @@ def main(argv=None) -> int:
                "ablation_no_kick_timing": summarise(per_clip, "ablation_no_kick_timing"),
                "by_match": {m: summarise([c for c in per_clip if c["match"] == m], "vision") for m in sorted({c["match"] for c in per_clip})},
                "match_frames": MATCH_FRAMES}
-    args.out.mkdir(parents=True, exist_ok=True)
-    (args.out / "summary.json").write_text(json.dumps(summary, indent=1), encoding="utf-8")
-    (args.out / "clips.json").write_text(json.dumps(per_clip, indent=1), encoding="utf-8")
+    out = args.out / args.name
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "summary.json").write_text(json.dumps(summary, indent=1), encoding="utf-8")
+    (out / "clips.json").write_text(json.dumps(per_clip, indent=1), encoding="utf-8")
+    # The top-level summary holds every set scored so far, by name.
+    top = args.out / "summary.json"
+    allsets = json.loads(top.read_text(encoding="utf-8")) if top.exists() else {}
+    allsets[args.name] = summary
+    top.write_text(json.dumps(allsets, indent=1), encoding="utf-8")
     print(json.dumps({k: summary[k] for k in ("homography", "tracks")}, indent=1))
     for k in ("vision", "oracle", "ablation_ground_only", "ablation_no_kick_timing"):
         s = summary[k]

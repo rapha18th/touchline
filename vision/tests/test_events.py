@@ -48,11 +48,12 @@ def test_next_onset_finds_the_kick_and_ignores_a_one_frame_jump():
 
 
 def test_classify_shot_pass_and_back_pass():
-    sides = {"home_gk": 3.0, "away_gk": 101.0}
-    assert classify([85, 30], [20, 1], [105, 31], 25, "home", None, sides) == "shot"
-    assert classify([85, 30], [20, 1], [105, 31], 25, "away", None, sides) == "pass"        # towards own keeper
-    assert classify([85, 10], [2, 20], [90, 50], 25, "home", "home", sides) == "pass"       # across the box
-    assert classify([60, 30], [20, 1], [80, 31], 25, "home", None, sides) == "pass"         # 45 m out
+    assert classify([85, 30], [20, 1], [105, 31], 25, "home", None) == "shot"                # into the goal
+    assert classify([85, 30], [20, 1], [103, 31], 25, "home", "away_gk") == "shot"           # saved
+    assert classify([85, 30], [20, 1], [103, 31], 25, "home", "home_gk") == "pass"           # back to their keeper
+    assert classify([85, 10], [2, 20], [90, 50], 25, "home", "home") == "pass"               # across the box
+    assert classify([60, 30], [20, 1], [80, 31], 25, "home", None) == "pass"                 # 45 m out
+    assert classify([85, 30], [20, 1], [103, 31], 25, "home", None, aerial_apex=7.0) == "pass"   # a cross
 
 
 def test_ball_path_prefers_the_moving_ball_over_scattered_noise():
@@ -94,3 +95,24 @@ def test_summarise_counts_and_errors():
     assert s["pass"]["recall"] == 0.5 and s["pass"]["precision"] == 0.5
     assert s["shot"]["recall"] == 0.0 and s["shot"]["precision"] is None
     assert s["pass_length_m"]["mae"] == 1.0 and s["ball_speed_kmh"]["mae"] == 3.0 and s["ball_speed_kmh"]["bias"] == -3.0
+
+
+def test_despike_straightens_a_zig_zag():
+    from touchline_vision.track import despike
+    cands = [np.array([[100.0 + 10 * t, 300.0, 1.0], [100.0 + 10 * t, 330.0, 0.0]]) for t in range(10)]
+    path = [0] * 10
+    path[5] = 1                                    # one frame on the white kit beside the ball
+    assert despike(cands, path)[5] == 0
+
+
+def test_kick_time_runs_a_hidden_kick_back_to_the_ball_at_rest():
+    from touchline_vision.events import kick_time
+    T = 40
+    g = np.full((T, 2), np.nan)
+    g[:10] = [30.0, 30.0]                          # at the kicker's feet
+    kick = 12
+    for t in range(16, T):                         # hidden from 10 to 15, kicked at 12, 15 m/s
+        g[t] = [30.0 + 0.6 * (t - kick), 30.0]
+    uv = np.where(np.isnan(g), np.nan, 1.0)
+    fr = np.arange(17, 30)
+    assert kick_time(16, fr, g, uv, None, FPS) == kick
