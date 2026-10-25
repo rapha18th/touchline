@@ -16,6 +16,7 @@ from .geometry import ground_at_height
 
 BALL_Z = 0.22            # the rendered ball's centre when it rests on the grass
 KICK_SPEED = 10.0        # m/s held over the onset window
+MIN_KICK_M = 2.0         # a kick moves the ball at least this far
 GOAL_Y, GOAL_HALF = 34.0, 3.66
 
 
@@ -391,6 +392,8 @@ def detect_events(obs: dict, P, H=None, air: bool = True, back_time: bool = True
             end = start + np.array([ca[2], ca[3]]) * T1
             speed = float(np.hypot(ca[2], ca[3]))
             height = za_max
+        if np.linalg.norm(end - start) < MIN_KICK_M:
+            continue                                  # a jump of the ball at a player's feet
         kicks.append({"frame": int(t0), "end": int(t1), "type": kind, "aerial": aerial,
                       "length_m": round(float(np.linalg.norm(end - start)), 2), "speed_kmh": round(speed * 3.6, 1),
                       "max_height_m": round(height, 2), "start": [round(float(v), 2) for v in start],

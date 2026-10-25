@@ -23,6 +23,7 @@ from .track import PlayerTracker, ball_path, despike
 from .video import Clip
 
 WORK = Path(tempfile.gettempdir()) / "touchline_vision" / "run"
+GOOD_FIT = 6.0          # chamfer cost of a converged calibration on these clips is 1 to 5
 
 
 def stage_calibrate(clip: Clip, work: Path, force: bool = False) -> Calibration:
@@ -33,6 +34,18 @@ def stage_calibrate(clip: Clip, work: Path, force: bool = False) -> Calibration:
     t0 = time.perf_counter()
     bg = clip.background()
     cal = calibrate(bg)
+    # The fit grades itself: a symmetric chamfer above GOOD_FIT means the search found the wrong pitch.
+    # Search again, wider, from fresh seeds, and keep the best; flag the clip if none fits.
+    tries = 1
+    for seed in (1, 2):
+        if cal.fit["cost"] <= GOOD_FIT:
+            break
+        alt = calibrate(bg, seed=seed, n_search=60000, hops=16)
+        tries += 1
+        if alt.fit["cost"] < cal.fit["cost"]:
+            cal = alt
+    cal.fit["tries"] = tries
+    cal.fit["trusted"] = bool(cal.fit["cost"] <= GOOD_FIT)
     # The camera used downstream is the one implied by the polished ground homography.
     P, focal = camera_from_h(cal.H, clip.w, clip.h)
     cal.fit["focal_px_from_h"] = round(focal, 2)

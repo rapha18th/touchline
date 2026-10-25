@@ -101,7 +101,13 @@ class Detector:
             size = np.sqrt(area / np.pi)
             parent = lab_img[int(round(v)), int(round(u))]
             attached = bool(parent > 0 and big[parent])
+            penalty = 0.0
+            if attached:
+                # A ball on the grass touches a player at the feet. White inside the upper body of a
+                # player's blob is a white kit.
+                py, ph = stats[parent, cv2.CC_STAT_TOP], stats[parent, cv2.CC_STAT_HEIGHT]
+                penalty = 0.6 if (v - py) > 0.75 * ph else 1.2
             shape = min(w, h) / max(w, h)
-            s = shape - abs(np.log(max(size, 0.5) / max(r_exp, 0.5))) - (0.6 if attached else 0.0)
+            s = shape - abs(np.log(max(size, 0.5) / max(r_exp, 0.5))) - penalty
             balls.append(Blob(u=float(u), v=float(v), area=int(area), w=int(w), h=int(h), label="ball", score=float(s)))
         return balls, players, fg

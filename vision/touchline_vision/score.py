@@ -75,6 +75,12 @@ def oracle_obs(t: dict, w: int, h: int) -> tuple[dict, np.ndarray]:
     return {"n": len(fr), "fps": 25.0, "ball_px": ball, "players": players}, P
 
 
+def in_window(dets: list[dict], n: int) -> list[dict]:
+    """Detections in the same frame window as the truth: a kick in the first two frames was under way
+    before the clip began, and one in the last four has too little flight to read."""
+    return [d for d in dets if 2 <= d["frame"] < n - 4]
+
+
 def grade_kicks(dets: list[dict], truth: list[dict]) -> dict:
     pairs = match(dets, truth)
     rows = []
@@ -206,16 +212,18 @@ def main(argv=None) -> int:
         Pt = p_from_clip(t["clip_from_world"][0], w, h)
         herr = homography_error(np.array(cal["H"]), h_from_p(Pt), w, h)
         cam_err = float(np.linalg.norm(camera_centre(np.array(cal["P"])) - camera_centre(Pt)))
-        tk = truth_kicks(t, obs["n"])
+        n = obs["n"]
+        tk = truth_kicks(t, n)
         oobs, oP = oracle_obs(t, w, h)
         oev = detect_events(oobs, oP)
         per_clip.append({"clip": d.name, "match": info["match_id"], "kind": t["clip"]["kind"],
                          "homography": {k: (round(v, 3) if isinstance(v, float) else v) for k, v in herr.items()},
                          "camera_centre_err_m": round(cam_err, 2), "calib_fit": cal["fit"],
                          "tracks": track_quality(t, obs, np.array(cal["P"]), w, h),
-                         "vision": grade_kicks(ev["kicks"], tk), "oracle": grade_kicks(oev["kicks"], tk),
-                         "ablation_ground_only": grade_kicks(detect_events(obs, np.array(cal["P"]), air=False)["kicks"], tk),
-                         "ablation_no_kick_timing": grade_kicks(detect_events(obs, np.array(cal["P"]), back_time=False)["kicks"], tk)})
+                         "vision": grade_kicks(in_window(ev["kicks"], n), tk),
+                         "oracle": grade_kicks(in_window(oev["kicks"], n), tk),
+                         "ablation_ground_only": grade_kicks(in_window(detect_events(obs, np.array(cal["P"]), air=False)["kicks"], n), tk),
+                         "ablation_no_kick_timing": grade_kicks(in_window(detect_events(obs, np.array(cal["P"]), back_time=False)["kicks"], n), tk)})
     H = [c["homography"] for c in per_clip]
     tr = [c["tracks"] for c in per_clip]
 
