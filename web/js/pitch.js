@@ -177,7 +177,7 @@ export class Pitch {
       look = new THREE.Vector3(pl.x + dir * 12, 0, pl.z * 0.7);
     } else {
       pos = new THREE.Vector3(ball.x * 0.9, 22, W / 2 + 26);
-      look = new THREE.Vector3(ball.x * 0.95, 0, ball.z * 0.4);
+      look = new THREE.Vector3(ball.x * 0.95, 0, ball.z * 0.4 + 7);
     }
     this.camPos.lerp(pos, k);
     this.look.lerp(look, k);

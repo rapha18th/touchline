@@ -4,6 +4,8 @@
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const pct = (v) => `${Math.round(v * 100)}%`;
+// A momentum cue describes the last few minutes as of its match time; past this age it is stale and hides.
+const MOMENTUM_HOLD_S = 90;
 
 export class Graphics {
   constructor(root, meta, opts = {}) {
@@ -44,6 +46,7 @@ export class Graphics {
 
   // Does this cue belong on this viewer's screen?
   wants(cue) {
+    if (cue.verified === false) return false;      // nothing the Verifier did not check goes on screen
     const o = this.opts, a = cue.audience || {};
     const personas = a.personas || ["all"];
     if (cue.kind === "player_tag") {
@@ -75,7 +78,7 @@ export class Graphics {
         setTimeout(() => sb.classList.remove("flash"), 2500);
         break;
       }
-      case "momentum": this.momentum(p); break;
+      case "momentum": this.momentum(p, cue.match_s); break;
       case "line": this.line(cue, ttl); break;
       case "shot_card": this.card("shot", cue, ttl); break;
       case "pass_card": this.card("pass", cue, ttl); break;
@@ -87,9 +90,18 @@ export class Graphics {
     }
   }
 
-  momentum(p) {
+  // Hide the momentum panel once its cue is older than the hold, or at once with no cue to show.
+  age(T, none = false) {
+    if (none || (this.momAt != null && T - this.momAt > MOMENTUM_HOLD_S)) {
+      this.$(".momentum").hidden = true;
+      this.momAt = null;
+    }
+  }
+
+  momentum(p, at = null) {
     const el = this.$(".momentum");
     el.hidden = false;
+    this.momAt = at;
     const label = p.label.startsWith("control:") ? `${this.club(p.label.split(":")[1])} in control` : p.label === "chaos" ? "Chaos" : "Balanced";
     el.querySelector(".state").textContent = label;
     el.querySelector(".state").style.color = p.label === "chaos" ? "var(--chaos)" : p.label.startsWith("control") ? "var(--control)" : "var(--chalk)";

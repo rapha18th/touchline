@@ -43,17 +43,23 @@ if (mode === "live") {
   const ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws/live/${id}?speed=${speed}&start=${q.get("t") || 0}`);
   ws.onmessage = (ev) => {
     const m = JSON.parse(ev.data);
-    if (m.type === "clock") g.clock(clock(m.match_s), m.score);
+    if (m.type === "clock") { g.clock(clock(m.match_s), m.score); g.age(m.match_s); }
     if (m.type === "cue" && m.cue.kind !== "player_tag") g.show(m.cue);
   };
 } else {
   const cues = (await loadBroadcast(id)).filter((c) => c.kind !== "player_tag").sort((a, b) => airTime(a) - airTime(b));
   let T = Number(q.get("t") || 0), i = cues.findIndex((c) => airTime(c) >= T), last = performance.now();
   if (i < 0) i = cues.length;
+  // Starting mid-match: the score and the momentum panel as they stood at T.
+  const sb = cues.slice(0, i).filter((c) => c.kind === "scorebug").at(-1);
+  if (sb) g.clock(clock(T), [sb.payload.home, sb.payload.away]);
+  const mo = cues.slice(0, i).filter((c) => c.kind === "momentum").at(-1);
+  if (mo) { g.show(mo); g.age(T); }
   const tick = (now) => {
     T += ((now - last) / 1000) * speed; last = now;
     if (T > len1 && T < HALF) T = HALF;
     while (i < cues.length && airTime(cues[i]) <= T) g.show(cues[i++]);
+    g.age(T);
     g.clock(clock(T));
     requestAnimationFrame(tick);
   };

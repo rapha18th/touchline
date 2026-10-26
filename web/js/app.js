@@ -1,5 +1,5 @@
 // Touchline fan app: one match, one cue stream, a different broadcast for every viewer.
-import { CrewRoom } from "./crewroom.js";
+import { CrewRoom, mcpCall } from "./crewroom.js";
 import { Graphics } from "./graphics.js";
 import { HALF, airTime, loadBroadcast, loadMatch } from "./match.js";
 import { Pitch } from "./pitch.js";
@@ -159,13 +159,26 @@ function physical(pid, ms) {
   return focusCache;
 }
 
+// Distance and top speed shown in the panel come from the match record over MCP: the same numbers the crew is
+// checked against. The local estimate from the lighter tracking stream fills in until the first answer.
+let record = { pid: null, asked: 0, line: null };
+async function askRecord(pid) {
+  record.asked = performance.now();
+  try {
+    const { out } = await mcpCall("player_line", { match_id: M.meta.match_id, player: pid, match_s: T });
+    if (pid === view.player && out && !out.error) record = { ...record, pid, line: out };
+  } catch { /* rate limited or offline: the estimate stays */ }
+}
+
 let lastFocus = 0;
 function focusPanel(force = false) {
   const el = $("#focus");
   if (!view.player) { el.hidden = true; return; }
   if (!force && performance.now() - lastFocus < 700) return;
   lastFocus = performance.now();
-  const p = M.players[view.player], L = M.line(view.player, T), ph = physical(view.player, T);
+  if (record.pid !== view.player) record = { pid: view.player, asked: 0, line: null };
+  if (performance.now() - record.asked > 2000) askRecord(view.player);
+  const p = M.players[view.player], L = M.line(view.player, T), ph = physical(view.player, T), rl = record.line;
   const row = (k, v) => `<div class="row"><span>${k}</span><b>${v}</b></div>`;
   const onPitch = slotOf(view.player, T) !== null;
   el.hidden = false;
@@ -173,7 +186,7 @@ function focusPanel(force = false) {
     ${row("Passes", `${L.complete}/${L.passes}${L.passes ? ` · ${Math.round((100 * L.complete) / L.passes)}%` : ""}`)}
     ${row(view.persona === "casual" ? "Shots" : "Shots · xG", view.persona === "casual" ? L.shots : `${L.shots} · ${L.xg.toFixed(2)}`)}
     ${row("Goals", L.goals)}${row("Tackles won", L.tackles)}
-    ${row("Distance", `${(ph.dist / 1000).toFixed(1)} km`)}${row("Top speed", `${ph.top.toFixed(1)} km/h`)}`;
+    ${row("Distance", `${(rl ? rl.distance_km : ph.dist / 1000).toFixed(1)} km`)}${row("Top speed", `${(rl ? rl.top_speed_kmh : ph.top).toFixed(1)} km/h`)}`;
 }
 
 // ---------- the metric sparkline ----------
@@ -231,6 +244,7 @@ function seek(ms, quiet = true) {
   // Restore the latest momentum state so the screen is right straight after a jump.
   const mom = cues.slice(0, ptr).filter((c) => c.kind === "momentum").at(-1);
   if (mom) gfx.show(mom);
+  gfx.age(T, !mom);
   gfx.clock(M.clock(T), M.scoreAt(T));
   pitch.prev = null;
   focusPanel(true);
@@ -358,6 +372,7 @@ function frame(now) {
   $("#interval").hidden = !!st;
   pitch.render();
   drawTags(st);
+  gfx.age(T);
   gfx.clock(M.clock(T));
   $("#time").textContent = M.clock(T);
   if (document.activeElement !== $("#seek")) $("#seek").value = String(T);
