@@ -77,6 +77,7 @@ class Job:
     roster: list[str] = field(default_factory=list)
     clubs: list[str] = field(default_factory=list)
     insight: Insight | None = None
+    insight_ok: bool | None = None                     # None until the Verifier has checked the insight
     lines: list[PersonaLine] = field(default_factory=list)
     recap: Recap | None = None
     verdicts: list[dict] = field(default_factory=list)

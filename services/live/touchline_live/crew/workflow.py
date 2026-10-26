@@ -161,13 +161,26 @@ class Verifier(Executor):
             missing = set(job.personas) - {l.persona for l in job.lines}
             problems += [f"missing a line for persona {p}" for p in missing]
         rec = Logged(self.record)
-        results = await asyncio.gather(*[
-            verify_text(rec, job.match_id, job.match_s, text, claims, facts, job.roster, job.clubs, max_words=mw)
-            for _, text, claims, mw in items])
+        checks = [verify_text(rec, job.match_id, job.match_s, text, claims, facts, job.roster, job.clubs, max_words=mw)
+                  for _, text, claims, mw in items]
+        # The Analyst's insight airs as its own card, so it passes the same gates, once. A failed insight is
+        # dropped; it never holds back the lines.
+        check_insight = job.insight is not None and job.insight_ok is None and job.kind not in RECAP_KINDS
+        if check_insight:
+            checks.append(verify_text(rec, job.match_id, job.match_s,
+                                      f"{job.insight.headline}. {job.insight.why_it_matters}", job.insight.claims,
+                                      facts, job.roster, job.clubs, max_words=70))
+        results = await asyncio.gather(*checks)
+        insight = results.pop() if check_insight else None
         for (persona, _, _, _), res in zip(items, results):
             problems += [f"{persona}: {p}" for p in res["problems"]]
         ok = not problems
         verdict = {"ok": ok, "problems": problems, "claims_checked": sum(r["claims_checked"] for r in results)}
+        if insight is not None:
+            job.insight_ok = insight["ok"]
+            verdict["insight"] = {"ok": insight["ok"], "problems": insight["problems"],
+                                  "claims_checked": insight["claims_checked"]}
+            verdict["claims_checked"] += insight["claims_checked"]
         if not ok:
             # Keep what was refused: the Crew room shows the draft next to the reasons it failed.
             verdict["drafts"] = [{"persona": p, "text": t} for p, t, _, _ in items]
@@ -373,7 +386,7 @@ class Director(Executor):
                                      "fallback": job.fallback},
                          "sources": sorted(set(job.recap.sources) | set(job.sources)), "author": "crew"})
         else:
-            if job.insight and not job.fallback:
+            if job.insight and job.insight_ok and not job.fallback:
                 self.n += 1
                 cues.append({**base, "id": f"{job.match_id}-i{self.n:04d}", "kind": "insight", "priority": job.priority,
                              "ttl_s": 10, "audience": {**base["audience"], "personas": ["analyst", "studio"]}, "lang": "en",

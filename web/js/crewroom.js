@@ -267,7 +267,8 @@ export class CrewRoom {
         return `<li>${persona ? `<span class="cr-who">${persona}</span>${esc(reason(rest.join(": ")))}` : esc(reason(p))}</li>`;
       }).join("");
       const drafts = (v.drafts || []).map((d) => `<li><span class="cr-who">${PERSONA[d.persona] || esc(d.persona)}</span><s>${esc(d.text)}</s></li>`).join("");
-      return `<div class="cr-verdict ${v.ok ? "ok" : "no"}">${head}${probs ? `<ul class="cr-probs">${probs}</ul>` : ""}${drafts ? `<p class="cr-k">Refused draft</p><ul class="cr-drafts">${drafts}</ul>` : ""}</div>`;
+      const ins = v.insight ? `<p class="cr-k">Insight: ${v.insight.ok ? "passed" : "dropped, it does not air"}${(v.insight.problems || []).length ? ` · ${v.insight.problems.map((p) => esc(reason(p))).join(" · ")}` : ""}</p>` : "";
+      return `<div class="cr-verdict ${v.ok ? "ok" : "no"}">${head}${probs ? `<ul class="cr-probs">${probs}</ul>` : ""}${drafts ? `<p class="cr-k">Refused draft</p><ul class="cr-drafts">${drafts}</ul>` : ""}${ins}</div>`;
     }).join("");
     const end = m.outcome === "fallback" ? `<p class="cr-note fallback">Two refusals. The crew aired a template line built only from verified facts.</p>`
       : m.outcome === "repaired" ? `<p class="cr-note repaired">The Narrator rewrote the line from the Verifier's reasons, and the rewrite passed.</p>` : "";
@@ -283,7 +284,7 @@ export class CrewRoom {
   aired(m) {
     return `<ul class="cr-aired">${m.cues.map((c) => {
       const p = c.payload || {};
-      if (c.kind === "insight") return `<li><span class="cr-who">Insight</span><b>${esc(p.headline)}</b> ${esc(p.why)}</li>`;
+      if (c.kind === "insight") return `<li><span class="cr-who">Insight</span><b>${esc(p.headline)}</b> ${esc(p.why)}${c.verified === false ? ' <span class="cr-pill no">not checked, held back</span>' : ""}</li>`;
       if (c.kind === "recap") return `<li><span class="cr-who">Recap</span><b>${esc(p.title)}</b> ${esc(p.story)}</li>`;
       return `<li><span class="cr-who">${PERSONA[p.persona] || esc(p.persona)}</span>${esc(p.text)}${p.fallback ? ' <span class="cr-pill no">template</span>' : ""}</li>`;
     }).join("")}</ul>`;
