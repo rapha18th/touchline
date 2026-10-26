@@ -142,7 +142,7 @@ original `events.json` at hand it compares the event logs; from a report it comp
 Every number here comes from a file in `reports/`, named where it is used.
 `python -m touchline_live.eval.scenario_bench --tables --out <report>` prints the tables of any bench report.
 Reports made from now on record the sha256 of the Director's prompt and the commit (`prompt_sha256`,
-`git_sha`); the three bench reports predate that.
+`git_sha`); the first three bench reports predate that.
 
 The first three bench reports were made before the review fixes, and three of those fixes touch them. The search then
 counted candidates in the order they finished, so with three workers a rerun of the same command could play other
@@ -177,7 +177,7 @@ reading the screen's minute, the fixed keyword reader and the shipped prompt (`p
 tilt check plays single full matches with the Director's settings and no search, four seeds a story.
 
 | arm | gold beats met | stories with every gold beat | own beats met | candidates (pruned) | match minutes played | wall s |
-|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|
 | director | 8 of 17 (47%) | 2 of 8 | 12 of 23 | 40 (26) | 2370 | 1045 |
 | rules | 11 of 17 (65%) | 2 of 8 | 13 of 19 | 24 (9) | 2039 | 709 |
 | no_prune | 6 of 17 (35%) | 0 of 8 | 8 of 23 | 24 (0) | 2376 | 673 |
@@ -412,7 +412,7 @@ No call fell back to the keyword reader, and no spec for the wild draw carried a
 one first spec of twenty, and the repair passed. The Director still adds beats of its own, such as a clean sheet
 for the underdog. Calls took 3.6 to 7.8 s.
 
-**Matches written end to end.** Two notes from `python -m touchline_live.scenario write` on this laptop with
+**Matches written end to end.** Two notes from `python -m touchline_live.scenario write` on the development machine with
 three workers, on the current engine and the shipped prompt, each with a replay from the committed report alone.
 
 - `reports/scenario_TL-923149.json`, "A tight, cagey game settled by a single goal". The Director read one beat,
@@ -467,7 +467,7 @@ its own loop; the bench retries once and records any fallback. The affected stor
   setting), and nothing can script a goal. Rare stories come true on luck: over the ten search runs in the four bench reports the
   comeback came true three times and the goalless draw twice. When a story misses, the job offers the closest match and
   says which beats it missed.
-- **Waiting.** A full match on the current engine takes 126 to 150 s on this laptop (median 139 s over 96
+- **Waiting.** A full match on the current engine takes 126 to 150 s on the development machine (median 139 s over 96
   matches; the `secs` of each row in `reports/realism.json`). The container runs one worker on one vCPU, so a
   story that needs every candidate takes several minutes there; the container was not timed. The job reports
   each candidate as it plays.

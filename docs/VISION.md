@@ -1,6 +1,6 @@
 # Vision: passes and shots read from Touchline's rendered feed
 
-> These numbers were measured on matches from the engine before its realism calibration (main before c8e4d28). The calibration changed every generated match, so the same match ids now hold different matches. To reproduce exactly, generate the matches at that commit first: `git worktree add ../tl-v1 735c630` and run the commands below from there.
+> These numbers were measured on matches from the engine before its realism calibration (main before c8e4d28). The calibration changed every generated match, so the same match ids now hold different matches. To reproduce exactly, step 0 below generates the six matches with the engine at commit 735c630, and every other step runs from this repository.
 
 The challenge asks for pass and speed metrics generated automatically from an incoming video feed. Touchline
 does it on its own rendered broadcast. We film generated matches through the fan app's 3D pitch, hand the
@@ -241,15 +241,16 @@ first miss in it.
 
 ## Reproduce
 
-Git Bash, from the repository root. The matches come from the engine as it stood when the clips were filmed
-(the realism calibration has changed the engine since), so regenerating them today gives different matches.
+Git Bash, from the repository root. The clips were filmed on matches from the engine before its realism
+calibration, so step 0 generates them with that engine, from a worktree at 735c630, into a folder of their own.
 
 ```
-# 0. The six matches (data/ is not in git).
-for s in 7 9 10 11 12 13; do .venv/Scripts/python -m touchline_engine generate --seed $s --out data/matches; done
+# 0. The six matches, from the engine at 735c630 (data/ is not in git).
+git worktree add ../tl-v1 735c630
+for s in 7 9 10 11 12 13; do PYTHONPATH=../tl-v1/engine .venv/Scripts/python -m touchline_engine generate --seed $s --out data/matches_v1; done
 
 # 1. Film the clips (the service starts on a free local port with the crew off and stops after).
-export PYTHONPATH=vision TOUCHLINE_DATA=$PWD/data/matches V=$TEMP/touchline_vision
+export PYTHONPATH=vision TOUCHLINE_DATA=$PWD/data/matches_v1 V=$TEMP/touchline_vision
 .venv/Scripts/python -m touchline_vision.capture --matches TL-000007 TL-000012 --shots 5 --passes 5
 .venv/Scripts/python -m touchline_vision.capture --matches TL-000010 TL-000013 --shots 5 --passes 5 --out $V/heldout/clips
 .venv/Scripts/python -m touchline_vision.capture --matches TL-000009 TL-000011 --shots 5 --passes 5 --out $V/test/clips

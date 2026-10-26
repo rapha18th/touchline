@@ -4,7 +4,7 @@ Touchline runs as one container on Azure Container Apps. The image is built in A
 
 | What | Where | When |
 | --- | --- | --- |
-| CI | `.github/workflows/ci.yml` | Every push to `main` or `ws/**`, every pull request |
+| CI | `.github/workflows/ci.yml` | Every push to `main` or `ws/**`, every pull request, or on demand |
 | CD | `.github/workflows/cd.yml` | On demand, from `main` |
 | Local deploy | `infra/deploy.sh` | From a machine that holds `data/matches` |
 | Teardown | `infra/teardown.sh` | When the entry is over |
@@ -13,37 +13,42 @@ Touchline runs as one container on Azure Container Apps. The image is built in A
 
 Three jobs. None of them signs in to Azure.
 
-1. **Engine and live service tests.** Python 3.12 on Ubuntu. Installs `engine` and `services/live` with their `dev` extras and runs both pytest suites. The schema contracts run as their own step: a short match is generated fresh, and every event is validated against `schema/event.schema.json` and every cue against `schema/cue.schema.json` with `jsonschema`. The recorded broadcasts in `broadcasts/` are validated too. Then the staging tests in `infra/tests` run.
+1. **Engine and live service tests.** Python 3.12 on Ubuntu. Installs `engine`, `services/live` and `vision` with their `dev` extras. `TOUCHLINE_DATA` points at an empty folder, so no test reads a local match. The engine tests run first. The schema contracts run as their own step: a short match is generated fresh, and every event is validated against `schema/event.schema.json` and every cue against `schema/cue.schema.json` with `jsonschema`. The recorded broadcasts in `broadcasts/` are validated too. Then the live service tests, the vision tests and the staging tests in `infra/tests` run.
 2. **Web modules parse.** `scripts/check_js.sh` runs `node --check` on every file in `web/js`. Each file is checked as an ES module, the way the browser loads it.
-3. **Image.** Stages the build context with `infra/stage.py`, builds the Dockerfile from it, runs the container and waits for `/healthz`. The matches are not in git, so this build ships none. It proves the Dockerfile and the stage agree and that the service starts.
+3. **Image.** Stages the build context with `infra/stage.py --allow-missing`, builds the Dockerfile from it with an empty `SEEDS`, runs the container and waits for `/healthz`. The matches are not in git, so this build ships none, and with `SEEDS` empty it generates none. It proves the Dockerfile and the stage agree and that the service starts.
 
-Run the same checks on this PC:
+Run the same checks locally:
 
 ```bash
 python -m pytest engine -q
 python -m pytest services/live -q
+python -m pytest vision/tests -q
 python -m pytest infra/tests -q
 bash scripts/check_js.sh web
 ```
 
 ## The build context
 
-`infra/stage.py` assembles the build context in `%TEMP%\touchline-build`. The Dockerfile is the manifest. Every path it copies is staged and nothing else is. `data/matches` is narrowed to the three showcase matches named by the Dockerfile's `SEEDS`: TL-000007, TL-000008 and TL-000011. Their recorded broadcasts ship in `broadcasts/`.
+`infra/stage.py` assembles the build context in the system temp folder, `%TEMP%\touchline-build` on Windows. The Dockerfile is the manifest. Every path it copies is staged and nothing else is. `data/matches` is narrowed to the three showcase matches named by the Dockerfile's `SEEDS`: TL-000008, TL-000009 and TL-000012. Their recorded broadcasts and voiced clips ship in `broadcasts/`. Any other match in the local data folder is left out on purpose, and so is `web/capture.html`, the vision capture harness.
 
 ```bash
 python infra/stage.py                  # prints the staged path; the summary goes to stderr
+python infra/stage.py --out DIR        # stage somewhere else
 python infra/stage.py --matches DIR    # read the matches from another folder
 python infra/stage.py --allow-missing  # stage without matches; the build generates them
 ```
 
-Measured on 24 October 2026:
+Measured on 26 October 2026 at commit 2e67f47, from the stage's `.touchline-stage.json`:
 
-| Context | Files | On disk | Gzipped upload |
-| --- | --- | --- | --- |
-| Before: repository root minus `.dockerignore` | 82 | 81.2 MB | 73.4 MB |
-| After: staged by `infra/stage.py` | 50 | 35.3 MB | 31.5 MB |
+| Part of the staged context | On disk |
+| --- | ---: |
+| `data/matches`: the three showcase matches | 33.9 MB |
+| `broadcasts`: three recorded broadcasts and 557 voiced clips | 24.6 MB |
+| `services`, `web`, `engine`, `schema` and the Dockerfile | 0.5 MB |
+| All 622 files | 59.0 MB |
+| Gzipped upload | 52.9 MB |
 
-The upload is 57% smaller. Almost all of that comes from shipping three matches instead of the seven in a local data folder: the image carries only the matches that have recorded broadcasts, and the other four are left out on purpose. The three matches are 34.3 MB of the 35.3 MB. Their `tracking.npz` files are already compressed, so gzip saves little on them. `.touchline-stage.json` in the stage records the commit, the file count, the sizes, and a hash of each staged match's events.
+The three matches and the clips are almost all of it. The matches' `tracking.npz` files and the mp3 clips are already compressed, so gzip saves little on them. `.touchline-stage.json` in the stage records the commit, the file count, the sizes, and a hash of each staged match's events.
 
 ## Local deploy
 
@@ -53,7 +58,7 @@ az login
 bash infra/deploy.sh
 ```
 
-The script stages the context, builds it in ACR, and rolls the Container App to a new revision. It is idempotent. It survives a flaky link:
+The script stages the context, builds it in ACR, and rolls the Container App to a new revision. On a first run it creates the registry, the Container Apps environment and the app with a system identity, and grants that identity AcrPull on the registry and `Cognitive Services OpenAI User` on the Foundry account, which must already exist. Each rollout sets `TOUCHLINE_CREW=1` and the Foundry endpoint on the app and holds it at one replica. It is idempotent. It survives a flaky link:
 
 - Every Azure call that can drop is retried, up to `RETRIES` times (default 5) with a growing pause.
 - The upload is the step that fails most. `az acr build` is retried as a whole.
@@ -116,7 +121,7 @@ gh variable set AZURE_SUBSCRIPTION_ID --body "$SUB" --repo "$REPO"
 
 Contributor on the resource group is the simplest grant that covers `az acr build` and `az containerapp update`. It reaches nothing outside `rg-touchline`.
 
-The Container App already pulls from ACR with its own system identity, and that identity already holds `Cognitive Services OpenAI User` on the Foundry account. `infra/deploy.sh` set both up. CD changes neither.
+CD expects the Container App to exist. `infra/deploy.sh` creates it, has it pull from ACR with its own system identity, and grants that identity `Cognitive Services OpenAI User` on the Foundry account. CD changes neither.
 
 ### Run it
 
@@ -125,7 +130,7 @@ gh workflow run cd.yml --repo rapha18th/touchline --ref main
 gh run watch --repo rapha18th/touchline
 ```
 
-Set `roll_out` to false to build the image without moving the live app:
+Set `roll_out` to false to build the image and leave the Container App on its current revision:
 
 ```bash
 gh workflow run cd.yml --repo rapha18th/touchline --ref main -f roll_out=false
@@ -144,7 +149,7 @@ Other resource groups whose name holds `touchline` are listed and left alone. Ad
 
 ## Limits
 
-- The CI and CD workflows have not run on GitHub yet. Both files parse, and every `run:` block passes `bash -n`.
-- No Docker engine runs on the development PC. The CI image job is the first place the slim context is built.
-- CD has no `data/matches`. Its image build generates the three showcase seeds from the engine, which is deterministic per seed on one platform. That a Linux build reproduces the Windows-generated files byte for byte, so the recorded broadcasts line up frame for frame, is not verified. `infra/deploy.sh` from this PC ships the exact files.
-- `infra/deploy.sh` and `infra/teardown.sh --yes` were not run against Azure during this work. `infra/teardown.sh` without `--yes` was, and listed the eight resources in `rg-touchline`.
+- CI runs on GitHub. No Docker engine ran on the development machine, so the CI image job is where the slim context is built and started.
+- The CD workflow has not run on GitHub yet. Its file parses, and every `run:` block in both workflows passes `bash -n`.
+- CD has no `data/matches`. Its image build generates the three showcase seeds from the engine, which is deterministic per seed on one platform. That a Linux build reproduces the Windows-generated files byte for byte, so the recorded broadcasts line up frame for frame, is not verified. `infra/deploy.sh` run from a machine that holds the generated matches ships the exact files.
+- `infra/deploy.sh` has not completed a run from the staged context. `infra/teardown.sh --yes` has not run against Azure. `infra/teardown.sh` without `--yes` has, and listed the resources in `rg-touchline`.

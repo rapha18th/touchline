@@ -1,6 +1,6 @@
 """Fit the tracking-only pass difficulty model and grade it on held-out matches.
 
-    python services/live/tools/fit_difficulty.py data/matches --train 8 9 10 11 12 --test 7 13
+    python services/live/tools/fit_difficulty.py data/matches --train 7 10 11 13 --test 8 9 12
 """
 
 import argparse

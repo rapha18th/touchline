@@ -8,6 +8,10 @@ how the Crew room makes the crew's work visible, and how each crew moment become
 
 The server is `services/live/touchline_live/mcp_server.py`, built on FastMCP. Every tool answers as of a match
 time, by replaying the event log up to that second. A client sees only what was known when a line went to air.
+First-half stoppage time is the one gap. Match seconds count the second half from 2700, so a longer first half
+shares seconds with the start of the second. The overlap runs from 142.7 s in TL-000012 to 297.6 s in TL-000009,
+so a question asked at a first-half stoppage moment can count events from the start of the second half. The
+README's Known limits say what that changed in the recorded broadcasts.
 Every tool is read-only and says so in its annotations (`readOnlyHint: true`, `destructiveHint: false`,
 `idempotentHint: true`, `openWorldHint: false`).
 
@@ -32,7 +36,7 @@ Numbers pass within 2 percent or 0.05, whichever is larger, or when they are the
 | --- | --- | --- |
 | stdio | `python -m touchline_live.mcp_server` | The crew's default: one child process per run. |
 | Streamable HTTP, standalone | `python -m touchline_live.mcp_server --http` on port 8765 | A local client. |
-| Streamable HTTP, in the web service | `POST /mcp` on the Touchline app | Any client, the Crew room, Ask the record. |
+| Streamable HTTP, in the web service | `POST /mcp` on the Touchline app | Any client, the Crew room, Ask the record, the fan app's player panel. |
 
 The `/mcp` route lives inside the FastAPI app (`server.py`). It is stateless and replies with plain JSON, so any
 replica can answer any request and a browser can call a tool with one POST. Data comes from `TOUCHLINE_DATA`.
@@ -47,9 +51,14 @@ A gate in front of it (`touchline_live/guard.py`) keeps a public endpoint from s
   (`TOUCHLINE_MCP_BURST`, `TOUCHLINE_MCP_RATE`). Past it, 429 with `Retry-After`. The app's own Ask agent calls
   `/mcp` on 127.0.0.1 with no forwarded header and is not counted.
 
-The live URL serves `/mcp` once this branch is deployed:
-`https://touchline.mangohill-b9c35cb7.swedencentral.azurecontainerapps.io/mcp`.
-Until then, run the app locally and use `http://127.0.0.1:8080/mcp`.
+The fan app reads from the same route. Follow a player and the panel's distance and top speed come from
+`player_line` over `/mcp`, the numbers the crew is checked against, asked at most once every two seconds while
+one player is followed (`askRecord` in `web/js/app.js`). That pace stays inside the bucket's refill of one request a second. Until the
+first answer arrives, the panel shows an estimate from the browser's tracking stream; when a later call fails,
+it keeps the last answer.
+
+Run the app and use `http://127.0.0.1:8080/mcp`. A deployment serves the same route at `/mcp` on its own host;
+swap that address into the examples below.
 
 ```bash
 python -m uvicorn touchline_live.server:app --app-dir services/live --port 8080
@@ -64,7 +73,7 @@ VS Code, in `.vscode/mcp.json`:
   "servers": {
     "touchline": {
       "type": "http",
-      "url": "https://touchline.mangohill-b9c35cb7.swedencentral.azurecontainerapps.io/mcp"
+      "url": "http://127.0.0.1:8080/mcp"
     }
   }
 }
@@ -77,7 +86,7 @@ Copilot CLI, in `~/.copilot/mcp-config.json`, and the Copilot coding agent, in t
   "mcpServers": {
     "touchline": {
       "type": "http",
-      "url": "https://touchline.mangohill-b9c35cb7.swedencentral.azurecontainerapps.io/mcp",
+      "url": "http://127.0.0.1:8080/mcp",
       "tools": ["*"]
     }
   }
@@ -89,7 +98,7 @@ Then ask in agent mode: "Using touchline, who leads xG in TL-000008 at 32:40?"
 ### Claude Code
 
 ```bash
-claude mcp add --transport http touchline https://touchline.mangohill-b9c35cb7.swedencentral.azurecontainerapps.io/mcp
+claude mcp add --transport http touchline http://127.0.0.1:8080/mcp
 ```
 
 Or commit it for the team in `.mcp.json`:
@@ -97,7 +106,7 @@ Or commit it for the team in `.mcp.json`:
 ```json
 {
   "mcpServers": {
-    "touchline": { "type": "http", "url": "https://touchline.mangohill-b9c35cb7.swedencentral.azurecontainerapps.io/mcp" }
+    "touchline": { "type": "http", "url": "http://127.0.0.1:8080/mcp" }
   }
 }
 ```
@@ -145,15 +154,20 @@ left of the pitch. It fills as the match plays, one card per crew moment, newest
 
 Each card shows:
 
-- **The handoffs.** Producer, Analyst, Narrator, Verifier, Localiser and Director (Recap writer and Fallback when
-  they run), in order, with the milliseconds each role took. A bar on the card draws the same timeline to scale.
+- **The handoffs.** Producer, Analyst, Narrator, Verifier, Localiser and Director (Recap writer, Fallback and
+  Voice when they run), in order, with the milliseconds each role took. A bar on the card draws the same
+  timeline to scale.
 - **The Verifier's verdicts.** Every check, with the number of claims it tested. A refusal lists its reasons in
   plain words, such as "claim failed: explain index claimed 2, record says 2.7", with the refused draft struck
   through. A repaired line says so. A line that failed twice says the crew aired a template built only from
-  verified facts.
+  verified facts. The first check also tests the Analyst's insight, its headline and why, with the same gates,
+  and shows the result on its own line inside that check: "Insight: passed", or "Insight: dropped, it does not
+  air" with the reasons. A dropped insight leaves the lines free to air.
 - **The MCP calls.** Which role called which tool, with which ids or how many claims, as of which match time,
   and how long the record took to answer.
-- **What aired.** Each persona's line, the Analyst's insight, or the recap.
+- **What aired.** Each persona's line, the Analyst's insight, or the recap. An insight the Verifier has not
+  checked carries the tag "not checked, held back". The fan app and the overlay keep any cue marked
+  unverified off screen (`wants()` in `web/js/graphics.js`).
 - **The cited events.** Each id is a button. It opens the event's facts, fetched live from `/mcp` with
   `get_events`, and says so ("Event #1236, from MCP get_events, 244 ms"). Without `/mcp` it falls back to the
   event log the page already loaded, and says that instead.
@@ -163,8 +177,10 @@ trace has no per-call entries, as in a recording made before per-call logging, t
 calls", because only the Producer's count was kept.
 
 **Recorded mode** reads `crew.trace`, `crew.attempts` and `crew.verdicts` from the cues in `broadcasts/`.
-The three recordings in the repo predate per-call logging: they show how many MCP calls the Producer made,
-without each call's tool and timing, and refusals without the refused draft. A new recording carries both.
+The three recordings, TL-000008, TL-000009 and TL-000012, carry each MCP call's tool and timing and every
+refused draft: 76 crew moments and 420 MCP calls in all (`broadcasts/*.cues.report.json`). They were recorded
+before the Verifier checked insights, so each of their 68 insight cues carries `verified: false`. The Crew room
+lists those insights as "not checked, held back", and the fan app and the overlay keep them off screen.
 
 **Live mode** shows the same story as it happens. `server.py` keeps `crew.job`, `crew.trace`, `crew.attempts`
 and `crew.verdicts` in every live push. A crew run that fails outright, for example when the model cannot be
@@ -195,7 +211,9 @@ Every question spends model credit. The endpoint allows two questions at a time,
 `detail`, the exception text as `error`, and `attempts`, the number of model calls tried.
 
 Measured on TL-000008 at 32:40, ten fixed questions, gpt-5.4-mini, one run
-(`python scripts/ask_eval.py http://127.0.0.1:8080 TL-000008 1960 reports/ask_record_TL-000008.json`):
+(`python scripts/ask_eval.py http://127.0.0.1:8080 TL-000008 1960 reports/ask_record_TL-000008.json`). The run
+used TL-000008 as the engine generated it before its realism calibration (main before c8e4d28); the same id now
+holds a different match.
 
 | Outcome | Questions |
 | --- | --- |
@@ -243,7 +261,9 @@ checked; `tools/call <tool>` for each MCP call, shaped per the OpenTelemetry MCP
 each Ask the record question. The Verifier's span carries a `touchline.verdict` event with the problems it found.
 
 One real crew moment on Foundry, exported to the console and printed as a tree, is one trace of 33 spans
-(`reports/crew_trace_TL-000008.txt`):
+(`reports/crew_trace_TL-000008.txt`). Like the Ask run, it played TL-000008 from the engine before its realism
+calibration, and it predates the insight check. Today the Verifier's span also holds the insight's
+`verify_numbers` call whenever the insight carries claims.
 
 ```
 crew.moment hard_pass  11408 ms  {"touchline.outcome": "first_pass", "touchline.claims_checked": 9}
@@ -276,9 +296,13 @@ it, and Agent Framework's `workflow.run` and `executor.process` spans in the sam
 
 Application Insights resource `touchline-insights` in `rg-touchline` (Sweden Central) is workspace-based. It writes
 to `workspace-rgtouchlines3IO`, the Log Analytics workspace of the Container Apps environment `touchline-env`, so app
-logs and traces sit side by side. The container app `touchline` carries `APPLICATIONINSIGHTS_CONNECTION_STRING` and
-`OTEL_SERVICE_NAME=touchline-web` as environment variables. Spans flow once an image built from this branch is
-deployed; the image running today predates the telemetry module.
+logs and traces sit side by side. The app sends its spans there when the container app carries
+`APPLICATIONINSIGHTS_CONNECTION_STRING`; `infra/deploy.sh` does not set it. Set it once with:
+
+```bash
+CS=$(az monitor app-insights component show -g rg-touchline -a touchline-insights --query connectionString -o tsv)
+az containerapp update -g rg-touchline -n touchline --set-env-vars "APPLICATIONINSIGHTS_CONNECTION_STRING=$CS" OTEL_SERVICE_NAME=touchline-web
+```
 
 Queries for the workspace:
 

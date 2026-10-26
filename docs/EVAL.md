@@ -1,6 +1,8 @@
 # Crew evaluation: what the Verifier and the crew buy
 
-> These numbers were measured on matches from the engine before its realism calibration (main before c8e4d28). The calibration changed every generated match, so the same match ids now hold different matches. To reproduce exactly, generate the matches at that commit first: `git worktree add ../tl-v1 735c630` and run the commands below from there.
+> These numbers were measured on matches from the engine before its realism calibration (main before c8e4d28). The calibration changed every generated match, so the same match ids now hold different matches. To reproduce exactly, generate the four evaluation matches with that engine into a folder of their own, then run the commands below from this repository against it: `git worktree add ../tl-v1 735c630`, then `for s in 7 9 11 13; do PYTHONPATH=../tl-v1/engine .venv/Scripts/python -m touchline_engine generate --seed $s --out data/matches_v1; done`, then set `TOUCHLINE_DATA=$PWD/data/matches_v1`.
+
+> The Verifier now also checks the Analyst's insight, its headline and why, with the same gates as the lines, and drops an insight that fails (commit 086d8c8). This evaluation predates that check. It scores the three persona lines of each moment; the insight saved with each run went unchecked.
 
 We put 40 moments from 4 generated matches through the crew, through the crew with its Verifier removed, and
 through a one-call writer. Then we attacked the crew three ways. Every line was checked twice: by the

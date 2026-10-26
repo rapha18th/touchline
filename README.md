@@ -1,6 +1,6 @@
 # Touchline
 
-A studio crew of AI agents that watches a football match as it happens, explains why each moment matters, proves every sentence against the event log, and sends a different broadcast to every fan.
+A studio crew of AI agents that watches a football match as it happens, explains why each moment matters, checks every number and name in its lines and insights against the match record, and sends a different broadcast to every fan.
 
 Every match is synthetic. Touchline builds its own: a match engine that plays full 90-minute games between fictional clubs and writes football-realistic events and 25 Hz tracking for all 22 players and the ball.
 
@@ -18,15 +18,15 @@ command that writes it.
 | Azure: Foundry project with gpt-5.4-mini and gpt-5-mini | in use by the crew, keyless |
 | Feed, state service, cue feed (`schema/cue.schema.json`) | working |
 | Pass difficulty from tracking alone | working, graded against the engine's truth on held-out matches |
-| Agent crew on Microsoft Agent Framework, with the Verifier | measured: under attack the judge calls 48 of 360 first drafts wrong and 21 of the 360 lines the crew aired ([EVAL](docs/EVAL.md)) |
+| Agent crew on Microsoft Agent Framework, with the Verifier | measured on matches from before the engine's calibration: under attack the judge calls 48 of 360 first drafts wrong and 21 of the 360 lines the crew aired ([EVAL](docs/EVAL.md)) |
 | Match MCP server, stdio and `/mcp` over HTTP | working: POST only, one worker, a token bucket per client ([MCP](docs/MCP.md)) |
-| Crew room and Ask the record | working: Ask answered 9 of 10 fixed questions with a verified answer, and 1 ended in a 502 ([MCP](docs/MCP.md)) |
-| Voiced commentary in four languages | 288 clips for two recorded broadcasts; live voice off unless `TOUCHLINE_VOICE=1` ([VOICE](docs/VOICE.md)) |
+| Crew room and Ask the record | working: on TL-000008 before the engine's calibration, Ask answered 9 of 10 fixed questions with a verified answer, and 1 ended in a 502 ([MCP](docs/MCP.md)) |
+| Voiced commentary in four languages | 557 clips for three recorded broadcasts; live voice off unless `TOUCHLINE_VOICE=1` ([VOICE](docs/VOICE.md)) |
 | Fan app: 3D pitch, personas, player focus, one metric, four languages, voice | working |
 | Broadcast overlay page for a browser source | working |
 | Azure Container Apps with a managed identity, one replica | scripted: `infra/deploy.sh`, CI and CD on demand ([DEPLOY](docs/DEPLOY.md)) |
 | Write the match: a story in, a match out | measured on the current engine: the search meets 8 of 17 hand-written beats where single matches meet 19 of 68; a keyword baseline meets 11 of 17 ([SCENARIO](docs/SCENARIO.md)) |
-| Auto-eventing from the rendered feed | measured on 20 test clips filmed after the code froze: 40 of 50 passes found and 40 of 43 right, ball speed off by 3.3 km/h on average ([VISION](docs/VISION.md)) |
+| Auto-eventing from the rendered feed | measured on 20 test clips filmed after the code froze, from matches made before the engine's calibration: 40 of 50 passes found and 40 of 43 right, ball speed off by 3.3 km/h on average ([VISION](docs/VISION.md)) |
 
 ## Documentation
 
@@ -40,24 +40,47 @@ command that writes it.
 | [docs/VISION.md](docs/VISION.md) | Passes and shots read from the rendered feed: camera from the lines, ball and players, flight fits, scores on held-out clips |
 | [docs/REALISM.md](docs/REALISM.md) | The realism bands, the gated Calibrator agent and the trail of every holdout run |
 
+## Run it
+
+The recorded broadcasts replay with no cloud account. The engine regenerates the three showcase matches from
+their seeds, byte for byte the matches the crew recorded on, in about a minute each.
+
+```bash
+python -m venv .venv
+.venv/Scripts/python -m pip install -e engine -e services/live
+for s in 8 9 12; do .venv/Scripts/python -m touchline_engine generate --seed $s --out data/matches; done
+TOUCHLINE_CREW=0 .venv/Scripts/python -m uvicorn touchline_live.server:app --app-dir services/live --port 8080
+```
+
+Open `http://127.0.0.1:8080` (on Linux or macOS the interpreter is `.venv/bin/python`). With `TOUCHLINE_CREW=0`
+the recorded broadcasts, their voice clips, the Crew room and `/mcp` all work; Go live plays the match through the
+state service without the crew, Write the match uses its rules Director, and Ask the record is off. Leave
+`TOUCHLINE_CREW` unset to run the crew, which needs an Azure login with access to a Foundry project
+([DEPLOY](docs/DEPLOY.md)).
+
 ## How a moment becomes a line
 
 ```
 engine match --> feed (events at resolve time, tracking at 5 Hz)
              --> state service: stats, pass difficulty, control vs chaos, pressure, rhythm
                  --> cues: scorebug, shot and pass cards, player tags, momentum, stats
-                 --> moments: goal, big chance, big save, hard pass, red card, half and full time
+                 --> moments: goal, brace or hat-trick, big chance, big save, hard pass, red card,
+                              half and full time
                      --> crew workflow (Agent Framework)
                          Producer   reads the record through the match MCP server
-                         Analyst    why it matters: control, chaos, pressure, rhythm, game state
+                         Analyst    the insight: a headline and why it matters, from control, chaos,
+                                    pressure, rhythm and game state
                          Narrator   one line per viewer: analyst, casual, studio caption
-                         Verifier   every claim resolved through MCP; every number and name in the
-                                    text must be backed; plain punctuation; repair once, else a
-                                    template line built from verified facts
+                         Verifier   checks every line and the insight with the same gates: every
+                                    claim resolved through MCP; every number and name in the text
+                                    must be backed; plain punctuation. A failed line gets one repair,
+                                    and a second failure airs a template line built from verified
+                                    facts. A failed insight is dropped, and the lines air on their own
                          Localiser  Spanish, French and Portuguese; a translation must carry every
                                     number intact and really be translated, or it is refused
                          Voice      with TOUCHLINE_VOICE=1, Azure AI Speech clips of the verified lines
-                         Director   timed cues with sources and the crew's trace
+                         Director   timed cues with sources and the crew's trace; an insight card
+                                    only once its check passes
 ```
 
 On a goal, a verified caption airs at once from the record; the crew's lines follow seconds later.
@@ -71,28 +94,38 @@ On a goal, a verified caption airs at once from the record; the crew's lines fol
 
 Every crew cue carries its trace: ms per role, each Verifier verdict with its reasons, and the MCP calls.
 [`reports/crew_trace_TL-000008.txt`](reports/crew_trace_TL-000008.txt) is one real crew moment, exported to the
-console as a tree of 33 spans. The Crew room in the fan app draws the same story for every moment ([MCP](docs/MCP.md)).
+console as a tree of 33 spans. It predates the engine's calibration and the insight check. The Crew room in the
+fan app draws the same story for every moment ([MCP](docs/MCP.md)).
+
+Three recorded broadcasts ship in [`broadcasts/`](broadcasts/), each a crew run on the calibrated engine, voiced in
+English, Spanish, French and Portuguese: TL-000008 (Northgate FC 3-2 Saltbridge Athletic), TL-000009 (Harbourne FC
+2-2 Thornfield Rovers) and TL-000012 (Elmstead Albion 4-2 Ashbury Albion). Across the three the crew ran 76 jobs and
+made 420 MCP calls. The Verifier sent 22 jobs back for a repair; 19 passed on the second draft and 3 aired text
+built from verified facts. Each `.cues.report.json` beside the cues holds the counts and every job's trace. The
+recordings predate the insight check; [Known limits](#known-limits) says what that means on screen.
 
 The crew evaluation ([EVAL](docs/EVAL.md), [`reports/crew_eval.json`](reports/crew_eval.json)) puts 40 moments
 through the crew, the crew without its Verifier and a one-call writer, then attacks it three ways. With a false
 fact planted, 23 of 120 first drafts repeated it and the crew aired none. Under attack, the judge calls 48 of 360
 first drafts wrong and 21 of the 360 lines the crew aired. On clean moments the one-call writer is as accurate in
-meaning; the crew's gain is in numbers and claims. The page says what the gate misses as plainly.
+meaning; the crew's gain is in numbers and claims. The page says what the gate misses as plainly. The evaluation
+ran on matches from before the engine's calibration, and before the Verifier checked the insight.
 
 ## One match, a broadcast for every fan
 
 The fan app plays a match on a floodlit 3D pitch and builds the graphics from the cue stream.
 
-- **Watch as** an analyst (tactical camera, xG, pass cards that say why a pass was hard, the control index, pressing), a casual fan (broadcast camera, plain words, the name of whoever has the ball), or the studio (clean captions).
+- **Watch as** an analyst (tactical camera, xG, pass cards that say why a pass was hard, the control index, pressing), a casual fan (a broadcast camera that follows the ball, plain words, the name of whoever has the ball), or the studio (clean captions).
 - **Your club** narrows the player list and tints the story.
-- **Follow a player**: the camera rides with them, a ring marks them, and a live line builds from the event log and the tracking: passes and accuracy, shots and xG, distance and top speed.
+- **Follow a player**: the camera rides with them, a ring marks them, and a live line builds as the match plays. Passes and accuracy, shots and xG come from the event log. Distance and top speed come from the match record over MCP (`player_line`), the same numbers the crew is checked against; the browser's estimate from its tracking stream fills in until the record answers.
+- **Control and chaos**: a panel reads the latest momentum cue (a side in control, balanced, or chaos) with its reasons, and hides 90 seconds after that cue.
 - **One number all match**: an xG race, the difficulty of the hardest completed passes, or your player's speed.
 - **Language**: English, Spanish, French and Portuguese, translated by the crew with every number carried intact.
 - **Commentary voice**: the analyst and casual lines spoken as they air, in the viewer's language, one at a time. A big moment cuts a smaller line; a line that waits too long is skipped ([VOICE](docs/VOICE.md)).
-- **Crew room**: every crew moment with its handoffs, verdicts, refusals, repairs and MCP calls, and **Ask the record**, where a viewer's question is answered over MCP and shown only if the Verifier passes it ([MCP](docs/MCP.md)).
-- **Recorded or live**: recorded broadcasts replay every cue a live crew run put on air, at the latency it measured; Go live starts a fresh run on the server with the crew working as the match plays.
+- **Crew room**: every crew moment with its handoffs, verdicts (the insight's among them), refusals, repairs and MCP calls, and **Ask the record**, where a viewer's question is answered over MCP and shown only if the Verifier passes it ([MCP](docs/MCP.md)).
+- **Recorded or live**: recorded broadcasts replay the cues of a live crew run, at the latency it measured; Go live starts a fresh run on the server with the crew working as the match plays. Only verified cues reach the screen.
 
-`/overlay?match=TL-000008&persona=studio&preview=0` serves the same graphics on a transparent page for a vision mixer or a browser source.
+`/overlay?match=TL-000008&persona=studio&preview=0` serves the same graphics on a transparent page for a vision mixer or a browser source. A replay started mid-match (`&t=` in match seconds) restores the score and the momentum panel as they stood.
 
 ```bash
 .venv/Scripts/python -m uvicorn touchline_live.server:app --app-dir services/live --port 8080
@@ -116,7 +149,7 @@ and cites the events. The best match joins the list, ready to watch or to go liv
   stories cannot rank the two readers.
 - The Director read the app's four examples in Spanish, French and Portuguese with no fallback in 60 calls
   (`reports/scenario_director.json`).
-- The style dials shape how a match looks and not its goals: over 32 matches a setting, high dials against
+- The style dials shape how a match looks more than its goals: over 32 matches a setting, high dials against
   low gave 4.3 more shots a side (standard error 0.6) and 0.16 more goals (standard error 0.33)
   (`reports/scenario_dials_v2.json`). The search does the work.
 
@@ -139,7 +172,8 @@ the renderer's camera grade it (`reports/vision/summary.json`, test set):
 - The pitch lands within 0.08 px of the truth on the median clip.
 - The reported ball sits on the wrong object in 9.7% of the test frames that report one.
 
-The feed is clean: rendered lines, even light, one fixed camera a clip. Real video will score lower.
+The clips come from matches made before the engine's calibration. The feed is clean: rendered lines, even light,
+one fixed camera a clip. Real video will score lower.
 
 ```bash
 PYTHONPATH=vision .venv/Scripts/python -m touchline_vision.score --name test --clips $TEMP/touchline_vision/test/clips --work $TEMP/touchline_vision/test/run
@@ -154,9 +188,17 @@ At the release frame the state service reads where the passer, the intended targ
 opponent stand, and estimates the completion chance: length, height, a physics race for the lane
 (can any defender reach a point of the lane before the ball), the space around the receiver and the
 passer, progression, final third and box. Difficulty is one minus that chance. The engine's own
-success probability never enters the model; it grades it. The fitted weights and their scores on two
-held-out matches are in `services/live/touchline_live/pass_difficulty.json`. No command in the repository
-refits it yet, so this page quotes no number from it.
+success probability stays out of the model and grades it. The weights in
+`services/live/touchline_live/pass_difficulty.json` come from four matches (seeds 7, 10, 11 and 13) and are graded
+on three held out of the fit: the showcase matches TL-000008, TL-000009 and TL-000012. On their 2,263 passes the
+model's completion chance correlates 0.93 with the engine's, and its Brier score is 0.134 against 0.125 for the
+engine's own chance and 0.169 for the base rate.
+
+With seeds 7 to 13 generated into `data/matches`, this refits the model and writes the file again:
+
+```bash
+.venv/Scripts/python services/live/tools/fit_difficulty.py data/matches --train 7 10 11 13 --test 8 9 12
+```
 
 ## The match engine
 
@@ -214,6 +256,35 @@ set the engine's dials: [docs/REALISM.md](docs/REALISM.md) has the trail.
 
 Full output: [`reports/realism.json`](reports/realism.json).
 
+## Known limits
+
+- **First-half stoppage time shares match seconds with the second half.** The app and the services start the
+  second half at match second 2700 (`HALF` in `web/js/match.js`, `HALF_S` in
+  `services/live/touchline_live/match_io.py`). Each showcase match's first half runs longer: 2861.7 s in
+  TL-000008, 2997.6 s in TL-000009 and 2842.7 s in TL-000012 (`periods` in each `meta.json`). Match seconds from
+  2700 to the end of the first half stand for both first-half stoppage and the start of the second half: 161.7 s
+  in TL-000008, 297.6 s in TL-000009 and 142.7 s in TL-000012. The app skips those seconds of the second half in
+  replay, so in TL-000009 Harbourne's 50th-minute equaliser never shows on the pitch and its cues air over
+  first-half stoppage pictures. An as-of query at a first-half stoppage moment can also count early second-half
+  events: TL-000009's half-time recap counted that equaliser and reads 1-1 for a half that ended 0-1. Every crew
+  cue from first-half stoppage (the three half-time recaps and two TL-000012 moments) is therefore marked
+  `verified: false` and held back from the screen. The fix moves the match-seconds origin and records the
+  broadcasts again.
+- **The gates check numbers and names, not the story.** TL-000009's full-time recap says Wesola "replied and then
+  scored twice", which reads as three goals; he scored two. Every number and name in it is right, so it passed.
+  It is marked `verified: false` and held back. [EVAL](docs/EVAL.md) measures how often meaning slips through.
+- **The recorded insights predate the insight check.** Their 68 insight cards carry `verified: false`. The fan app
+  and the overlay keep them off screen, and the Crew room lists them as "not checked, held back". A fresh crew run
+  checks every insight before it airs.
+- **Some evidence predates the engine's calibration.** The crew evaluation, the Ask the record check, the crew
+  trace and the vision scores ran on matches from the engine before its realism calibration (main before
+  c8e4d28). The same match ids now hold different matches. [EVAL](docs/EVAL.md) and [VISION](docs/VISION.md) say
+  how to reproduce theirs.
+
 ## Rights
 
 All clubs, players, venues and officials are generated from syllable banks. No league, club or player marks appear anywhere in the product.
+
+## Licence
+
+MIT. See [LICENSE](LICENSE).

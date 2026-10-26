@@ -67,6 +67,8 @@ Every row has its report in `reports/calibration/holdout/`. Steps after round 10
 
 The published report, `reports/realism.json`, is the final row: 96 matches on seeds 901-996 that no step was tuned on. Fifteen of sixteen metrics are in band: 3.10 goals a match, 11.7 shots and 4.3 on target per team, 0.124 xG per shot, 396 passes per team at 79.1%, 59.2 minutes of ball in play. The one miss is conversion, 0.137 goals per shot against a band that ends at 0.13. The engine draws every goal from the shot's own xG, so conversion follows xG per shot (0.124) in expectation. Over 96 matches it carries a standard error of about 0.007, and across the five larger runs it sat 0.004 above xG on average.
 
-## After merge
+## The showcase on these defaults
 
-Every generated match changes with the engine. A seed played on the new defaults is a different match from the same seed played before. The showcase matches in `data/matches` and the recorded broadcasts in `broadcasts/` were made on the old engine, so they must be regenerated after this branch merges, and any number quoted from them must be measured again.
+Every generated match changes with the engine. A seed played on the new defaults is a different match from the same seed played before. The showcase matches were generated again on the calibrated defaults and recorded with the crew: TL-000008 (Northgate FC 3-2 Saltbridge Athletic), TL-000009 (Harbourne FC 2-2 Thornfield Rovers) and TL-000012 (Elmstead Albion 4-2 Ashbury Albion). Their broadcasts in `broadcasts/` hold 76 crew moments, voiced in English, Spanish, French and Portuguese in 557 clips (`broadcasts/*.cues.report.json`, `broadcasts/audio/`). They replace the recordings made on the old engine. The pass difficulty model was fitted again on the new defaults (`services/live/touchline_live/pass_difficulty.json`).
+
+Some measurements still describe the engine before calibration: the crew evaluation (`docs/EVAL.md`), the vision scores (`docs/VISION.md`), the Ask the record run and the sample trace (`docs/MCP.md`), and the first two Write the match bench runs (`docs/SCENARIO.md`). Each page says so.
