@@ -151,7 +151,7 @@ export class Graphics {
       el.innerHTML = `<div class="k">Why it matters · ${esc(p.pattern)}</div><div class="h">${esc(p.headline)}</div><div class="why">${esc(p.why)}</div>`;
     } else if (kind === "recap") {
       const story = (this.opts.lang !== "en" && p.translations?.[this.opts.lang]) || p.story;
-      el.innerHTML = `<div class="k">${cue.match_s > 2800 ? "Full time" : "Half time"} · verified recap</div><div class="h">${esc(p.title)}</div>
+      el.innerHTML = `<div class="k">${(cue.period ?? (cue.match_s > 2800 ? 2 : 1)) === 1 ? "Half time" : "Full time"} · verified recap</div><div class="h">${esc(p.title)}</div>
         <div class="why" style="font-size:14px;color:var(--chalk)">${esc(story)}</div>
         <div class="why">${(p.key_moments || []).map(esc).join(" · ")}</div>`;
     } else if (kind === "milestone") {

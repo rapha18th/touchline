@@ -63,7 +63,7 @@ function moments(list) {
     }
     m.cues.push(c);
     (c.sources || []).forEach((s) => m.sources.add(s));
-    m.kind ||= c.payload?.moment || (c.kind === "recap" ? (c.match_s > 2700 ? "full_time" : "half_time") : null);
+    m.kind ||= c.payload?.moment || (c.kind === "recap" ? ((c.period ?? (c.match_s > 2700 ? 2 : 1)) === 1 ? "half_time" : "full_time") : null);
   }
   for (const m of by.values()) {
     m.kind ||= (m.crew.job || "").split("-").slice(2, -1).join("-") || "insight";
@@ -285,8 +285,9 @@ export class CrewRoom {
     return `<ul class="cr-aired">${m.cues.map((c) => {
       const p = c.payload || {};
       if (c.kind === "insight") return `<li><span class="cr-who">Insight</span><b>${esc(p.headline)}</b> ${esc(p.why)}${c.verified === false ? ' <span class="cr-pill no">not checked, held back</span>' : ""}</li>`;
-      if (c.kind === "recap") return `<li><span class="cr-who">Recap</span><b>${esc(p.title)}</b> ${esc(p.story)}</li>`;
-      return `<li><span class="cr-who">${PERSONA[p.persona] || esc(p.persona)}</span>${esc(p.text)}${p.fallback ? ' <span class="cr-pill no">template</span>' : ""}</li>`;
+      const held = c.verified === false ? ' <span class="cr-pill no">held back</span>' : "";
+      if (c.kind === "recap") return `<li><span class="cr-who">Recap</span><b>${esc(p.title)}</b> ${esc(p.story)}${held}</li>`;
+      return `<li><span class="cr-who">${PERSONA[p.persona] || esc(p.persona)}</span>${esc(p.text)}${p.fallback ? ' <span class="cr-pill no">template</span>' : ""}${held}</li>`;
     }).join("")}</ul>`;
   }
 
